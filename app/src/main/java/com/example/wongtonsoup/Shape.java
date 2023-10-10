@@ -1,3 +1,4 @@
+package com.example.wongtonsoup;
 public abstract class Shape {
 
     protected int x;
@@ -7,5 +8,6 @@ public abstract class Shape {
         this.x = x;
         this.y = y;
     }
+
 
 }

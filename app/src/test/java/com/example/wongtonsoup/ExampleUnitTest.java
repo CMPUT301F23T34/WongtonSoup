@@ -1,4 +1,4 @@
-package com.mjacobs.wongtonsoup;
+package com.example.wongtonsoup;
 
 import org.junit.Test;
 
