@@ -14,4 +14,5 @@ public class Trapezoid extends Shape {
 	this.angle2 = angle2;
     }
 
+
 }
