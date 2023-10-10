@@ -1,4 +1,4 @@
-package com.mjacobs.wongtonsoup;
+package com.example.wongtonsoup;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.mjacobs.wongtonsoup", appContext.getPackageName());
+        assertEquals("com.example.wongtonsoup", appContext.getPackageName());
     }
 }

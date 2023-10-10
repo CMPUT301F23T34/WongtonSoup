@@ -13,6 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Wongton Soup"
+rootProject.name = "WongtonSoup"
 include(":app")
- 
