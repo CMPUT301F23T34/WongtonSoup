@@ -8,6 +8,8 @@ public abstract class Shape {
 
     String color = "$PUT_YOUR_CHOICE_OF_COLOR";
 
+    String color = "teal";
+
     public Shape(int x, int y) {
         this.x = x;
         this.y = y;
