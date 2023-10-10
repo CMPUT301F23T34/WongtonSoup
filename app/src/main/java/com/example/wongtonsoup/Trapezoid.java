@@ -10,6 +10,8 @@ public class Trapezoid extends Shape {
 
     public Trapezoid(int x, int y, int angle1, int angle2) {
         super(x, y);
+	this.angle1 = angle1;
+	this.angle2 = angle2;
     }
 
 }
