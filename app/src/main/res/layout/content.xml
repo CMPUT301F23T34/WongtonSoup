@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- content_item.xml -->
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+    <!-- ImageView for the picture on the left -->
+    <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/your_image_resource"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/image"/>
+    
+    <!-- LinearLayout for text content to the right of the image -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/imageView"
+            android:orientation="vertical"
+            android:paddingStart="8dp"
+            tools:ignore="RtlSymmetry">
+        
+            <!-- TextView for the main content -->
+        <TextView
+                android:id="@+id/ItemName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/name"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+        
+        <TextView
+                android:id="@+id/ItemDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/date"/>
+        
+        <TextView
+                android:id="@+id/ItemMake"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/make"/>
+        
+    </LinearLayout>
+
+    <!-- LinearLayout for text content below the image -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/imageView"
+            android:orientation="vertical"
+            android:paddingStart="8dp"
+            tools:ignore="RtlSymmetry">
+
+        <!-- LinearLayout for tags at the bottom -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom" tools:ignore="UselessParent">
+
+            <!-- Add your tags TextViews here -->
+            <TextView
+                    android:id="@+id/textViewTag1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bubble_background"
+                    android:text="@string/tag_1"/>
+            
+            <!-- Add space between tags (adjust the margin as needed) -->
+            <Space
+                    android:layout_width="8dp"
+                    android:layout_height="1dp" />
+            
+            <TextView
+                    android:id="@+id/textViewTag2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bubble_background"
+                    android:text="@string/tag_2"/>
+
+            <!-- Add more tag TextViews if needed -->
+
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
+
