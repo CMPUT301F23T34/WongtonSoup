@@ -1,9 +1,11 @@
-# Wongton Soup - T34
+# Wongton Soup - Team 34
 
-Group Members:
-- Matthew Jacobs
-- Lina Saha
-- Rylann Andrews
-- Tony Hu
-- Liam Houston
-- Yihui Wang
+## :point_right: Team Members :point_left:	
+| Full Name      | CCID     |
+| -------------- | -------- |
+| Matthew Jacobs | mjacobs  | 
+| Lina Saha      | linaaman |
+| Rylann Andrews | rylann   |
+| Tony Hu        | tyhu     |
+| Liam Houston   | lhouston |
+| Yihui Wang     | yihui4   |
