@@ -70,7 +70,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bubble_background"
-                    android:text="@string/tag_1"/>
+                    android:text="@string/tag_1" android:textColor="#212121"/>
             
             <!-- Add space between tags (adjust the margin as needed) -->
             <Space
@@ -82,7 +82,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bubble_background"
-                    android:text="@string/tag_2"/>
+                    android:text="@string/tag_2" android:textColor="#212121"/>
 
             <!-- Add more tag TextViews if needed -->
 
