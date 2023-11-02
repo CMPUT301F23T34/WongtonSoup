@@ -22,6 +22,8 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -30,11 +32,22 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     Boolean expanded = false;
+    private FirebaseFirestore db;
+    private CollectionReference itemsRef;
+    private CollectionReference tagsRef;
+    private CollectionReference usersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        db = FirebaseFirestore.getInstance();
+
+        itemsRef = db.collection("items");
+        tagsRef = db.collection("tags");
+        usersRef = db.collection("users");
+
+        ArrayList<Item> itemList = new ArrayList<>();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -46,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
                 //intent.putExtra();
                 startActivity(intent);
             }
+
+
         });
 
         // Expand Search
