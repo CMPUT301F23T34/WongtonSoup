@@ -1,4 +1,8 @@
 package com.example.wongtonsoup;
+import android.annotation.SuppressLint;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -166,8 +170,13 @@ public class Item {
      * @return purchase date
      * @since 10/25/2023
      */
-    public Date getPurchaseDate() {
-        return purchaseDate;
+    public String getPurchaseDate() {
+        // Converts the string
+        // format to date object
+        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String strDate =  df.format(purchaseDate);
+
+        return strDate;
     }
     /**
      * Sets purchase date
@@ -176,6 +185,8 @@ public class Item {
      */
     public void setPurchaseDate(Date purchaseDate) {
         this.purchaseDate = purchaseDate;
+        
+
     }
 
 }
