@@ -79,11 +79,12 @@ public class Item {
     }
     /**
      * Return value
+     *
      * @return value
      * @since 10/25/2023
      */
-    public Float getValue() {
-        return value;
+    public String getValue() {
+        return value.toString();
     }
     /**
      * Sets value

@@ -54,6 +54,9 @@ public class ItemList extends ArrayAdapter<Item> {
         TextView textViewMake = convertView.findViewById(R.id.make);
         textViewMake.setText(currentItem.getMake());
 
+        TextView testViewPrice = convertView.findViewById(R.id.price);
+        testViewPrice.setText(currentItem.getValue());
+
 //        TextView textViewTag1 = convertView.findViewById(R.id.textViewTag1);
 //        textViewTag1.setText(currentItem.getTag1());
 //
