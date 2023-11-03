@@ -7,8 +7,19 @@ import org.junit.Test;
 
 import java.util.Date;
 
+/**
+ * Tests item class
+ * @author tyhu
+ * @version 1.0
+ * @since 11/02/2023
+ */
 public class ItemTest {
     private Item i;
+
+    /**
+     * Tests creating item and getting/setting values
+     * @since 11/02/2023
+     */
     @Test
     public void testAdd(){
         Date d = new Date();
