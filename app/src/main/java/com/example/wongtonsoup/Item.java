@@ -28,7 +28,7 @@ public class Item {
      * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(Date purchaseDate, String description, String make, String model, String serialNumber, Float value, String comment) {
+    public Item(Date purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -36,25 +36,7 @@ public class Item {
         this.serialNumber = serialNumber;
         this.value = value;
         this.comment = comment;
-        if (comment == null){
-            throw new IllegalArgumentException();
-        }
-        if (value == null){
-            throw new IllegalArgumentException();
-        }
         if (value < 0){
-            throw new IllegalArgumentException();
-        }
-        if (model == null){
-            throw new IllegalArgumentException();
-        }
-        if (make == null){
-            throw new IllegalArgumentException();
-        }
-        if (description == null){
-            throw new IllegalArgumentException();
-        }
-        if (purchaseDate == null){
             throw new IllegalArgumentException();
         }
     }
@@ -77,25 +59,7 @@ public class Item {
         this.model = model;
         this.value = value;
         this.comment = comment;
-        if (comment == null){
-            throw new IllegalArgumentException();
-        }
-        if (value == null){
-            throw new IllegalArgumentException();
-        }
         if (value < 0){
-            throw new IllegalArgumentException();
-        }
-        if (model == null){
-            throw new IllegalArgumentException();
-        }
-        if (make == null){
-            throw new IllegalArgumentException();
-        }
-        if (description == null){
-            throw new IllegalArgumentException();
-        }
-        if (purchaseDate == null){
             throw new IllegalArgumentException();
         }
     }
@@ -209,7 +173,7 @@ public class Item {
      * @since 10/25/2023
      */
     public void setMake(String make) {
-        if (make == null){
+        if (make == ""){
             throw new IllegalArgumentException();
         }
         else {
