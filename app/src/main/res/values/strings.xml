@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">WongtonSoup</string>
-    <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -43,4 +42,15 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="dollar">$</string>
+    <string name="make">Make:</string>
+    <string name="date">Date:</string>
+    <string name="estimated_value">Estimated Value: $ </string>
+    <string name="_0_00">0.00</string>
+    <string name="todo">TODO</string>
+    <string name="search_by_description">Search By Description</string>
+    <string name="expanded_search">Expanded Search</string>
+    <string name="profile">Profile</string>
+    <string name="scan">Scan</string>
+    <string name="sign_out">Sign Out</string>
 </resources>
