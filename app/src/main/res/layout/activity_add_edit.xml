@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".AddEditActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,5 +20,93 @@
             android:background="?attr/homeAsUpIndicator"
             android:backgroundTint="#FFFFFF" />
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:color="@color/light_gray">
+
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:padding="10dp"
+            app:srcCompat="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/photo"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="42dp"
+            android:layout_marginRight="-8dp"
+            android:layout_toLeftOf="@id/photo"
+            android:test_alignment="center"
+            android:text="Description: "
+            android:textSize="20sp" />
+        <TextView
+            android:id="@+id/add_edit_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/photo"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="42dp"
+            android:layout_marginRight="-8dp"
+            android:layout_toRightOf="@id/description"
+            android:test_alignment="center"
+            android:text="Description"
+            android:paddingLeft="10sp"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/serial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/description"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="9dp"
+            android:layout_marginRight="-29dp"
+            android:layout_toLeftOf="@id/photo"
+            android:test_alignment="center"
+            android:text="Serial Number: "
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/add_edit_serial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/description"
+            android:layout_marginLeft="29dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="-8dp"
+            android:layout_toRightOf="@id/serial"
+            android:test_alignment="center"
+            android:text="Serial Number"
+            android:textSize="20sp" />
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/serial"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="9dp"
+            android:layout_marginRight="-29dp"
+            android:layout_toLeftOf="@id/photo"
+            android:test_alignment="center"
+            android:text="Serial Number: "
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/editTextDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="date" />
+
+
+    </RelativeLayout>
 
 </LinearLayout>
