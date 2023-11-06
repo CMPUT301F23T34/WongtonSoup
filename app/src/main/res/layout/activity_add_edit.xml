@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/photo"
             android:layout_marginTop="100dp"
-            android:layout_marginLeft="100dp"
+            android:layout_marginLeft="30dp"
             android:text="Description: "
             android:textSize="20sp" />
 
@@ -74,11 +74,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/photo"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="90dp"
-            android:layout_marginRight="-8dp"
             android:layout_toRightOf="@id/description"
-
             android:text="Description"
             android:textSize="20sp" />
 
@@ -88,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/description"
             android:layout_marginTop="15dp"
-            android:layout_marginLeft="76dp"
+            android:layout_marginLeft="30dp"
             android:text="Serial Number: "
             android:textSize="20sp" />
 
@@ -108,7 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/serial"
             android:layout_marginTop="15dp"
-            android:layout_marginLeft="61dp"
+            android:layout_marginLeft="30dp"
             android:text="Date Purchased: "
             android:textSize="20sp" />
 
@@ -117,8 +114,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/add_edit_serial"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="-7dp"
+            android:layout_marginTop="-8dp"
             android:layout_toRightOf="@id/date"
             android:inputType="date"
             android:text="dd-mm-yyyy"
@@ -130,7 +126,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/date"
             android:layout_marginTop="15dp"
-            android:layout_marginLeft="151dp"
+            android:layout_marginLeft="30dp"
             android:text="Make: "
             android:textSize="20sp" />
 
@@ -140,9 +136,58 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/date"
             android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/serial"
+            android:layout_toRightOf="@id/make"
             android:text="make"
             android:textSize="20sp" />
+        <TextView
+            android:id="@+id/model"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/make"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="30dp"
+            android:text="Model: "
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/add_edit_model"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/make"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/model"
+            android:text="model"
+            android:textSize="20sp" />
+        <TextView
+            android:id="@+id/comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/model"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="30dp"
+            android:text="Comment: "
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/add_edit_comment"
+            android:layout_width="329dp"
+            android:layout_height="88dp"
+            android:layout_below="@id/comment"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="5dp"
+            android:text="Add a comment about the item"
+            android:textSize="10sp" />
+        <TextView
+            android:id="@+id/tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_below="@id/add_edit_comment"
+            android:text="Tags: "
+            android:textSize="20sp"
+            >
+
+        </TextView>
 
 
     </RelativeLayout>
