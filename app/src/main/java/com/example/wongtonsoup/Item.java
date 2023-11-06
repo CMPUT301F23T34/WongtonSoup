@@ -1,4 +1,8 @@
 package com.example.wongtonsoup;
+import android.annotation.SuppressLint;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -25,10 +29,9 @@ public class Item {
      * @param serialNumber
      * @param value
      * @param comment
-     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(Date purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber) {
+    public Item(Date purchaseDate, String description, String make, String model, String serialNumber, Float value, String comment) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -36,9 +39,6 @@ public class Item {
         this.serialNumber = serialNumber;
         this.value = value;
         this.comment = comment;
-        if (value < 0){
-            throw new IllegalArgumentException();
-        }
     }
 
     /**
@@ -49,7 +49,6 @@ public class Item {
      * @param model
      * @param value
      * @param comment
-     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public Item(Date purchaseDate, String description, String make, String model, Float value, String comment) {
@@ -59,9 +58,6 @@ public class Item {
         this.model = model;
         this.value = value;
         this.comment = comment;
-        if (value < 0){
-            throw new IllegalArgumentException();
-        }
     }
 
     /**
@@ -76,7 +72,6 @@ public class Item {
     /**
      * Sets comment
      * @param comment
-     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setComment(String comment) {
@@ -92,13 +87,12 @@ public class Item {
      * @return value
      * @since 10/25/2023
      */
-    public Float getValue() {
-        return value;
+    public String getValue() {
+        return value.toString();
     }
     /**
      * Sets value
      * @param value
-     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setValue(Float value) {
@@ -147,7 +141,6 @@ public class Item {
     /**
      * Sets model
      * @param model
-     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setModel(String model) {
@@ -169,7 +162,6 @@ public class Item {
     /**
      * Sets make
      * @param make
-     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setMake(String make) {
@@ -191,7 +183,6 @@ public class Item {
     /**
      * Sets description
      * @param description
-     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setDescription(String description) {
@@ -207,13 +198,16 @@ public class Item {
      * @return purchase date
      * @since 10/25/2023
      */
-    public Date getPurchaseDate() {
-        return purchaseDate;
+    public String getPurchaseDate() {
+        // Converts the string
+        // format to date object
+        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        return df.format(purchaseDate);
     }
     /**
      * Sets purchase date
      * @param purchaseDate
-     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setPurchaseDate(Date purchaseDate) {
