@@ -194,9 +194,11 @@
             android:textSize="20sp" />
 
         <com.google.android.material.chip.ChipGroup
+            android:id="@+id/view_chip_group"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/tags">
+            android:layout_below="@+id/tags"
+            android:longClickable="true">
 
         </com.google.android.material.chip.ChipGroup>
 
