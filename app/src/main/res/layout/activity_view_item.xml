@@ -86,5 +86,124 @@
             android:text="@string/_0_00"/>
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_width="390dp"
+        android:layout_height="340dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/background_border"
+        android:padding="15dp">
+
+        <TextView
+            android:id="@+id/serial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Serial number: "
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/view_serial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/serial"
+            android:text="Serial number"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/serial"
+            android:text="Date Purchased: "
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/view_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view_serial"
+            android:layout_toEndOf="@+id/date"
+            android:text="dd-mm-yyyy"
+            android:textSize="15sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/date"
+            android:background="@color/black" />
+
+        <TextView
+            android:id="@+id/make"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/date"
+            android:layout_marginTop="10dp"
+            android:text="Make: "
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/view_make"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view_date"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/make"
+
+            android:text="make"
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/model"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/make"
+            android:text="Model: "
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/view_model"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view_make"
+            android:layout_toEndOf="@+id/model"
+            android:text="model"
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/model"
+            android:layout_marginTop="10dp"
+            android:text="Comment: "
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/view_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/comment"
+            android:text="comment about the item"
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view_comment"
+            android:text="Tags: "
+            android:textSize="20sp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/view_chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/tags"
+            android:longClickable="true">
+
+        </com.google.android.material.chip.ChipGroup>
+
+
+    </RelativeLayout>
+
 
 </LinearLayout>
