@@ -50,13 +50,14 @@
 
         <Button
             android:id="@+id/add_edit_gallery_button"
-            android:layout_width="wrap_content"
-            android:layout_height="73dp"
+            android:layout_width="100dp"
+            android:layout_height="79dp"
             android:layout_below="@id/photo"
             android:layout_alignLeft="@id/photo"
             android:layout_marginLeft="123dp"
             android:layout_marginTop="18dp"
-            android:text="Button" />
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/insert_photo" />
 
         <TextView
             android:id="@+id/description"
@@ -116,9 +117,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/add_edit_serial"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="-7dp"
             android:layout_toRightOf="@id/date"
             android:inputType="date"
             android:text="dd-mm-yyyy"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/make"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/date"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="151dp"
+            android:text="Make: "
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/add_edit_make"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/date"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/serial"
+            android:text="make"
             android:textSize="20sp" />
 
 
