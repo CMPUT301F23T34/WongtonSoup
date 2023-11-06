@@ -99,8 +99,9 @@
                 android:hint="@string/Description"
                 android:textSize="18sp"
                 android:autofillHints=""
-                android:inputType="text"
-                tools:ignore="LabelFor" android:minHeight="48dp"/>
+                android:inputType="textPersonName"
+                tools:ignore="LabelFor"
+                android:minHeight="48dp"/>
 
         <TextView
             android:id="@+id/price"
@@ -245,17 +246,17 @@
             android:layout_marginStart="30dp"
             android:text="@string/tags"
             android:textSize="18sp" />
-
+        
         <Button
-            android:id="@+id/add_tag_button"
-            android:layout_width="36dp"
-            android:layout_height="31dp"
-            android:layout_below="@id/add_edit_comment"
-            android:layout_alignStart="@id/tags"
-            android:layout_marginStart="47dp"
-            android:layout_marginTop="-7dp"
-            android:background="@android:color/transparent"
-            android:drawableTop="@drawable/add_box" />
+                android:id="@+id/add_tag_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_below="@id/add_edit_comment"
+                android:layout_alignStart="@id/tags"
+                android:layout_marginStart="47dp"
+                android:layout_marginTop="-7dp"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/add_box"/>
         
         <com.google.android.material.chip.ChipGroup
                 android:id="@+id/add_edit_chip_group"

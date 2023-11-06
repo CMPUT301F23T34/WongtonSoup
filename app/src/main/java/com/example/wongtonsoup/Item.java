@@ -1,9 +1,4 @@
 package com.example.wongtonsoup;
-import android.annotation.SuppressLint;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Class for an item object
@@ -12,7 +7,7 @@ import java.util.Date;
  * @since 10/25/2023
  */
 public class Item {
-    private Date purchaseDate;
+    private String purchaseDate;
     private String description;
     private String make;
     private String model;
@@ -31,7 +26,7 @@ public class Item {
      * @param comment
      * @since 10/25/2023
      */
-    public Item(Date purchaseDate, String description, String make, String model, String serialNumber, Float value, String comment) {
+    public Item(String purchaseDate, String description, String make, String model, String serialNumber, Float value, String comment) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -51,7 +46,7 @@ public class Item {
      * @param comment
      * @since 10/25/2023
      */
-    public Item(Date purchaseDate, String description, String make, String model, Float value, String comment) {
+    public Item(String purchaseDate, String description, String make, String model, Float value, String comment) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -198,19 +193,15 @@ public class Item {
      * @return purchase date
      * @since 10/25/2023
      */
-    public String getPurchaseDate() {
-        // Converts the string
-        // format to date object
-        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-        return df.format(purchaseDate);
+    public String getPurchaseDate(){
+        return purchaseDate;
     }
     /**
      * Sets purchase date
      * @param purchaseDate
      * @since 10/25/2023
      */
-    public void setPurchaseDate(Date purchaseDate) {
+    public void setPurchaseDate(String purchaseDate) {
         if (purchaseDate == null){
             throw new IllegalArgumentException();
         }
