@@ -39,7 +39,7 @@
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:background="@android:drawable/ic_menu_more"
                 android:backgroundTint="#000000"
                 android:padding="30dp" />
@@ -66,37 +66,41 @@
                     android:layout_below="@+id/sort_by"
                     android:orientation="horizontal">
                 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_date"
-                        android:layout_width="wrap_content"
+                        android:textSize="12sp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/Date"
-                        style="?android:attr/buttonBarButtonStyle"/>
+                        style="@style/BubbleButtonStyle"/>
                 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_description"
-                        android:layout_width="wrap_content"
+                        android:textSize="12sp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/description"
-                        style="?android:attr/buttonBarButtonStyle"/>
+                        style="@style/BubbleButtonStyle"/>
                 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_make"
-                        android:layout_width="wrap_content"
+                        android:textSize="12sp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/Make"
-                        style="?android:attr/buttonBarButtonStyle"/>
+                        style="@style/BubbleButtonStyle"/>
                 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_value"
-                        android:layout_width="wrap_content"
+                        android:textSize="12sp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/value"
-                        style="?android:attr/buttonBarButtonStyle"/>
+                        style="@style/BubbleButtonStyle"/>
             </LinearLayout>
             <TextView
                     android:id="@+id/filter_by"
@@ -201,19 +205,20 @@
             android:text="@string/_0_00">
         </TextView>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_marginBottom="16dp"
-            android:tint="@color/black"
-            app:backgroundTint="#2D7038"
-            app:rippleColor="#A5CFB5"
-            app:srcCompat="@android:drawable/ic_input_add"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:padding="15dp"/>
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:layout_marginBottom="16dp"
+                android:tint="@color/black"
+                app:backgroundTint="#2D7038"
+                app:rippleColor="#A5CFB5"
+                app:srcCompat="@android:drawable/ic_input_add"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:padding="15dp"
+                android:contentDescription="@string/add_item"/>
     </RelativeLayout>
 
 
