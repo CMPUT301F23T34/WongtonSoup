@@ -3,6 +3,7 @@ package com.example.wongtonsoup;
 import android.content.Intent;
 import android.os.Bundle;
 
+import android.util.Log;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,7 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final int ADD_EDIT_REQUEST_CODE = 1;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     Boolean expanded = false;
@@ -36,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
     private CollectionReference itemsRef;
     private CollectionReference tagsRef;
     private CollectionReference usersRef;
+
+    ListView ItemList;
+    ArrayList<Item> ItemDataList;
+    ArrayAdapter<Item> ItemAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,20 +52,20 @@ public class MainActivity extends AppCompatActivity {
         tagsRef = db.collection("tags");
         usersRef = db.collection("users");
 
-        ArrayList<Item> itemList = new ArrayList<>();
+        ItemList = findViewById(R.id.listView);
+
+        ItemDataList = new ArrayList<>();
+        ItemAdapter = new ItemList(this, ItemDataList);
+        ItemList.setAdapter(ItemAdapter);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-                //intent.putExtra();
-                startActivity(intent);
-            }
 
-
+        binding.fab.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+            //intent.putExtra();
+            startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
         });
 
         // Expand Search
@@ -103,5 +108,23 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Check if the request code matches and the result is OK
+            if (data != null && data.hasExtra("resultItem")) {
+                Item resultItem = (Item) data.getSerializableExtra("resultItem");
+
+                ItemDataList.add(resultItem);
+                ItemAdapter.notifyDataSetChanged();
+
+                // Log the size of ItemDataList
+                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+            }
+        }
     }
 }

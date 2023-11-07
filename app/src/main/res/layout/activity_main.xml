@@ -53,7 +53,7 @@
                 app:layout_anchorGravity="bottom"
                 android:layout_gravity="bottom"
                 android:padding="10dp"
-                android:visibility="visible">
+                android:visibility="gone">
             <TextView
                     android:id="@+id/sort_by"
                     android:layout_width="wrap_content"

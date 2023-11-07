@@ -1,6 +1,7 @@
 package com.example.wongtonsoup;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,23 +39,26 @@ public class ItemList extends ArrayAdapter<Item> {
         }
 
         // Get the item at the current position
-        Item currentItem = this.items.get(position);
+        Item currentItem = items.get(position);
+
+        // Log position and other relevant information
+        Log.d("ItemAdapter", "getView - position: " + position);
 
         // Set the image, content, and tags in the layout
         assert convertView != null;
-        ImageView imageView = convertView.findViewById(R.id.photo);
+//        ImageView imageView = view.findViewById(R.id.photo);
 //        imageView.setImageResource(currentItem.getImageResource());
 
-        TextView textViewName = convertView.findViewById(R.id.description);
+        TextView textViewName = view.findViewById(R.id.content_description);
         textViewName.setText(currentItem.getDescription());
 
-        TextView textViewDate = convertView.findViewById(R.id.date);
+        TextView textViewDate = view.findViewById(R.id.content_date);
         textViewDate.setText(currentItem.getPurchaseDate());
 
-        TextView textViewMake = convertView.findViewById(R.id.make);
+        TextView textViewMake = view.findViewById(R.id.content_make);
         textViewMake.setText(currentItem.getMake());
 
-        TextView testViewPrice = convertView.findViewById(R.id.price);
+        TextView testViewPrice = view.findViewById(R.id.content_price);
         testViewPrice.setText(currentItem.getValue());
 
 //        TextView textViewTag1 = convertView.findViewById(R.id.textViewTag1);

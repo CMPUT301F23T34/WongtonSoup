@@ -1,12 +1,14 @@
 package com.example.wongtonsoup;
 
+import java.io.Serializable;
+
 /**
  * Class for an item object
  * @author tyhu
  * @version 1.0
  * @since 10/25/2023
  */
-public class Item {
+public class Item implements Serializable {
     private String purchaseDate;
     private String description;
     private String make;

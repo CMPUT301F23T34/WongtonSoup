@@ -1,5 +1,6 @@
 package com.example.wongtonsoup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -182,6 +183,13 @@ public class AddEditActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void finishAndPassItem(Item item) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("resultItem", item);
+        setResult(RESULT_OK, resultIntent);
+        finish();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -213,7 +221,8 @@ public class AddEditActivity extends AppCompatActivity {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
                 Item createdItem = createItemFromFields();
-                // Perform actions with the createdItem as needed
+                // Pass the createdItem back to MainActivity
+                finishAndPassItem(createdItem);
             }
         });
 
