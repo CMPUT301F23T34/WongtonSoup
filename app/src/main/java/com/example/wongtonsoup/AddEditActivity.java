@@ -103,15 +103,17 @@ public class AddEditActivity extends AppCompatActivity {
      * @param addEditCheckButton The Button whose state needs to be updated.
      */
     private void updateAddEditCheckButtonState(Button addEditCheckButton) {
+        // if all of the following are false then enable the CheckButton
         boolean isExpenseNameEmpty = TextUtils.isEmpty(expenseName.getText().toString());
         boolean isExpenseChargeEmpty = TextUtils.isEmpty(expenseCharge.getText().toString());
         boolean isExpenseDateEmpty = TextUtils.isEmpty(expenseDate.getText().toString());
         boolean isExpenseDateInvalid = !isValidDate(expenseDate.getText().toString());
         boolean isExpenseNameInvalid = !(expenseName.getText().length() <= 15);
         boolean isExpenseCommentInvalid = !(expenseComment.getText().length() <= 20);
-        boolean isExpenseSerialNUmberEmpty = TextUtils.isEmpty(expenseSerialNumber.getText().toString());
         boolean isExpenseMakeEmpty = TextUtils.isEmpty(expenseMake.getText().toString());
         boolean isExpenseModelEmpty = TextUtils.isEmpty(expenseModel.getText().toString());
+        boolean isExpenseMakeInvalid = !(expenseMake.getText().length() <= 15);
+        boolean isExpenseModelInvalid = !(expenseModel.getText().length() <= 15);
 
 
         if (isExpenseNameEmpty) {
@@ -150,12 +152,6 @@ public class AddEditActivity extends AppCompatActivity {
             expenseComment.setError(null); // Clear the error
         }
 
-        if (isExpenseSerialNUmberEmpty) {
-            expenseSerialNumber.setError("Serial number cannot be empty");
-        } else {
-            expenseSerialNumber.setError(null); // Clear the error
-        }
-
         if (isExpenseMakeEmpty) {
             expenseMake.setError("Expense make cannot be empty");
         } else {
@@ -168,8 +164,20 @@ public class AddEditActivity extends AppCompatActivity {
             expenseModel.setError(null); // Clear the error
         }
 
+        if (isExpenseMakeInvalid) {
+            expenseMake.setError("Make cannot exceed 15 characters");
+        } else {
+            expenseName.setError(null); // Clear the error
+        }
+
+        if (isExpenseModelInvalid) {
+            expenseName.setError("Model cannot exceed 15 characters");
+        } else {
+            expenseName.setError(null); // Clear the error
+        }
+
         boolean isButtonEnabled = !isExpenseNameEmpty && !isExpenseChargeEmpty && !isExpenseDateEmpty && !isExpenseDateInvalid && !isExpenseNameInvalid && !isExpenseCommentInvalid
-                && !isExpenseSerialNUmberEmpty && !isExpenseMakeEmpty && !isExpenseModelEmpty;
+                && !isExpenseMakeEmpty && !isExpenseModelEmpty && !isExpenseMakeInvalid && !isExpenseModelInvalid;
 
         addEditCheckButton.setEnabled(isButtonEnabled);
     }
