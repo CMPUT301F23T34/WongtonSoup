@@ -1,6 +1,10 @@
 package com.example.wongtonsoup;
+import android.annotation.SuppressLint;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Class for an item object
@@ -9,7 +13,7 @@ import java.io.Serializable;
  * @since 10/25/2023
  */
 public class Item implements Serializable {
-    private String purchaseDate;
+    private Date purchaseDate;
     private String description;
     private String make;
     private String model;
@@ -26,9 +30,10 @@ public class Item implements Serializable {
      * @param serialNumber
      * @param value
      * @param comment
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, String serialNumber, Float value, String comment) {
+    public Item(Date purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -36,6 +41,9 @@ public class Item implements Serializable {
         this.serialNumber = serialNumber;
         this.value = value;
         this.comment = comment;
+        if (value < 0){
+            throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -46,15 +54,19 @@ public class Item implements Serializable {
      * @param model
      * @param value
      * @param comment
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment) {
+    public Item(Date purchaseDate, String description, String make, String model, Float value, String comment) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
         this.model = model;
         this.value = value;
         this.comment = comment;
+        if (value < 0){
+            throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -69,6 +81,7 @@ public class Item implements Serializable {
     /**
      * Sets comment
      * @param comment
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setComment(String comment) {
@@ -84,12 +97,18 @@ public class Item implements Serializable {
      * @return value
      * @since 10/25/2023
      */
-    public String getValue() {
+    public Float getValue() {
+        return value;
+    }
+
+    public String getValueAsString() {
         return value.toString();
     }
+
     /**
      * Sets value
      * @param value
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setValue(Float value) {
@@ -138,6 +157,7 @@ public class Item implements Serializable {
     /**
      * Sets model
      * @param model
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setModel(String model) {
@@ -159,6 +179,7 @@ public class Item implements Serializable {
     /**
      * Sets make
      * @param make
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setMake(String make) {
@@ -180,6 +201,7 @@ public class Item implements Serializable {
     /**
      * Sets description
      * @param description
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
     public void setDescription(String description) {
@@ -195,15 +217,28 @@ public class Item implements Serializable {
      * @return purchase date
      * @since 10/25/2023
      */
-    public String getPurchaseDate(){
+    public Date getPurchaseDate() {
         return purchaseDate;
+    }
+
+    /**
+     * Returns the purchase date as a String
+     * @return purchase date as "yyyy-MM-dd" string.
+     */
+    public String getPurchaseDateAsString() {
+        // Converts the string
+        // format to date object
+        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        return df.format(purchaseDate);
     }
     /**
      * Sets purchase date
      * @param purchaseDate
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public void setPurchaseDate(String purchaseDate) {
+    public void setPurchaseDate(Date purchaseDate) {
         if (purchaseDate == null){
             throw new IllegalArgumentException();
         }
@@ -213,5 +248,3 @@ public class Item implements Serializable {
     }
 
 }
-
-

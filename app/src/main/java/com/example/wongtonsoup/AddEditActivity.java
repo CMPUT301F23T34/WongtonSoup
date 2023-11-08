@@ -9,6 +9,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class AddEditActivity extends AppCompatActivity {
     // Assume we have item with associated tags lise
 //    private Item item;
@@ -45,19 +49,28 @@ public class AddEditActivity extends AppCompatActivity {
      * @return The Item object created from EditText fields.
      */
     private Item createItemFromFields() {
-        String name = expenseName.getText().toString();
-        String date = expenseDate.getText().toString();
-        String charge = expenseCharge.getText().toString();
+        String description = expenseName.getText().toString();
+        String str_date = expenseDate.getText().toString();
+        String str_value = expenseCharge.getText().toString();
         String comment = expenseComment.getText().toString();
-        String serialNumber = expenseSerialNumber.getText().toString();
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
+        String serialNumber = expenseSerialNumber.getText().toString();
+
+        // convert str_date to a Date object
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = new Date();
+        try {
+            date = format.parse(str_date);
+        } catch (ParseException e){
+            assert(0 == 1); // throw an error, UI should ensure dates are correctly formatted once received here.
+        }
+
+        // convert charge to a float object
+        Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-
-        // Perform any additional actions here if needed
-
-        return new Item(date, name, make, model, serialNumber, Float.parseFloat(charge), comment);
+        return new Item(date, description, make, model, value, comment, serialNumber);
     }
 
     /**
