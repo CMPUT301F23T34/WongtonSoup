@@ -1,9 +1,6 @@
 package com.example.wongtonsoup;
-import android.annotation.SuppressLint;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.Serializable;
 
 /**
  * Class for an item object
@@ -11,8 +8,8 @@ import java.util.Date;
  * @version 1.0
  * @since 10/25/2023
  */
-public class Item {
-    private Date purchaseDate;
+public class Item implements Serializable {
+    private String purchaseDate;
     private String description;
     private String make;
     private String model;
@@ -31,7 +28,7 @@ public class Item {
      * @param comment
      * @since 10/25/2023
      */
-    public Item(Date purchaseDate, String description, String make, String model, String serialNumber, Float value, String comment) {
+    public Item(String purchaseDate, String description, String make, String model, String serialNumber, Float value, String comment) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -51,7 +48,7 @@ public class Item {
      * @param comment
      * @since 10/25/2023
      */
-    public Item(Date purchaseDate, String description, String make, String model, Float value, String comment) {
+    public Item(String purchaseDate, String description, String make, String model, Float value, String comment) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -75,11 +72,15 @@ public class Item {
      * @since 10/25/2023
      */
     public void setComment(String comment) {
-        this.comment = comment;
+        if (comment == null){
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.comment = comment;
+        }
     }
     /**
      * Return value
-     *
      * @return value
      * @since 10/25/2023
      */
@@ -92,7 +93,15 @@ public class Item {
      * @since 10/25/2023
      */
     public void setValue(Float value) {
-        this.value = value;
+        if (value == null){
+            throw new IllegalArgumentException();
+        }
+        else if (value < 0){
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.value = value;
+        }
     }
 
     /**
@@ -132,7 +141,12 @@ public class Item {
      * @since 10/25/2023
      */
     public void setModel(String model) {
-        this.model = model;
+        if (model == null){
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.model = model;
+        }
     }
     /**
      * Return make
@@ -148,7 +162,12 @@ public class Item {
      * @since 10/25/2023
      */
     public void setMake(String make) {
-        this.make = make;
+        if (make == ""){
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.make = make;
+        }
     }
     /**
      * Return description
@@ -164,30 +183,33 @@ public class Item {
      * @since 10/25/2023
      */
     public void setDescription(String description) {
-        this.description = description;
+        if (description == null){
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.description = description;
+        }
     }
     /**
      * Return purchase date
      * @return purchase date
      * @since 10/25/2023
      */
-    public String getPurchaseDate() {
-        // Converts the string
-        // format to date object
-        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        String strDate =  df.format(purchaseDate);
-
-        return strDate;
+    public String getPurchaseDate(){
+        return purchaseDate;
     }
     /**
      * Sets purchase date
      * @param purchaseDate
      * @since 10/25/2023
      */
-    public void setPurchaseDate(Date purchaseDate) {
-        this.purchaseDate = purchaseDate;
-        
-
+    public void setPurchaseDate(String purchaseDate) {
+        if (purchaseDate == null){
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.purchaseDate = purchaseDate;
+        }
     }
 
 }

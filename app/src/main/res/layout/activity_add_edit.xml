@@ -12,67 +12,70 @@
         android:layout_height="wrap_content"
         android:background="#A5CFB5"
         android:padding="10dp">
-
+        
         <Button
-            android:id="@+id/add_edit_back_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/homeAsUpIndicator"
-            android:backgroundTint="#FFFFFF"
-            android:text="TEXT" />
+                android:id="@+id/add_edit_back_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/homeAsUpIndicator"
+                android:backgroundTint="#FFFFFF"
+                android:text="@string/text"/>
     </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_gravity="clip_vertical|start"
         android:layout_weight="1">
 
         <ImageView
-            android:id="@+id/photo1"
-            android:layout_width="140dp"
-            android:layout_height="130dp"
-            android:layout_centerHorizontal="true"
-            android:padding="10dp"
-            android:visibility="invisible"
-            app:srcCompat="@mipmap/ic_launcher" />
+                android:id="@+id/photo1"
+                android:layout_width="140dp"
+                android:layout_height="130dp"
+                android:layout_centerHorizontal="true"
+                android:padding="10dp"
+                android:visibility="invisible"
+                app:srcCompat="@mipmap/ic_launcher"
+                android:contentDescription="@string/photo"/>
 
         <ImageView
-            android:id="@+id/photo2"
-            android:layout_width="140dp"
-            android:layout_height="130dp"
-            android:padding="10dp"
-            android:visibility="invisible"
-            app:srcCompat="@mipmap/ic_launcher" />
+                android:id="@+id/photo2"
+                android:layout_width="140dp"
+                android:layout_height="130dp"
+                android:padding="10dp"
+                android:visibility="invisible"
+                app:srcCompat="@mipmap/ic_launcher"
+                android:contentDescription="@string/photo"/>
 
         <ImageView
-            android:id="@+id/photo3"
-            android:layout_width="140dp"
-            android:layout_height="130dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="1dp"
-            android:padding="10dp"
-            android:visibility="invisible"
-            app:srcCompat="@mipmap/ic_launcher" />
+                android:id="@+id/photo3"
+                android:layout_width="140dp"
+                android:layout_height="130dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="1dp"
+                android:padding="10dp"
+                android:visibility="invisible"
+                app:srcCompat="@mipmap/ic_launcher"
+                android:contentDescription="@string/photo"/>
 
         <Button
             android:id="@+id/add_edit_camera_button"
             android:layout_width="70dp"
             android:layout_height="64dp"
             android:layout_below="@id/photo1"
-            android:layout_alignLeft="@id/photo1"
-            android:layout_marginLeft="-15dp"
+            android:layout_alignStart="@id/photo1"
+            android:layout_marginStart="-15dp"
             android:background="@android:color/transparent"
             android:drawableTop="@drawable/baseline_photo_camera_24"
-            android:text="TEXT" />
+            android:text="@string/Text" />
 
         <Button
             android:id="@+id/add_edit_gallery_button"
             android:layout_width="70dp"
             android:layout_height="64dp"
             android:layout_below="@id/photo1"
-            android:layout_alignLeft="@id/photo1"
-            android:layout_marginLeft="71dp"
+            android:layout_alignStart="@id/photo1"
+            android:layout_marginStart="71dp"
             android:background="@android:color/transparent"
             android:drawableTop="@drawable/insert_photo" />
 
@@ -81,171 +84,190 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/photo1"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="70dp"
-            android:text="Description: "
+            android:text="@string/Description"
             android:textSize="18sp" />
-
+        
         <EditText
-            android:id="@+id/add_edit_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/photo1"
-            android:layout_marginTop="60dp"
-            android:layout_toRightOf="@id/description"
-            android:text="Description"
-            android:textSize="18sp" />
+                android:id="@+id/add_edit_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/photo1"
+                android:layout_marginTop="60dp"
+                android:layout_toEndOf="@id/description"
+                android:hint="@string/Description"
+                android:textSize="18sp"
+                android:autofillHints=""
+                android:inputType="textPersonName"
+                tools:ignore="LabelFor"
+                android:minHeight="48dp"/>
 
         <TextView
             android:id="@+id/price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/description"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="15dp"
-            android:text="Price: "
+            android:text="@string/price"
             android:textSize="18sp" />
-
+        
         <EditText
-            android:id="@+id/add_edit_price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/description"
-            android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/price"
-            android:text="Price in CAD"
-            android:textSize="18sp" />
+                android:id="@+id/add_edit_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/description"
+                android:layout_marginTop="5dp"
+                android:layout_toEndOf="@id/price"
+                android:hint="@string/price_in_cad"
+                android:textSize="18sp"
+                android:autofillHints=""
+                android:inputType="numberDecimal"
+                tools:ignore="LabelFor" android:minHeight="48dp"/>
 
         <TextView
             android:id="@+id/serial"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/price"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="15dp"
-            android:text="Serial Number: "
+            android:text="@string/serial_number"
             android:textSize="18sp" />
-
+        
         <EditText
-            android:id="@+id/add_edit_serial"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/price"
-            android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/serial"
-            android:text="Serial Number"
-            android:textSize="18sp" />
+                android:id="@+id/add_edit_serial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/price"
+                android:layout_marginTop="5dp"
+                android:layout_toEndOf="@id/serial"
+                android:hint="@string/serial_number"
+                android:textSize="18sp"
+                android:autofillHints=""
+                android:inputType="numberDecimal"
+                tools:ignore="LabelFor" android:minHeight="48dp"/>
 
         <TextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/serial"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="15dp"
-            android:text="Date Purchased: "
+            android:text="@string/date_purchased"
             android:textSize="18sp" />
-
+        
         <EditText
-            android:id="@+id/add_edit_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/add_edit_serial"
-            android:layout_marginTop="-8dp"
-            android:layout_toRightOf="@id/date"
-            android:inputType="date"
-            android:text="dd-mm-yyyy"
-            android:textSize="18sp" />
+                android:id="@+id/add_edit_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_edit_serial"
+                android:layout_marginTop="-8dp"
+                android:layout_toEndOf="@id/date"
+                android:inputType="date|datetime"
+                android:hint="@string/dd_mm_yyyy"
+                android:textSize="18sp"
+                android:autofillHints="" android:minHeight="48dp"/>
 
         <TextView
             android:id="@+id/make"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/date"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="15dp"
-            android:text="Make: "
+            android:text="@string/make"
             android:textSize="18sp" />
-
+        
         <EditText
-            android:id="@+id/add_edit_make"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/date"
-            android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/make"
-            android:text="make"
-            android:textSize="18sp" />
+                android:id="@+id/add_edit_make"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/date"
+                android:layout_marginTop="5dp"
+                android:layout_toEndOf="@id/make"
+                android:hint="@string/Make"
+                android:textSize="18sp"
+                android:autofillHints=""
+                android:inputType="textPersonName" android:minHeight="48dp"/>
 
         <TextView
             android:id="@+id/model"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/make"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="15dp"
-            android:text="Model: "
+            android:text="@string/model"
             android:textSize="18sp" />
-
+        
         <EditText
-            android:id="@+id/add_edit_model"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/make"
-            android:layout_marginTop="5dp"
-            android:layout_toRightOf="@id/model"
-            android:text="model"
-            android:textSize="18sp" />
+                android:id="@+id/add_edit_model"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/make"
+                android:layout_marginTop="5dp"
+                android:layout_toEndOf="@id/model"
+                android:hint="@string/model"
+                android:textSize="18sp"
+                android:autofillHints=""
+                android:inputType="textPersonName"
+                android:minHeight="48dp"/>
 
         <TextView
             android:id="@+id/comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/model"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="15dp"
-            android:text="Comment: "
+            android:text="@string/comment"
             android:textSize="18sp" />
 
         <EditText
-            android:id="@+id/add_edit_comment"
-            android:layout_width="329dp"
-            android:layout_height="88dp"
-            android:layout_below="@id/comment"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="5dp"
-            android:text="Add a comment about the item"
-            android:textSize="15sp" />
+                android:id="@+id/add_edit_comment"
+                android:layout_width="329dp"
+                android:layout_height="88dp"
+                android:layout_below="@id/comment"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:hint="@string/add_a_comment_about_the_item"
+                android:textSize="15sp"
+                android:autofillHints=""
+                android:inputType="textPersonName"/>
 
         <TextView
             android:id="@+id/tags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/add_edit_comment"
-            android:layout_marginLeft="30dp"
-            android:text="Tags: "
+            android:layout_marginStart="30dp"
+            android:text="@string/tags"
             android:textSize="18sp" />
-
+        
         <Button
-            android:id="@+id/add_tag_button"
-            android:layout_width="36dp"
-            android:layout_height="31dp"
-            android:layout_below="@id/add_edit_comment"
-            android:layout_alignLeft="@id/tags"
-            android:layout_marginLeft="47dp"
-            android:layout_marginTop="-7dp"
-            android:background="@android:color/transparent"
-            android:drawableTop="@drawable/add_box" />
-
+                android:id="@+id/add_tag_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_below="@id/add_edit_comment"
+                android:layout_alignStart="@id/tags"
+                android:layout_marginStart="47dp"
+                android:layout_marginTop="-7dp"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/add_box"/>
+        
         <com.google.android.material.chip.ChipGroup
-            android:id="@+id/add_edit_chip_group"
-            android:layout_width="353dp"
-            android:layout_height="42dp"
-            android:layout_below="@id/tags"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="5dp"
-            android:longClickable="true"
-            app:singleSelection="false"></com.google.android.material.chip.ChipGroup>
+                android:id="@+id/add_edit_chip_group"
+                android:layout_width="353dp"
+                android:layout_height="48dp"
+                android:layout_below="@id/tags"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:longClickable="true"
+                app:singleSelection="false">
+        </com.google.android.material.chip.ChipGroup>
     </RelativeLayout>
 
     <Button
@@ -255,6 +277,6 @@
         android:layout_gravity="right"
         android:background="@android:color/transparent"
         android:drawableTop="@drawable/check_mark"
-        android:text="TEXT" />
+        android:text="@string/text" />
 
 </LinearLayout>
