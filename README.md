@@ -1,6 +1,6 @@
 # Wongton Soup - Team 34
 
-## :point_right: Team Members :point_left:	
+## :point_right: Team Members :point_left:
 | Full Name      | CCID     |
 | -------------- | -------- |
 | Matthew Jacobs | mjacobs  | 
