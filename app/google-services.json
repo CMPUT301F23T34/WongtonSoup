@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "343899213973",
+    "project_id": "wongton-soup",
+    "storage_bucket": "wongton-soup.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343899213973:android:dd471e3e36e8a91bbecb9c",
+        "android_client_info": {
+          "package_name": "com.example.wongtonsoup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeZgKqdAgRB54ZlwqW7BK-zCn6qK1dCt8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
