@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import android.util.Log;
+import android.widget.SearchView;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private static final int ADD_EDIT_REQUEST_CODE = 1;
@@ -58,6 +60,18 @@ public class MainActivity extends AppCompatActivity {
         ItemAdapter = new ItemList(this, ItemDataList);
         ItemList.setAdapter(ItemAdapter);
 
+
+        // sample data for testing
+        Item sampleItem1 = new Item(new Date(), "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
+        Item sampleItem2 = new Item(new Date(), "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC");
+        Item sampleItem3 = new Item(new Date(), "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF");
+
+        ItemDataList.add(sampleItem1);
+        ItemDataList.add(sampleItem2);
+        ItemDataList.add(sampleItem3);
+
+        ItemAdapter.notifyDataSetChanged();
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
@@ -85,6 +99,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void initSearchWidgets() {
+        SearchView searchView = (SearchView) findViewById(R.id.search_view_make);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) { // when user presses enter
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) { // when user types
+                ArrayList<Item> filteredItems = new ArrayList<Item>();
+                for (Item item : ItemDataList) {
+                    if (item.getDescription().toLowerCase().contains(newText.toLowerCase())) {
+                        filteredItems.add(item);
+                    }
+                }
+
+                ItemAdapter = new ItemList(MainActivity.this, filteredItems);
+                ItemList.setAdapter(ItemAdapter);
+                ItemAdapter.notifyDataSetChanged();
+                return false;
+            }
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
