@@ -26,14 +26,26 @@
             android:layout_gravity="center_horizontal"
             android:orientation="horizontal">
 
-            <EditText
-                android:layout_width="288dp"
-                android:layout_height="wrap_content"
-                android:autofillHints="@string/search_by_description"
-                android:background="@color/white"
-                android:hint="@string/search_by_description"
-                android:inputType="text"
-                android:padding="5dp" />
+<!--            <EditText-->
+<!--                android:id="@+id/search_view"-->
+<!--                android:layout_width="288dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:autofillHints="@string/search_by_description"-->
+<!--                android:background="@color/white"-->
+<!--                android:hint="@string/search_by_description"-->
+<!--                android:inputType="text"-->
+<!--                android:padding="5dp" />-->
+
+            <SearchView
+                    android:id="@+id/search_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:queryHint="@string/search_by_description"
+                    android:iconifiedByDefault="false"
+                    android:background="@color/white"
+                    android:layout_gravity="center_vertical"
+                    android:padding="5dp" />
             <Button
                 android:id="@id/expand_search_button"
                 style="@style/Widget.AppCompat.Button.Borderless"
