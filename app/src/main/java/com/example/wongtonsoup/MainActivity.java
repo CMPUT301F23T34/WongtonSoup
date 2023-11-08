@@ -173,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
                 Item resultItem = (Item) data.getSerializableExtra("resultItem");
 
                 ItemDataList.add(resultItem);
+                itemAdapter.updateData(ItemDataList);
                 itemAdapter.notifyDataSetChanged();
 
                 // Log the size of ItemDataList

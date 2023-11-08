@@ -1,5 +1,6 @@
 package com.example.wongtonsoup;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -58,12 +59,12 @@ public class AddEditActivity extends AppCompatActivity {
         String serialNumber = expenseSerialNumber.getText().toString();
 
         // convert str_date to a Date object
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date date = new Date();
         try {
             date = format.parse(str_date);
         } catch (ParseException e){
-            assert(0 == 1); // throw an error, UI should ensure dates are correctly formatted once received here.
+            assert false; // throw an error, UI should ensure dates are correctly formatted once received here.
         }
 
         // convert charge to a float object
