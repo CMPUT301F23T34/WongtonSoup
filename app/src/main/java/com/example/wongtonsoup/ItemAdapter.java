@@ -17,6 +17,12 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 
     private Context mContext;
     private List<Item> itemList; // The adapter's own list for display
+    private static ItemAdapterListener listener; // Listener for adapter changes
+
+    // Interface for the listener
+    public interface ItemAdapterListener {
+        void onItemAdapterChanged();
+    }
 
     // Constructor for the ItemAdapter
     public ItemAdapter(@NonNull Context context, @NonNull List<Item> objects) {
@@ -24,8 +30,12 @@ public class ItemAdapter extends ArrayAdapter<Item> {
         mContext = context;
         itemList = new ArrayList<>(objects); // Create a separate list for the adapter
         addAll(itemList); // Add all items to the ArrayAdapter for display
+
     }
 
+    public static void setListener(ItemAdapterListener customlistener) {
+        listener = customlistener;
+    }
 
     // Returns the view for an item in the list
     @NonNull
@@ -58,6 +68,36 @@ public class ItemAdapter extends ArrayAdapter<Item> {
         clear(); // Clear the ArrayAdapter's internal list
         addAll(itemList); // Add the adapter's list to the ArrayAdapter's internal list
         notifyDataSetChanged(); // Notify the adapter that the data set has changed
+        if (listener != null){
+            listener.onItemAdapterChanged();
+        }
     }
+
+    public String getTotalDisplayed(){
+        double total = 0;
+        for (int i = 0 ; i < itemList.size() ; i++){
+            total += itemList.get(i).getValue();
+        }
+        String s = String.format("%.2f", total);
+        return s;
+    }
+
+    public List<Item> sortByDate(){
+        itemList.sort(Item.byDate);
+        return itemList;
+    }
+    public List<Item> sortByDescription(){
+        itemList.sort(Item.byDescription);
+        return itemList;
+    }
+    public List<Item> sortByMake(){
+        itemList.sort(Item.byMake);
+        return itemList;
+    }
+    public List<Item> sortByValue(){
+        itemList.sort(Item.byValue);
+        return itemList;
+    }
+
 }
 
