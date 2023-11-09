@@ -53,7 +53,7 @@ public class ItemList extends ArrayAdapter<Item> {
         textViewName.setText(currentItem.getDescription());
 
         TextView textViewDate = view.findViewById(R.id.content_date);
-        textViewDate.setText(currentItem.getPurchaseDateAsString());
+        textViewDate.setText(currentItem.getPurchaseDate());
 
         TextView textViewMake = view.findViewById(R.id.content_make);
         textViewMake.setText(currentItem.getMake());

@@ -24,8 +24,6 @@ public class ItemAdapter extends ArrayAdapter<Item> {
         void onItemAdapterChanged();
     }
 
-
-
     // Constructor for the ItemAdapter
     public ItemAdapter(@NonNull Context context, @NonNull List<Item> objects) {
         super(context, 0, new ArrayList<Item>()); // Initialize ArrayAdapter with an empty list
@@ -75,12 +73,31 @@ public class ItemAdapter extends ArrayAdapter<Item> {
         }
     }
 
-    public Float getTotalDisplayed(){
-        Float total = new Float(0);
+    public String getTotalDisplayed(){
+        double total = 0;
         for (int i = 0 ; i < itemList.size() ; i++){
             total += itemList.get(i).getValue();
         }
-        return total;
+        String s = String.format("%.2f", total);
+        return s;
     }
+
+    public List<Item> sortByDate(){
+        itemList.sort(Item.byDate);
+        return itemList;
+    }
+    public List<Item> sortByDescription(){
+        itemList.sort(Item.byDescription);
+        return itemList;
+    }
+    public List<Item> sortByMake(){
+        itemList.sort(Item.byMake);
+        return itemList;
+    }
+    public List<Item> sortByValue(){
+        itemList.sort(Item.byValue);
+        return itemList;
+    }
+
 }
 

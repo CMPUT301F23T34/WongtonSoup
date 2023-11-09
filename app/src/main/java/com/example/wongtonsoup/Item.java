@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -258,4 +259,45 @@ public class Item implements Serializable {
         // Check if the day is in the valid range (1 to 31) and the month is in the valid range (1 to 12)
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
     }
+
+
+    public static Comparator<Item> byDate = new Comparator<Item>() {
+        @Override
+        public int compare(Item item1, Item item2) {
+            String[] item1_parts = item1.getPurchaseDate().split("-");
+            Integer day1 = Integer.parseInt(item1_parts[0]);
+            Integer month1 = Integer.parseInt(item1_parts[1]);
+            Integer year1 = Integer.parseInt(item1_parts[2]);
+            // get item2 info
+            String[] item2_parts = item2.getPurchaseDate().split("-");
+            Integer day2 = Integer.parseInt(item2_parts[0]);
+            Integer month2 = Integer.parseInt(item2_parts[1]);
+            Integer year2 = Integer.parseInt(item2_parts[2]);
+
+            if (year1.compareTo(year2) != 0)  return year1.compareTo(year2);
+            if (month1.compareTo(month2) != 0) return month1.compareTo(month2);
+            return day1.compareTo(day2);
+        }
+    };
+
+    public static Comparator<Item> byDescription = new Comparator<Item>() {
+        @Override
+        public int compare(Item o1, Item o2) {
+           return o1.getDescription().toLowerCase().compareTo(o2.getDescription().toLowerCase());
+        }
+    };
+
+    public static Comparator<Item> byMake = new Comparator<Item>() {
+        @Override
+        public int compare(Item o1, Item o2) {
+           return o1.getMake().toLowerCase().compareTo(o2.getMake().toLowerCase());
+        }
+    };
+
+    public static Comparator<Item> byValue = new Comparator<Item>() {
+        @Override
+        public int compare(Item o1, Item o2) {
+           return o1.getValue().compareTo(o2.getValue());
+        }
+    };
 }
