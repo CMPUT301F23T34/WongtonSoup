@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
 
     ListView ItemList;
     ArrayList<Item> ItemDataList;
+    ArrayList<Item> DisplayedItemDataList; // what's currently on the screen
     ItemAdapter itemAdapter;
 
     @Override
@@ -72,9 +73,9 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         ItemAdapter.setListener(this);
 
         // sample data for testing
-        Item sampleItem1 = new Item(new Date(), "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
-        Item sampleItem2 = new Item(new Date(), "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC");
-        Item sampleItem3 = new Item(new Date(), "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF");
+        Item sampleItem1 = new Item("09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
+        Item sampleItem2 = new Item("16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC");
+        Item sampleItem3 = new Item("30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF");
 
         ItemDataList.add(sampleItem1);
         ItemDataList.add(sampleItem2);
@@ -123,32 +124,75 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
     }
 
     private void initSearchWidgets() {
-        SearchView searchView = (SearchView) findViewById(R.id.search_view);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        SearchView descrptionSearchView = (SearchView) findViewById(R.id.search_view);
+        descrptionSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) { // when user presses enter
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (!newText.isEmpty()) {
-                    ArrayList<Item> filteredItems = new ArrayList<>();
-                    for (Item item : ItemDataList) {
-                        if (item.getDescription().toLowerCase().contains(newText.toLowerCase())) {
-                            filteredItems.add(item);
-                        }
-                    }
-                    itemAdapter.updateData(filteredItems); // update adapter's data with the filtered list
-                } else {
-                    itemAdapter.updateData(ItemDataList); // reset to original data
-                }
-
+                itemAdapter.updateData(getFilteredItems());
                 return false;
             }
-
-
         });
+
+        SearchView makeSearchView = (SearchView) findViewById(R.id.search_view_make);
+        makeSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) { // when user presses enter
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                itemAdapter.updateData(getFilteredItems());
+                return false;
+            }
+        });
+
+        SearchView startDateSearchView = (SearchView) findViewById(R.id.search_view_make);
+        makeSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) { // when user presses enter
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                itemAdapter.updateData(getFilteredItems());
+                return false;
+            }
+        });
+    }
+
+    private ArrayList<Item> getFilteredItems(){
+        ArrayList<Item> filteredItems = new ArrayList<Item>(ItemDataList); // copy item data list
+        SearchView descrptionSearchView = (SearchView) findViewById(R.id.search_view);
+        SearchView makeSearchView = (SearchView) findViewById(R.id.search_view_make);
+
+        String current_desc = descrptionSearchView.getQuery().toString();
+        String current_make = makeSearchView.getQuery().toString();
+
+        int size = filteredItems.size();
+        int index = 0;
+        // loop through every item, either removing it because it does not match one of our search criteria or leaving it and looking at the next item.
+        while (index < size){
+            Item current_item = filteredItems.get(index);
+            if (!current_desc.isEmpty() && !current_item.getDescription().toLowerCase().contains(current_desc.toLowerCase())){
+                // the current item should not appear since it doesn't contain the description search string
+                filteredItems.remove(index);
+                size--;
+            }
+            else if (!current_make.isEmpty() && !current_item.getMake().toLowerCase().contains(current_make.toLowerCase())){
+                // the current item should not appear because it doesn't contain the make search string
+                filteredItems.remove(index);
+                size--;
+            }
+            else{
+                index++;
+            }
+        }
+
+        return filteredItems;
     }
 
     @Override

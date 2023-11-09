@@ -51,21 +51,12 @@ public class AddEditActivity extends AppCompatActivity {
      */
     private Item createItemFromFields() {
         String description = expenseDescription.getText().toString();
-        String str_date = expenseDate.getText().toString();
+        String date = expenseDate.getText().toString();
         String str_value = expenseValue.getText().toString();
         String comment = expenseComment.getText().toString();
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
-
-        // convert str_date to a Date object
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        Date date = new Date();
-        try {
-            date = format.parse(str_date);
-        } catch (ParseException e){
-            assert false; // throw an error, UI should ensure dates are correctly formatted once received here.
-        }
 
         // convert charge to a float object
         Float value = Float.valueOf(str_value);
@@ -80,7 +71,7 @@ public class AddEditActivity extends AppCompatActivity {
      * @param date The date string to be validated.
      * @return True if the date is valid, false otherwise.
      */
-    private boolean isValidDate(String date) {
+    public boolean isValidDate(String date) {
         // Define a regular expression for the dd_mm_yyyy format
         String datePattern = "^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(\\d{4})$";
 

@@ -135,15 +135,15 @@
                         android:text="@string/start_date">
                 </TextView>
                 
-                <EditText
-                        android:id="@+id/start_date"
+                <SearchView
+                        android:id="@+id/search_view_start_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@color/white"
                         android:padding="5dp"
                         android:inputType="date|datetime"
-                        android:autofillHints=""/>
+                        android:queryHint="dd-mm-yyyy"/>
                 
                 <TextView
                         android:layout_width="wrap_content"
@@ -153,14 +153,14 @@
                 
                 </TextView>
                 
-                <EditText
-                        android:id="@+id/end_date"
+                <SearchView
+                        android:id="@+id/search_view_end_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@color/white"
                         android:padding="5dp"
-                        android:autofillHints=""
+                        android:queryHint="dd-mm-yyyy"
                         android:inputType="date|datetime"/>
             </LinearLayout>
             <SearchView
