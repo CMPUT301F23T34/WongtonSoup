@@ -25,6 +25,8 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -33,7 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemAdapterListener {
     private static final int ADD_EDIT_REQUEST_CODE = 1;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         ItemDataList = new ArrayList<>();
         itemAdapter = new ItemAdapter(this, ItemDataList);
         ItemList.setAdapter(itemAdapter);
+        ItemAdapter.setListener(this);
 
         // sample data for testing
         Item sampleItem1 = new Item(new Date(), "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
@@ -80,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
         itemAdapter.updateData(ItemDataList);
         itemAdapter.notifyDataSetChanged();
 
-//        binding = ActivityMainBinding.inflate(getLayoutInflater());
-//        setContentView(binding.getRoot());
-//        setSupportActionBar(binding.toolbar);
 
         binding.fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
@@ -107,6 +107,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         initSearchWidgets();
+
+
+    }
+
+    @Override
+    public void onItemAdapterChanged() {
+        updateTotalAmount();
+    }
+
+    private void updateTotalAmount() {
+        TextView totalAmount = findViewById(R.id.estimated_value);
+        Float updated_total = itemAdapter.getTotalDisplayed();
+        totalAmount.setText(updated_total.toString());
     }
 
     private void initSearchWidgets() {
