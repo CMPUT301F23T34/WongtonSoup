@@ -1,5 +1,6 @@
 package com.example.wongtonsoup;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -16,9 +17,9 @@ import java.util.Date;
 public class AddEditActivity extends AppCompatActivity {
     // Assume we have item with associated tags lise
 //    private Item item;
-    private EditText expenseName;
+    private EditText expenseDescription;
     private EditText expenseDate;
-    private EditText expenseCharge;
+    private EditText expenseValue;
     private EditText expenseComment;
     private EditText expenseSerialNumber;
     private EditText expenseMake;
@@ -49,22 +50,13 @@ public class AddEditActivity extends AppCompatActivity {
      * @return The Item object created from EditText fields.
      */
     private Item createItemFromFields() {
-        String description = expenseName.getText().toString();
-        String str_date = expenseDate.getText().toString();
-        String str_value = expenseCharge.getText().toString();
+        String description = expenseDescription.getText().toString();
+        String date = expenseDate.getText().toString();
+        String str_value = expenseValue.getText().toString();
         String comment = expenseComment.getText().toString();
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
-
-        // convert str_date to a Date object
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        Date date = new Date();
-        try {
-            date = format.parse(str_date);
-        } catch (ParseException e){
-            assert(0 == 1); // throw an error, UI should ensure dates are correctly formatted once received here.
-        }
 
         // convert charge to a float object
         Float value = Float.valueOf(str_value);
@@ -79,7 +71,7 @@ public class AddEditActivity extends AppCompatActivity {
      * @param date The date string to be validated.
      * @return True if the date is valid, false otherwise.
      */
-    private boolean isValidDate(String date) {
+    public boolean isValidDate(String date) {
         // Define a regular expression for the dd_mm_yyyy format
         String datePattern = "^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(\\d{4})$";
 
@@ -98,78 +90,99 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     /**
+     * Validates a value string is a valid currency.
+     * @param str_value
+     * @return true if value is valid, false otherwise.
+     */
+    private boolean isValidValue(String str_value) {
+        // Define expression for any number of int digits and an optional one or two digits after decimal
+        String valuePattern ="^\\d+(\\.\\d{1,2})?$";
+        return str_value.matches(valuePattern);
+    }
+
+    /**
      * Updates the state of the Add/Edit Check Button based on the validity of input fields.
      *
      * @param addEditCheckButton The Button whose state needs to be updated.
      */
     private void updateAddEditCheckButtonState(Button addEditCheckButton) {
-        boolean isExpenseNameEmpty = TextUtils.isEmpty(expenseName.getText().toString());
-        boolean isExpenseChargeEmpty = TextUtils.isEmpty(expenseCharge.getText().toString());
+        boolean isExpenseDescriptionEmpty = TextUtils.isEmpty(expenseDescription.getText().toString());
+        boolean isExpenseDescriptionInvalid = !(expenseDescription.getText().length() <= 15);
+
+        // clear error message if neither error bool is true.
+        if (!isExpenseDescriptionEmpty && isExpenseDescriptionInvalid){
+            expenseDescription.setError(null); // clear error
+        }
+        else if (isExpenseDescriptionEmpty){
+            expenseDescription.setError("Expense name cannot be empty");
+        }
+        else if (isExpenseDescriptionInvalid){
+            expenseDescription.setError("Name cannot exceed 15 characters");
+        }
+
+        boolean isExpenseValueInvalid = !isValidValue(expenseValue.getText().toString());
+        boolean isExpenseValueEmpty = TextUtils.isEmpty(expenseValue.getText().toString());
+
+        if (!isExpenseValueEmpty && !isExpenseValueInvalid){
+            expenseValue.setError(null); // clear error
+        }
+        else if (isExpenseValueEmpty){
+            expenseValue.setError("Expense value cannot be empty");
+        }
+        else if (isExpenseValueInvalid) {
+            expenseValue.setError("Expense value can only contain two digits after the decimal");
+        }
+
         boolean isExpenseDateEmpty = TextUtils.isEmpty(expenseDate.getText().toString());
         boolean isExpenseDateInvalid = !isValidDate(expenseDate.getText().toString());
-        boolean isExpenseNameInvalid = !(expenseName.getText().length() <= 15);
-        boolean isExpenseCommentInvalid = !(expenseComment.getText().length() <= 20);
-        boolean isExpenseSerialNUmberEmpty = TextUtils.isEmpty(expenseSerialNumber.getText().toString());
-        boolean isExpenseMakeEmpty = TextUtils.isEmpty(expenseMake.getText().toString());
-        boolean isExpenseModelEmpty = TextUtils.isEmpty(expenseModel.getText().toString());
 
-
-        if (isExpenseNameEmpty) {
-            expenseName.setError("Expense name cannot be empty");
-        } else {
-            expenseName.setError(null); // Clear the error
+        if (!isExpenseDateEmpty && !isExpenseDateInvalid){
+            expenseDate.setError(null);
         }
-
-        if (isExpenseChargeEmpty) {
-            expenseCharge.setError("Expense price cannot be empty");
-        } else {
-            expenseCharge.setError(null); // Clear the error
-        }
-
-        if (isExpenseChargeEmpty) {
+        else if (isExpenseDateEmpty){
             expenseDate.setError("Expense Date cannot be empty");
-        } else {
-            expenseDate.setError(null); // Clear the error
         }
-
-        if (isExpenseDateInvalid) {
+        else if (isExpenseDateInvalid){
             expenseDate.setError("Invalid date format. Please use dd-mm-yyyy");
-        } else {
-            expenseDate.setError(null); // Clear the error
         }
 
-        if (isExpenseNameInvalid) {
-            expenseName.setError("Name cannot exceed 15 characters");
-        } else {
-            expenseName.setError(null); // Clear the error
-        }
+       boolean isExpenseCommentInvalid = !(expenseComment.getText().length() <= 20);
 
-        if (isExpenseCommentInvalid) {
-            expenseComment.setError("Comment cannot exceed 20 characters");
-        } else {
-            expenseComment.setError(null); // Clear the error
-        }
+       if (!isExpenseCommentInvalid){
+           expenseComment.setError(null);
+       }
+       else if (isExpenseCommentInvalid){
+           expenseComment.setError("Comment cannot exceed 20 characters");
+       }
 
-        if (isExpenseSerialNUmberEmpty) {
-            expenseSerialNumber.setError("Serial number cannot be empty");
-        } else {
-            expenseSerialNumber.setError(null); // Clear the error
-        }
+       boolean isExpenseMakeEmpty = TextUtils.isEmpty(expenseMake.getText().toString());
+       boolean isExpenseMakeInvalid = !(expenseMake.getText().length() <= 15);
 
-        if (isExpenseMakeEmpty) {
-            expenseMake.setError("Expense make cannot be empty");
-        } else {
-            expenseMake.setError(null); // Clear the error
-        }
+       if (!isExpenseMakeEmpty && !isExpenseMakeInvalid){
+           expenseMake.setError(null); // Clear the error
+       }
+       else if (isExpenseMakeEmpty){
+           expenseMake.setError("Expense make cannot be empty");
+       }
+       else if (isExpenseMakeInvalid){
+           expenseMake.setError("Make cannot exceed 15 characters");
+       }
 
-        if (isExpenseModelEmpty) {
-            expenseModel.setError("Expense model cannot be empty");
-        } else {
-            expenseModel.setError(null); // Clear the error
-        }
+       boolean isExpenseModelInvalid = !(expenseModel.getText().length() <= 15);
+       boolean isExpenseModelEmpty = TextUtils.isEmpty(expenseModel.getText().toString());
 
-        boolean isButtonEnabled = !isExpenseNameEmpty && !isExpenseChargeEmpty && !isExpenseDateEmpty && !isExpenseDateInvalid && !isExpenseNameInvalid && !isExpenseCommentInvalid
-                && !isExpenseSerialNUmberEmpty && !isExpenseMakeEmpty && !isExpenseModelEmpty;
+       if (!isExpenseModelEmpty && !isExpenseModelInvalid){
+           expenseModel.setError(null);
+       }
+       else if (isExpenseModelEmpty){
+           expenseModel.setError("Expense model cannot be empty");
+       }
+       else if (isExpenseModelInvalid){
+           expenseModel.setError("Model cannot exceed 15 characters");
+       }
+
+        boolean isButtonEnabled = !isExpenseDescriptionEmpty && !isExpenseValueEmpty && !isExpenseDateEmpty && !isExpenseDateInvalid && !isExpenseDescriptionInvalid && !isExpenseCommentInvalid
+                && !isExpenseMakeEmpty && !isExpenseModelEmpty && !isExpenseMakeInvalid && !isExpenseModelInvalid && !isExpenseValueInvalid;
 
         addEditCheckButton.setEnabled(isButtonEnabled);
     }
@@ -210,9 +223,9 @@ public class AddEditActivity extends AppCompatActivity {
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
 
-        expenseName = findViewById(R.id.add_edit_description);
+        expenseDescription = findViewById(R.id.add_edit_description);
         expenseDate = findViewById(R.id.add_edit_date);
-        expenseCharge = findViewById(R.id.add_edit_price);
+        expenseValue = findViewById(R.id.add_edit_price);
         expenseComment = findViewById(R.id.add_edit_comment);
         expenseSerialNumber = findViewById(R.id.add_edit_serial);
         expenseMake = findViewById(R.id.add_edit_make);
@@ -222,8 +235,8 @@ public class AddEditActivity extends AppCompatActivity {
         addEditCheckButton.setEnabled(false);
 
         //set up watcher
-        setupTextWatcher(expenseName, addEditCheckButton);
-        setupTextWatcher(expenseCharge, addEditCheckButton);
+        setupTextWatcher(expenseDescription, addEditCheckButton);
+        setupTextWatcher(expenseValue, addEditCheckButton);
         setupTextWatcher(expenseDate, addEditCheckButton);
         setupTextWatcher(expenseComment, addEditCheckButton);
         setupTextWatcher(expenseSerialNumber, addEditCheckButton);
