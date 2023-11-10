@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private CollectionReference itemsRef;
     private CollectionReference tagsRef;
     private CollectionReference usersRef;
+    //delete button
+    private FloatingActionButton fabDelete;
 
     ListView ItemList;
     ArrayList<Item> ItemDataList;
@@ -104,6 +107,14 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         });
         initSearchWidgets();
         initSortWidgets();
+        fabDelete = findViewById(R.id.fab_delete);
+        fabDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // delete all selected items
+                deleteSelectedItems();
+            }
+        });
 
     }
 
@@ -112,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      */
     @Override
     public void onItemListChanged() {
+        // Update the total amount after deletion
         updateTotalAmount();
     }
 
@@ -394,6 +406,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 itemList.updateData(ItemDataList);
                 itemList.notifyDataSetChanged();
 
+
                 // Return to view item
                 Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
                 intent.putExtra("Description", itemList.getItem(itemSelected).getDescription());
@@ -452,4 +465,14 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
+    /**
+     * Delete selected items when the delete button is clicked
+     */
+    private void deleteSelectedItems() {
+        Log.d("MainActivity", "deleteSelectedItems: ");
+        itemList.deleteSelectedItems();
+        updateTotalAmount(); // Update the total amount after deletion
+    }
+
+
 }
