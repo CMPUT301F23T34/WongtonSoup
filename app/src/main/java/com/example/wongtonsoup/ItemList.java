@@ -168,9 +168,9 @@ public class ItemList extends ArrayAdapter<Item> {
     }
 
     /**
-     * Clear the selection of all items
+     * Clear the selection of all items, public for testing
      */
-    private void clearSelection() {
+    public void clearSelection() {
         for (Item item : itemList) {
             item.setSelected(false);
         }
