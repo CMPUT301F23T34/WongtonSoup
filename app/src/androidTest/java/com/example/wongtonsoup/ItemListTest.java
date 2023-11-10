@@ -35,6 +35,10 @@ public class ItemListTest{
         appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
 
+    /**
+     * Tests creating item and getting/setting values
+     * @since 11/02/2023
+     */
     @Test
     public void testUpdateData() {
         // Create an atomic boolean to track if the listener was notified
@@ -66,9 +70,11 @@ public class ItemListTest{
         // Check if the listener was notified
         assertTrue(notified.get());
 
-        // You can also check other conditions after the data update
     }
 
+    /**
+     * Tests sorting items by date
+     */
     @Test
     public void testSortByDate() {
         // Create an item list and add items with different dates
@@ -89,6 +95,9 @@ public class ItemListTest{
         // You can add more assertions based on your sorting criteria
     }
 
+    /**
+     * Tests deleting items
+     */
     @Test
     public void testDeleteSelectedItems() {
         // Create an item list and mark some items as selected
@@ -108,10 +117,11 @@ public class ItemListTest{
 
         // Check if the selected item is removed from the list
         assertFalse(itemList.getItem(0).isSelected());
-
-        // You can add more assertions based on your use case
     }
 
+    /**
+     * Tests clearing selection
+     */
     @Test
     public void testClearSelection() {
         // Create an item list and mark some items as selected
