@@ -33,10 +33,10 @@ public class ItemList extends ArrayAdapter<Item> {
     }
 
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup
+    public View getView(int position, @Nullable View getView, @NonNull ViewGroup
             parent){
 
-        View view = convertView;
+        View view = getView;
         if(view == null){
             view = LayoutInflater.from(context).inflate(R.layout.content, parent,false);
         }
@@ -48,7 +48,7 @@ public class ItemList extends ArrayAdapter<Item> {
         Log.d("ItemAdapter", "getView - position: " + position);
 
         // Set tags in the layout
-        ChipGroup chipGroup = convertView.findViewById(R.id.content_chip_group);
+        ChipGroup chipGroup = view.findViewById(R.id.content_chip_group);
         chipGroup.removeAllViews();
         for (Tag tag : currentItem.getTags().getTags()) {
             Chip chip = new Chip(context);
@@ -57,8 +57,10 @@ public class ItemList extends ArrayAdapter<Item> {
         }
 
 
+
+
         // Set the image, content, and tags in the layout
-        assert convertView != null;
+        assert getView != null;
 //        ImageView imageView = view.findViewById(R.id.photo);
 //        imageView.setImageResource(currentItem.getImageResource());
 
@@ -74,10 +76,10 @@ public class ItemList extends ArrayAdapter<Item> {
         TextView testViewPrice = view.findViewById(R.id.content_price);
         testViewPrice.setText(currentItem.getValueAsString());
 
-//        TextView textViewTag1 = convertView.findViewById(R.id.textViewTag1);
+//        TextView textViewTag1 = getView.findViewById(R.id.textViewTag1);
 //        textViewTag1.setText(currentItem.getTag1());
 //
-//        TextView textViewTag2 = convertView.findViewById(R.id.textViewTag2);
+//        TextView textViewTag2 = getView.findViewById(R.id.textViewTag2);
 //        textViewTag2.setText(currentItem.getTag2());
 
         return view;

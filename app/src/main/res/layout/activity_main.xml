@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="#A5CFB5"
         android:fitsSystemWindows="false"
-        android:padding="0dp">
+        android:padding="5dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -178,11 +178,12 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <ListView
-            android:id="@+id/listView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="top"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="568dp"
+        android:layout_gravity="top"
+        android:choiceMode="multipleChoice"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -231,6 +232,22 @@
                 android:layout_centerVertical="true"
                 android:padding="15dp"
                 android:contentDescription="@string/add_item"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginBottom="16dp"
+            android:tint="@color/black"
+            app:backgroundTint="#2D7038"
+            app:rippleColor="#A5CFB5"
+            app:srcCompat="@android:drawable/ic_menu_delete"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="15dp"
+            android:visibility="gone"
+            android:contentDescription="@string/delete_item"/>
     </RelativeLayout>
 
 

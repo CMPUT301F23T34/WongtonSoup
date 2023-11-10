@@ -76,4 +76,5 @@
     <string name="add_a_comment_about_the_item">Add a comment about the item</string>
     <string name="tags">Tags:</string>
 	<string name="add_item">Add_item</string>
+    <string name="delete_item">Delete Item</string>
 </resources>

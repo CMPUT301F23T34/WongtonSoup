@@ -7,8 +7,12 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SearchView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,11 +53,14 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
     private CollectionReference itemsRef;
     private CollectionReference tagsRef;
     private CollectionReference usersRef;
+    private FloatingActionButton fabDelete;
 
     ListView ItemList;
     ArrayList<Item> ItemDataList;
     ArrayList<Item> DisplayedItemDataList; // what's currently on the screen
     ItemAdapter itemAdapter;
+    ArrayList<Item> selectedItems;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
 //        ItemList = findViewById(R.id.listView);
 
         ItemList = binding.listView;
+
+
 
         ItemDataList = new ArrayList<>();
         itemAdapter = new ItemAdapter(this, ItemDataList);
@@ -90,11 +99,57 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         itemAdapter.notifyDataSetChanged();
 
 
+
+
         binding.fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
             //intent.putExtra();
             startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
         });
+
+
+        //Set an item click listener for the list view
+        ItemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {// Handle item click
+                //Handle item click
+                CheckBox checkBox = view.findViewById(R.id.select);
+                checkBox.setChecked(!checkBox.isChecked());
+                // add or remove the item from the list of selected items
+                if (checkBox.isChecked()){
+                    // show the delete button if at least one item is selected
+                    if (DisplayedItemDataList.isEmpty()) {
+                        fabDelete.setVisibility(View.VISIBLE);
+                    }
+                    DisplayedItemDataList.add(ItemDataList.get(position));
+                }
+                else{
+                    DisplayedItemDataList.remove(ItemDataList.get(position));
+                    // hide the delete button if no items are selected
+                    if (DisplayedItemDataList.isEmpty()) {
+                        fabDelete.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+        // Set a click listener for the delete button
+        fabDelete = findViewById(R.id.fab_delete);
+        fabDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // delete all the items in the list of selected items
+                for (Item item : DisplayedItemDataList){
+                    ItemDataList.remove(item);
+                }
+                // update the list view
+                itemAdapter.updateData(ItemDataList);
+                itemAdapter.notifyDataSetChanged();
+                // clear the list of selected items
+                DisplayedItemDataList.clear();
+            }
+        });
+
+
 
         // Expand Search
         Button expand = findViewById(R.id.expand_search_button);
@@ -114,6 +169,8 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         });
         initSearchWidgets();
         initSortWidgets();
+
+
 
     }
 
