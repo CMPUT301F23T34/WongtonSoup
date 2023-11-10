@@ -1,5 +1,6 @@
 package com.example.wongtonsoup;
 
+// tags can be compared by their names
 /**
  * Class for a tag.
  * @author liamhouston

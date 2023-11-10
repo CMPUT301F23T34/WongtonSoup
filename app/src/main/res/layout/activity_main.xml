@@ -26,14 +26,26 @@
             android:layout_gravity="center_horizontal"
             android:orientation="horizontal">
 
-            <EditText
-                android:layout_width="288dp"
-                android:layout_height="wrap_content"
-                android:autofillHints="@string/search_by_description"
-                android:background="@color/white"
-                android:hint="@string/search_by_description"
-                android:inputType="text"
-                android:padding="5dp" />
+<!--            <EditText-->
+<!--                android:id="@+id/search_view"-->
+<!--                android:layout_width="288dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:autofillHints="@string/search_by_description"-->
+<!--                android:background="@color/white"-->
+<!--                android:hint="@string/search_by_description"-->
+<!--                android:inputType="text"-->
+<!--                android:padding="5dp" />-->
+
+            <SearchView
+                    android:id="@+id/search_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:queryHint="@string/search_by_description"
+                    android:iconifiedByDefault="false"
+                    android:background="@color/white"
+                    android:layout_gravity="center_vertical"
+                    android:padding="5dp" />
             <Button
                 android:id="@id/expand_search_button"
                 style="@style/Widget.AppCompat.Button.Borderless"
@@ -124,14 +136,14 @@
                 </TextView>
                 
                 <EditText
-                        android:id="@+id/start_date"
+                        android:id="@+id/edit_text_start_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@color/white"
                         android:padding="5dp"
                         android:inputType="date|datetime"
-                        android:autofillHints=""/>
+                        android:autofillHints="dd-mm-yyyy"/>
                 
                 <TextView
                         android:layout_width="wrap_content"
@@ -142,13 +154,13 @@
                 </TextView>
                 
                 <EditText
-                        android:id="@+id/end_date"
+                        android:id="@+id/edit_text_end_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@color/white"
                         android:padding="5dp"
-                        android:autofillHints=""
+                        android:autofillHints="dd-mm-yyyy"
                         android:inputType="date|datetime"/>
             </LinearLayout>
             <SearchView

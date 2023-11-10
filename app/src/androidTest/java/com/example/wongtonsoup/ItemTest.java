@@ -22,9 +22,8 @@ public class ItemTest {
      */
     @Test
     public void testAdd(){
-        Date d = new Date();
         Float f = new Float(10);
-        i = new Item(d, "This is a car", "Honda", "2016 CRV", f, "I like this car");
+        i = new Item("01-01-2000", "This is a car", "Honda", "2016 CRV", f, "I like this car");
         assertThrows(IllegalArgumentException.class, () -> {
             i.getSerialNumber();
         });
