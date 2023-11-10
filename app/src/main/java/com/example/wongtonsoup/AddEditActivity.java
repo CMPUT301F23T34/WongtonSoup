@@ -210,6 +210,11 @@ public class AddEditActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Passes the created Item back to MainActivity and finishes the AddEditActivity.
+     * @param item
+     */
+
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("resultItem", item);

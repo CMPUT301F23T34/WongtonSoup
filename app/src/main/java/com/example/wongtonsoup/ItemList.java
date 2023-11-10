@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import kotlin.contracts.Returns;
+
 public class ItemList extends ArrayAdapter<Item> {
 
     private Context mContext;
@@ -95,7 +97,9 @@ public class ItemList extends ArrayAdapter<Item> {
             listener.onItemListChanged();
         }
     }
-
+    /**
+     * Returns the total value of all items in the list
+     */
     public String getTotalDisplayed(){
         double total = 0;
         for (int i = 0 ; i < itemList.size() ; i++){
@@ -171,7 +175,7 @@ public class ItemList extends ArrayAdapter<Item> {
             item.setSelected(false);
         }
     }
-   
+
 
 }
 

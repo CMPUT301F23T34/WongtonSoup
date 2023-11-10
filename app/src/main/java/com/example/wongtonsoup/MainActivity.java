@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 return false;
             }
         });
-
+        // add listeners for the date text boxes
         EditText startDateEditText = (EditText) findViewById(R.id.edit_text_start_date);
         startDateEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -225,7 +225,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             public void afterTextChanged(Editable s) {
             }
         });
-
         EditText endDateEditText = (EditText) findViewById(R.id.edit_text_end_date);
         endDateEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -331,12 +330,26 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         return filteredItems;
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu.
+     * @param menu The options menu in which you place your items.
+     *
+     * @return
+     */
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     * @param item The menu item that was selected.
+     *
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -422,6 +435,10 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
     }
 
+    /**
+     * View item when the view button is clicked
+     * @param v
+     */
     public void viewItem(View v) {
         // get view position
         View parentRow = (View) v.getParent();

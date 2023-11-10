@@ -203,20 +203,22 @@
             android:text="@string/estimated_value"
             android:textSize="20sp"
             android:layout_centerVertical="true"/>
+
         <TextView
             android:id="@+id/estimated_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="46dp"
+            android:layout_toStartOf="@+id/fab_delete"
+            android:layout_toEndOf="@id/ev"
             android:fontFamily="sans-serif-medium"
-            android:textSize="20sp"
+            android:paddingStart="0dp"
             android:paddingTop="10dp"
             android:paddingEnd="10dp"
-            android:paddingStart="0dp"
             android:paddingBottom="10dp"
-            android:layout_toEndOf="@id/ev"
-            android:layout_centerVertical="true"
-            android:text="@string/_0_00">
-        </TextView>
+            android:text="@string/_0_00"
+            android:textSize="20sp"></TextView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab"
