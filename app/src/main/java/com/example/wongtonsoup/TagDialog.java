@@ -9,16 +9,13 @@ import android.widget.EditText;
 
 import androidx.fragment.app.DialogFragment;
 
-public class TagDialog extends DialogFragment {
+public class TagDialog extends DialogFragment {}
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Button addTagButton = getActivity().findViewById(R.id.add_tag_button);
-        addTagButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText tagInput = getView().findViewById(R.id.tag_input);
-                String tagName = tagInput.getText().toString().trim();
-                if (!tagName.isEmpty()) {
-                    // Add the tag to the TagList
-                    TagList tags = ((ItemD))
+//    @Override
+//    public Dialog onCreateDialog(Bundle savedInstanceState) {
+//        Button addTagButton = getActivity().findViewById(R.id.add_tag_button);
+//        addTagButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                EditText tagInput = getView().findViewById(R.id.tag_input);
+//                String tagName = tagInput.getText().toString().trim();
