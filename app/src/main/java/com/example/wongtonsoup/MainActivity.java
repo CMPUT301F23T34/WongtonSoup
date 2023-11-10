@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemList.setAdapter(itemList);
         com.example.wongtonsoup.ItemList.setListener(this);
 
-        // sample data for testing
+/*        // sample data for testing
         Item sampleItem1 = new Item("09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
         Item sampleItem2 = new Item("16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC");
         Item sampleItem3 = new Item("30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF");
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemDataList.add(sampleItem3);
 
         itemList.updateData(ItemDataList);
-        itemList.notifyDataSetChanged();
+        itemList.notifyDataSetChanged();*/
 
 
         binding.fab.setOnClickListener(view -> {
@@ -394,6 +394,31 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 ItemDataList.set(itemSelected, resultItem);
                 itemList.updateData(ItemDataList);
                 itemList.notifyDataSetChanged();
+
+                // Return to view item
+                Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+                intent.putExtra("Description", itemList.getItem(itemSelected).getDescription());
+                intent.putExtra("Make", itemList.getItem(itemSelected).getMake());
+                intent.putExtra("Model", itemList.getItem(itemSelected).getModel());
+                intent.putExtra("Comment", itemList.getItem(itemSelected).getComment());
+                intent.putExtra("Date", itemList.getItem(itemSelected).getPurchaseDate());
+                intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
+                intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
+                startActivityForResult(intent,VIEW_REQUEST_CODE);
+
+                // Log the size of ItemDataList
+                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+            }
+        }
+        else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Check if the request code matches and the result is OK
+            if (data != null && data.hasExtra("resultItem")) {
+                Item resultItem = (Item) data.getSerializableExtra("resultItem");
+
+                ItemDataList.set(itemSelected, resultItem);
+                itemList.updateData(ItemDataList);
+                itemList.notifyDataSetChanged();
+
 
                 // Return to view item
                 Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
