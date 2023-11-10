@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private CollectionReference itemsRef;
     private CollectionReference tagsRef;
     private CollectionReference usersRef;
+    //delete button
+    private FloatingActionButton fabDelete;
 
     ListView ItemList;
     ArrayList<Item> ItemDataList;
@@ -104,6 +107,14 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         });
         initSearchWidgets();
         initSortWidgets();
+        fabDelete = findViewById(R.id.fab_delete);
+        fabDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // delete all selected items
+                deleteSelectedItems();
+            }
+        });
 
     }
 
@@ -112,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      */
     @Override
     public void onItemListChanged() {
+        // Update the total amount after deletion
         updateTotalAmount();
     }
 
@@ -367,18 +379,18 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 Item resultItem = (Item) data.getSerializableExtra("resultItem");
 
                 ItemDataList.set(itemSelected, resultItem);
-                itemAdapter.updateData(ItemDataList);
-                itemAdapter.notifyDataSetChanged();
+                itemList.updateData(ItemDataList);
+                itemList.notifyDataSetChanged();
 
                 // Return to view item
                 Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
-                intent.putExtra("Description", itemAdapter.getItem(itemSelected).getDescription());
-                intent.putExtra("Make", itemAdapter.getItem(itemSelected).getMake());
-                intent.putExtra("Model", itemAdapter.getItem(itemSelected).getModel());
-                intent.putExtra("Comment", itemAdapter.getItem(itemSelected).getComment());
-                intent.putExtra("Date", itemAdapter.getItem(itemSelected).getPurchaseDate());
-                intent.putExtra("Price", itemAdapter.getItem(itemSelected).getValueAsString());
-                intent.putExtra("Serial", itemAdapter.getItem(itemSelected).getSerialNumber());
+                intent.putExtra("Description", itemList.getItem(itemSelected).getDescription());
+                intent.putExtra("Make", itemList.getItem(itemSelected).getMake());
+                intent.putExtra("Model", itemList.getItem(itemSelected).getModel());
+                intent.putExtra("Comment", itemList.getItem(itemSelected).getComment());
+                intent.putExtra("Date", itemList.getItem(itemSelected).getPurchaseDate());
+                intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
+                intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
                 startActivityForResult(intent,VIEW_REQUEST_CODE);
 
                 // Log the size of ItemDataList
@@ -419,13 +431,23 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         // go to ViewItemActivity
         Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
         itemSelected = position;
-        intent.putExtra("Description", itemAdapter.getItem(position).getDescription());
-        intent.putExtra("Make", itemAdapter.getItem(position).getMake());
-        intent.putExtra("Model", itemAdapter.getItem(position).getModel());
-        intent.putExtra("Comment", itemAdapter.getItem(position).getComment());
-        intent.putExtra("Date", itemAdapter.getItem(position).getPurchaseDate());
-        intent.putExtra("Price", itemAdapter.getItem(position).getValueAsString());
-        intent.putExtra("Serial", itemAdapter.getItem(position).getSerialNumber());
+        intent.putExtra("Description", itemList.getItem(position).getDescription());
+        intent.putExtra("Make", itemList.getItem(position).getMake());
+        intent.putExtra("Model", itemList.getItem(position).getModel());
+        intent.putExtra("Comment", itemList.getItem(position).getComment());
+        intent.putExtra("Date", itemList.getItem(position).getPurchaseDate());
+        intent.putExtra("Price", itemList.getItem(position).getValueAsString());
+        intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
+    /**
+     * Delete selected items when the delete button is clicked
+     */
+    private void deleteSelectedItems() {
+        Log.d("MainActivity", "deleteSelectedItems: ");
+        itemList.deleteSelectedItems();
+        updateTotalAmount(); // Update the total amount after deletion
+    }
+
+
 }

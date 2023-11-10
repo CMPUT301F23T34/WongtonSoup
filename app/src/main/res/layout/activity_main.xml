@@ -201,14 +201,14 @@
             android:paddingBottom="10dp"
             android:paddingEnd="0dp"
             android:text="@string/estimated_value"
-            android:textSize="25sp"
+            android:textSize="20sp"
             android:layout_centerVertical="true"/>
         <TextView
             android:id="@+id/estimated_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
-            android:textSize="25sp"
+            android:textSize="20sp"
             android:paddingTop="10dp"
             android:paddingEnd="10dp"
             android:paddingStart="0dp"
@@ -217,22 +217,7 @@
             android:layout_centerVertical="true"
             android:text="@string/_0_00">
         </TextView>
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_marginBottom="16dp"
-            android:tint="@color/black"
-            app:backgroundTint="#2D7038"
-            app:rippleColor="#A5CFB5"
-            app:srcCompat="@android:drawable/ic_menu_delete"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:padding="15dp"
-            android:visibility="visible"
-            android:contentDescription="@string/delete_item"/>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab"
                 android:layout_width="wrap_content"
@@ -247,8 +232,32 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:padding="15dp"
-            android:visibility="gone"
+            android:visibility="visible"
             android:contentDescription="@string/add_item"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="top|end"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="75dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginBottom="0dp"
+            android:contentDescription="@string/delete_item"
+            android:padding="15dp"
+            android:tint="@color/black"
+            android:visibility="visible"
+            app:backgroundTint="#2D7038"
+            app:layout_anchor="@id/fab"
+            app:layout_anchorGravity="top"
+            app:rippleColor="#A5CFB5"
+            app:srcCompat="@android:drawable/ic_menu_delete" />
+
 
     </RelativeLayout>
 
