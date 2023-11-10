@@ -287,6 +287,9 @@ public class Item implements Serializable {
     }
 
 
+    /**
+     * Returns a negative number if item1 has an earlier date than item2. 0 if equal. positive otherwise.
+     */
     public static Comparator<Item> byDate = new Comparator<Item>() {
         @Override
         public int compare(Item item1, Item item2) {
@@ -306,6 +309,9 @@ public class Item implements Serializable {
         }
     };
 
+    /**
+     * Returns a negative number if o1 has a description lexigraphically before o2. 0 if equal. positive otherwise.
+     */
     public static Comparator<Item> byDescription = new Comparator<Item>() {
         @Override
         public int compare(Item o1, Item o2) {
@@ -313,6 +319,9 @@ public class Item implements Serializable {
         }
     };
 
+    /**
+     * Returns a negative number if o1 has a make lexigraphically before o2. 0 if equal. positive otherwise.
+     */
     public static Comparator<Item> byMake = new Comparator<Item>() {
         @Override
         public int compare(Item o1, Item o2) {
@@ -320,6 +329,9 @@ public class Item implements Serializable {
         }
     };
 
+    /**
+     * Returns a negative number if o1 has a lesser value than o2. 0 if equal. positive otherwise.
+     */
     public static Comparator<Item> byValue = new Comparator<Item>() {
         @Override
         public int compare(Item o1, Item o2) {
