@@ -231,7 +231,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:padding="15dp"
-            android:visibility="gone"
+            android:visibility="visible"
             android:contentDescription="@string/delete_item"/>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab"
@@ -247,7 +247,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:padding="15dp"
-                android:contentDescription="@string/add_item"/>
+            android:visibility="gone"
+            android:contentDescription="@string/add_item"/>
 
     </RelativeLayout>
 

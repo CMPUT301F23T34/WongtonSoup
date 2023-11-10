@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SearchView;
 
@@ -24,6 +25,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private CollectionReference itemsRef;
     private CollectionReference tagsRef;
     private CollectionReference usersRef;
+    private FloatingActionButton fab, fabDelete;
 
     ListView ItemList;
     ArrayList<Item> ItemDataList;
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         ItemList = binding.listView;
 
+
         ItemDataList = new ArrayList<>();
         itemList = new ItemList(this, ItemDataList);
         ItemList.setAdapter(itemList);
@@ -77,6 +81,25 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         itemList.updateData(ItemDataList);
         itemList.notifyDataSetChanged();
+
+        fabDelete = findViewById(R.id.fab_delete);
+
+        // Set up adapter for list vew
+        ItemList.setAdapter(itemList);
+        ItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        //Set up item click listener
+        ItemList.setOnItemClickListener((parent, view, position, id) -> {
+            // Get the item clicked
+            Item item = itemList.getItem(position);
+           // Toggle the selected state
+            item.setSelected(!item.isSelected());
+           // Tell the adapter that the item was selected
+            itemList.notifyDataSetChanged();
+        });
+        //Set up click listner for delete button
+        fabDelete.setOnClickListener(view -> {
+            deleteSelectedItems();
+        });
 
 
         binding.fab.setOnClickListener(view -> {
@@ -103,6 +126,39 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         });
         initSearchWidgets();
         initSortWidgets();
+
+    }
+    /**
+     * update the visibility of the delete button*
+     */
+//    private  void updateFabVisibility(){
+//        int checkedItemCount = ItemList.getCheckedItemCount();
+//        //Show delete button if there are items selected
+//        if (checkedItemCount > 0){
+//            fabDelete.setVisibility(View.VISIBLE);
+//            fab.setVisibility(View.GONE);
+//        }
+//        else {
+//            fabDelete.setVisibility(View.GONE);
+//            fab.setVisibility(View.VISIBLE);
+//        }
+//    }
+    /**
+     * Delete all selected items from the list view
+     */
+    private void deleteSelectedItems(){
+        //Iterate through the list from back to front
+        for (int i = ItemDataList.size() - 1; i >= 0; i--){
+            //Check if the current item is selected
+            if (ItemList.isItemChecked(i)){
+                //Remove the current item from the adapter
+                ItemDataList.remove(i);
+            }
+        }
+        //Clear the checked items
+        ItemList.clearChoices();
+        //Notifiy the adapter the data has changed
+        itemList.notifyDataSetChanged();
 
     }
 

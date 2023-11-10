@@ -260,7 +260,7 @@ public class Item implements Serializable {
         return isSelected;
     }
     public void setSelected(boolean selected) {
-        isSelected = selected;
+        this.isSelected = selected;
     }
 
     /**
