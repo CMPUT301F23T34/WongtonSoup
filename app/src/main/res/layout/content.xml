@@ -88,14 +88,19 @@
                     android:textSize="12sp"/>
             </LinearLayout>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:tint="#757575"
-                app:srcCompat="@android:drawable/ic_menu_info_details"
-                android:paddingTop="23dp"/>
         </LinearLayout>
     </RelativeLayout>
+    <Button
+        android:id="@+id/get_item_info_button"
+        style="@style/Widget.Material3.Button.TextButton.Icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:paddingTop="23dp"
+        app:icon="@android:drawable/ic_menu_info_details"
+        app:iconPadding="0dp"
+        app:iconTint="#000000"
+        android:onClick="viewItem"
+        android:layout_gravity="right"/>
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

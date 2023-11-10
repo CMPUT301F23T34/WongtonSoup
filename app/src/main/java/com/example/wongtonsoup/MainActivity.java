@@ -374,4 +374,22 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         // Check if the day is in the valid range (1 to 31) and the month is in the valid range (1 to 12)
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
     }
+
+    public void viewItem(View v) {
+        // get view position
+        View parentRow = (View) v.getParent();
+        ListView listView = (ListView) parentRow.getParent();
+        final int position = listView.getPositionForView(parentRow);
+
+        // go to ViewItemActivity
+        Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+        intent.putExtra("Description", itemAdapter.getItem(position).getDescription());
+        intent.putExtra("Make", itemAdapter.getItem(position).getMake());
+        intent.putExtra("Model", itemAdapter.getItem(position).getModel());
+        intent.putExtra("Comment", itemAdapter.getItem(position).getComment());
+        intent.putExtra("Date", itemAdapter.getItem(position).getPurchaseDate());
+        intent.putExtra("Price", itemAdapter.getItem(position).getValueAsString());
+        intent.putExtra("Serial", itemAdapter.getItem(position).getSerialNumber());
+        startActivity(intent);
+    }
 }
