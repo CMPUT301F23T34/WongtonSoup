@@ -32,6 +32,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     private static final int ADD_EDIT_REQUEST_CODE = 1;
+    private static final int VIEW_REQUEST_CODE = 2;
+    private int itemSelected;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     Boolean expanded = false;
@@ -81,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         binding.fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-            //intent.putExtra();
             startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
         });
 
@@ -360,6 +361,30 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 Log.d("ItemDataList", "Size: " + ItemDataList.size());
             }
         }
+        else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Check if the request code matches and the result is OK
+            if (data != null && data.hasExtra("resultItem")) {
+                Item resultItem = (Item) data.getSerializableExtra("resultItem");
+
+                ItemDataList.set(itemSelected, resultItem);
+                itemAdapter.updateData(ItemDataList);
+                itemAdapter.notifyDataSetChanged();
+
+                // Return to view item
+                Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+                intent.putExtra("Description", itemAdapter.getItem(itemSelected).getDescription());
+                intent.putExtra("Make", itemAdapter.getItem(itemSelected).getMake());
+                intent.putExtra("Model", itemAdapter.getItem(itemSelected).getModel());
+                intent.putExtra("Comment", itemAdapter.getItem(itemSelected).getComment());
+                intent.putExtra("Date", itemAdapter.getItem(itemSelected).getPurchaseDate());
+                intent.putExtra("Price", itemAdapter.getItem(itemSelected).getValueAsString());
+                intent.putExtra("Serial", itemAdapter.getItem(itemSelected).getSerialNumber());
+                startActivityForResult(intent,VIEW_REQUEST_CODE);
+
+                // Log the size of ItemDataList
+                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+            }
+        }
     }
 
     /**
@@ -383,5 +408,24 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         // Check if the day is in the valid range (1 to 31) and the month is in the valid range (1 to 12)
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
+    }
+
+    public void viewItem(View v) {
+        // get view position
+        View parentRow = (View) v.getParent();
+        ListView listView = (ListView) parentRow.getParent();
+        final int position = listView.getPositionForView(parentRow);
+
+        // go to ViewItemActivity
+        Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+        itemSelected = position;
+        intent.putExtra("Description", itemAdapter.getItem(position).getDescription());
+        intent.putExtra("Make", itemAdapter.getItem(position).getMake());
+        intent.putExtra("Model", itemAdapter.getItem(position).getModel());
+        intent.putExtra("Comment", itemAdapter.getItem(position).getComment());
+        intent.putExtra("Date", itemAdapter.getItem(position).getPurchaseDate());
+        intent.putExtra("Price", itemAdapter.getItem(position).getValueAsString());
+        intent.putExtra("Serial", itemAdapter.getItem(position).getSerialNumber());
+        startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
 }
