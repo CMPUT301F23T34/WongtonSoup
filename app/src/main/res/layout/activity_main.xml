@@ -218,21 +218,6 @@
             android:text="@string/_0_00">
         </TextView>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_marginEnd="@dimen/fab_margin"
-                android:layout_marginBottom="16dp"
-                android:tint="@color/black"
-                app:backgroundTint="#2D7038"
-                app:rippleColor="#A5CFB5"
-                app:srcCompat="@android:drawable/ic_input_add"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:padding="15dp"
-                android:contentDescription="@string/add_item"/>
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -248,6 +233,22 @@
             android:padding="15dp"
             android:visibility="gone"
             android:contentDescription="@string/delete_item"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:layout_marginBottom="16dp"
+                android:tint="@color/black"
+                app:backgroundTint="#2D7038"
+                app:rippleColor="#A5CFB5"
+                app:srcCompat="@android:drawable/ic_input_add"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:padding="15dp"
+                android:contentDescription="@string/add_item"/>
+
     </RelativeLayout>
 
 

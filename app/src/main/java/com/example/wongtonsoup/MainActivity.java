@@ -113,23 +113,27 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {// Handle item click
                 //Handle item click
+                Item item = ItemDataList.get(position);
                 CheckBox checkBox = view.findViewById(R.id.select);
                 checkBox.setChecked(!checkBox.isChecked());
                 // add or remove the item from the list of selected items
                 if (checkBox.isChecked()){
                     // show the delete button if at least one item is selected
-                    if (DisplayedItemDataList.isEmpty()) {
-                        fabDelete.setVisibility(View.VISIBLE);
-                    }
-                    DisplayedItemDataList.add(ItemDataList.get(position));
+                    fabDelete.setVisibility(View.VISIBLE);
+                    selectedItems.add(item);
+                    // show toast of selected item
+                    Snackbar.make(view, "Selected: " + item.getDescription(), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
                 else{
-                    DisplayedItemDataList.remove(ItemDataList.get(position));
+                    selectedItems.remove(ItemDataList.get(position));
                     // hide the delete button if no items are selected
-                    if (DisplayedItemDataList.isEmpty()) {
+                    if (selectedItems.isEmpty()) {
                         fabDelete.setVisibility(View.GONE);
                     }
                 }
+                //Update adapter to reflect the checkbox change
+                itemAdapter.notifyDataSetChanged();
             }
         });
         // Set a click listener for the delete button
@@ -138,14 +142,14 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
             @Override
             public void onClick(View v) {
                 // delete all the items in the list of selected items
-                for (Item item : DisplayedItemDataList){
+                for (Item item : selectedItems){
                     ItemDataList.remove(item);
                 }
                 // update the list view
                 itemAdapter.updateData(ItemDataList);
                 itemAdapter.notifyDataSetChanged();
                 // clear the list of selected items
-                DisplayedItemDataList.clear();
+                selectedItems.clear();
             }
         });
 

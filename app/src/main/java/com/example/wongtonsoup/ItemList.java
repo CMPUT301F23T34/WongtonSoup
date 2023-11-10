@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -55,9 +56,18 @@ public class ItemList extends ArrayAdapter<Item> {
             chip.setText(tag.getName());
             chipGroup.addView(chip);
         }
-
-
-
+        // Handle check box
+        assert getView != null;
+        CheckBox checkBox = getView.findViewById(R.id.select);
+        checkBox.setChecked(currentItem.isSelected());
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentItem.setSelected(checkBox.isChecked());
+                // Notify the adapter
+                notifyDataSetChanged();
+            }
+        });
 
         // Set the image, content, and tags in the layout
         assert getView != null;

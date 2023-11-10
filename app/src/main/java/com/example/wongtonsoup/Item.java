@@ -22,6 +22,8 @@ public class Item implements Serializable {
     private Float value;
     private String comment;
     private TagList tags;
+    // for selecting to add tags or delete items
+    private boolean isSelected;
 
     /**
      * Constructs an item containing a serial number
@@ -44,6 +46,7 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
+        this.isSelected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
@@ -67,6 +70,8 @@ public class Item implements Serializable {
         this.model = model;
         this.value = value;
         this.comment = comment;
+        this.tags = new TagList();
+        this.isSelected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
@@ -245,6 +250,17 @@ public class Item implements Serializable {
      */
     public TagList getTags() {
         return tags;
+    }
+    /**
+     * return isSelected
+     * @return isSelected
+     * @since 10/25/2023
+     */
+    public boolean isSelected() {
+        return isSelected;
+    }
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     /**
