@@ -1,11 +1,7 @@
 package com.example.wongtonsoup;
-import android.annotation.SuppressLint;
 
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
-import java.util.Date;
 
 /**
  * Class for an item object
@@ -23,7 +19,7 @@ public class Item implements Serializable {
     private String comment;
     private TagList tags;
     // for selecting to add tags or delete items
-    private boolean isSelected;
+    private boolean selected;
 
     /**
      * Constructs an item containing a serial number
@@ -46,7 +42,7 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
-        this.isSelected = false;
+        this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
@@ -71,7 +67,7 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
-        this.isSelected = false;
+        this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
@@ -257,10 +253,10 @@ public class Item implements Serializable {
      * @since 10/25/2023
      */
     public boolean isSelected() {
-        return isSelected;
+        return selected;
     }
     public void setSelected(boolean selected) {
-        this.isSelected = selected;
+        this.selected = selected;
     }
 
     /**

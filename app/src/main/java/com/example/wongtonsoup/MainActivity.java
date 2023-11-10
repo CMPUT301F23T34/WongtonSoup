@@ -89,12 +89,14 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         //Set up item click listener
         ItemList.setOnItemClickListener((parent, view, position, id) -> {
-            // Get the item clicked
-            Item item = itemList.getItem(position);
-           // Toggle the selected state
+            // Handle item click here
+            Item item = (Item) parent.getItemAtPosition(position);
+            // Toggle the selection state
             item.setSelected(!item.isSelected());
-           // Tell the adapter that the item was selected
+            // Notify the adapter that the item was selected/deselected
             itemList.notifyDataSetChanged();
+            // Log to check if the method is being called
+            Log.d("ItemSelection", "Item at position " + position + " selected: " + item.isSelected());
         });
         //Set up click listner for delete button
         fabDelete.setOnClickListener(view -> {
@@ -147,19 +149,21 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      * Delete all selected items from the list view
      */
     private void deleteSelectedItems(){
-        //Iterate through the list from back to front
-        for (int i = ItemDataList.size() - 1; i >= 0; i--){
-            //Check if the current item is selected
-            if (ItemList.isItemChecked(i)){
-                //Remove the current item from the adapter
-                ItemDataList.remove(i);
+        Log.d("DeleteItems", "Deleting selected items");
+        // Iterate through the list from back to front
+        for (int i = ItemList.getCount() - 1; i >= 0; i--) {
+            // Check if the current item is selected
+            if (ItemList.isItemChecked(i)) {
+                // Remove the current item from both itemList and ItemDataList
+                Item removedItem = itemList.getItem(i);
+                ItemDataList.remove(removedItem);
+                itemList.remove(removedItem);
             }
         }
-        //Clear the checked items
+        // Clear the checked items
         ItemList.clearChoices();
-        //Notifiy the adapter the data has changed
+        // Notify the adapter that the data set has changed
         itemList.notifyDataSetChanged();
-
     }
 
     /**
@@ -167,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      */
     @Override
     public void onItemListChanged() {
+        Log.d("ItemDataList", "Size: " + ItemDataList.size());
         updateTotalAmount();
     }
 

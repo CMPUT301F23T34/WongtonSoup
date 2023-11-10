@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,6 +58,9 @@ public class ItemList extends ArrayAdapter<Item> {
         dateTextView.setText(currentItem.getPurchaseDate().toString());
         makeTextView.setText(currentItem.getMake());
         priceTextView.setText(String.format(Locale.getDefault(), "%.2f", currentItem.getValue()));
+
+        CheckBox checkBox = convertView.findViewById(R.id.select);
+        checkBox.setChecked(currentItem.isSelected());
 
         // Return the completed view to render on screen
         return convertView;
@@ -112,7 +116,7 @@ public class ItemList extends ArrayAdapter<Item> {
     }
     /**
      * Searchs itemList by value
-     * @return sorted list.
+     * @return sorted lista.
      */
     public List<Item> sortByValue(){
         itemList.sort(Item.byValue); // use the comparator in the Item class
