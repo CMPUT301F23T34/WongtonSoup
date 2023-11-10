@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 
 public class ViewItemActivity extends AppCompatActivity {
 
+    private static final int ADD_EDIT_REQUEST_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,27 +27,53 @@ public class ViewItemActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
 
+        // Display details
         TextView description = findViewById(R.id.item_view_description);
-        description.setText(intent.getStringExtra("Description"));
+        String descriptionText = intent.getStringExtra("Description");
+        description.setText(descriptionText);
 
         TextView make = findViewById(R.id.view_make);
-        make.setText(intent.getStringExtra("Make"));
+        String makeText = intent.getStringExtra("Make");
+        make.setText(makeText);
 
         TextView model = findViewById(R.id.view_model);
-        model.setText(intent.getStringExtra("Model"));
+        String modelText = intent.getStringExtra("Model");
+        model.setText(modelText);
 
         TextView comment = findViewById(R.id.view_comment);
-        comment.setText(intent.getStringExtra("Comment"));
+        String commentText = intent.getStringExtra("Comment");
+        comment.setText(commentText);
 
         TextView date = findViewById(R.id.view_date);
-        comment.setText(intent.getStringExtra("date"));
+        String dateText = intent.getStringExtra("Date");
+        date.setText(dateText);
 
         TextView serial = findViewById(R.id.view_serial);
-        serial.setText(intent.getStringExtra("Serial"));
+        String serialText = intent.getStringExtra("Serial");
+        serial.setText(serialText);
 
         TextView price = findViewById(R.id.item_view_price);
-        price.setText(intent.getStringExtra("Price"));
+        String priceText = intent.getStringExtra("Price");
+        price.setText(priceText);
 
+        // Go to edit
+        Button edit = findViewById(R.id.edit_button);
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
+                newIntent.putExtra("Description", descriptionText);
+                newIntent.putExtra("Make", makeText);
+                newIntent.putExtra("Model", modelText);
+                newIntent.putExtra("Comment", commentText);
+                newIntent.putExtra("Date", dateText);
+                newIntent.putExtra("Price", priceText);
+                newIntent.putExtra("Serial", serialText);
+                startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
+            }
+        });
+
+        // Go back to main
         Button back = findViewById(R.id.view_back_button);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,5 +81,23 @@ public class ViewItemActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+    private void finishAndPassItem(Item item) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("resultItem", item);
+        setResult(RESULT_OK, resultIntent);
+        finish();
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Check if the request code matches and the result is OK
+            if (data != null && data.hasExtra("resultItem")) {
+                Item resultItem = (Item) data.getSerializableExtra("resultItem");
+                finishAndPassItem(resultItem);
+            }
+        }
     }
 }
