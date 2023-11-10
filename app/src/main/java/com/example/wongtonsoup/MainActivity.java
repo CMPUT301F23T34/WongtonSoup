@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SearchView;
 
@@ -25,7 +24,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -34,6 +32,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     private static final int ADD_EDIT_REQUEST_CODE = 1;
+    private static final int VIEW_REQUEST_CODE = 2;
+    private int itemSelected;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     Boolean expanded = false;
@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private CollectionReference itemsRef;
     private CollectionReference tagsRef;
     private CollectionReference usersRef;
-    private FloatingActionButton fab, fabDelete;
 
     ListView ItemList;
     ArrayList<Item> ItemDataList;
@@ -64,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         ItemList = binding.listView;
 
-
         ItemDataList = new ArrayList<>();
         itemList = new ItemList(this, ItemDataList);
         ItemList.setAdapter(itemList);
@@ -82,30 +80,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         itemList.updateData(ItemDataList);
         itemList.notifyDataSetChanged();
 
-        fabDelete = findViewById(R.id.fab_delete);
-
-        // Set up adapter for list vew
-        ItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        //Set up item click listener
-        ItemList.setOnItemClickListener((parent, view, position, id) -> {
-            // Handle item click here
-            Item item = (Item) parent.getItemAtPosition(position);
-            // Toggle the selection state
-            item.setSelected(!item.isSelected());
-            // Notify the adapter that the item was selected/deselected
-            itemList.notifyDataSetChanged();
-            // Log to check if the method is being called
-            Log.d("ItemSelection", "Item at position " + position + " selected: " + item.isSelected());
-        });
-        //Set up click listner for delete button
-        fabDelete.setOnClickListener(view -> {
-            deleteSelectedItems();
-        });
-
 
         binding.fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-            //intent.putExtra();
             startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
         });
 
@@ -129,48 +106,12 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         initSortWidgets();
 
     }
-    /**
-     * update the visibility of the delete button*
-     */
-//    private  void updateFabVisibility(){
-//        int checkedItemCount = ItemList.getCheckedItemCount();
-//        //Show delete button if there are items selected
-//        if (checkedItemCount > 0){
-//            fabDelete.setVisibility(View.VISIBLE);
-//            fab.setVisibility(View.GONE);
-//        }
-//        else {
-//            fabDelete.setVisibility(View.GONE);
-//            fab.setVisibility(View.VISIBLE);
-//        }
-//    }
-    /**
-     * Delete all selected items from the list view
-     */
-    private void deleteSelectedItems(){
-        Log.d("DeleteItems", "Deleting selected items");
-        // Iterate through the list from back to front
-        for (int i = ItemList.getCount() - 1; i >= 0; i--) {
-            // Check if the current item is selected
-            if (ItemList.isItemChecked(i)) {
-                // Remove the current item from both itemList and ItemDataList
-                Item removedItem = itemList.getItem(i);
-                ItemDataList.remove(removedItem);
-                itemList.remove(removedItem);
-            }
-        }
-        // Clear the checked items
-        ItemList.clearChoices();
-        // Notify the adapter that the data set has changed
-        itemList.notifyDataSetChanged();
-    }
 
     /**
      * Specifies the behaviour that should be performed when the displayed itemList changes.
      */
     @Override
     public void onItemListChanged() {
-        Log.d("ItemDataList", "Size: " + ItemDataList.size());
         updateTotalAmount();
     }
 
@@ -420,6 +361,30 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 Log.d("ItemDataList", "Size: " + ItemDataList.size());
             }
         }
+        else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Check if the request code matches and the result is OK
+            if (data != null && data.hasExtra("resultItem")) {
+                Item resultItem = (Item) data.getSerializableExtra("resultItem");
+
+                ItemDataList.set(itemSelected, resultItem);
+                itemAdapter.updateData(ItemDataList);
+                itemAdapter.notifyDataSetChanged();
+
+                // Return to view item
+                Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+                intent.putExtra("Description", itemAdapter.getItem(itemSelected).getDescription());
+                intent.putExtra("Make", itemAdapter.getItem(itemSelected).getMake());
+                intent.putExtra("Model", itemAdapter.getItem(itemSelected).getModel());
+                intent.putExtra("Comment", itemAdapter.getItem(itemSelected).getComment());
+                intent.putExtra("Date", itemAdapter.getItem(itemSelected).getPurchaseDate());
+                intent.putExtra("Price", itemAdapter.getItem(itemSelected).getValueAsString());
+                intent.putExtra("Serial", itemAdapter.getItem(itemSelected).getSerialNumber());
+                startActivityForResult(intent,VIEW_REQUEST_CODE);
+
+                // Log the size of ItemDataList
+                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+            }
+        }
     }
 
     /**
@@ -443,5 +408,24 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         // Check if the day is in the valid range (1 to 31) and the month is in the valid range (1 to 12)
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
+    }
+
+    public void viewItem(View v) {
+        // get view position
+        View parentRow = (View) v.getParent();
+        ListView listView = (ListView) parentRow.getParent();
+        final int position = listView.getPositionForView(parentRow);
+
+        // go to ViewItemActivity
+        Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+        itemSelected = position;
+        intent.putExtra("Description", itemAdapter.getItem(position).getDescription());
+        intent.putExtra("Make", itemAdapter.getItem(position).getMake());
+        intent.putExtra("Model", itemAdapter.getItem(position).getModel());
+        intent.putExtra("Comment", itemAdapter.getItem(position).getComment());
+        intent.putExtra("Date", itemAdapter.getItem(position).getPurchaseDate());
+        intent.putExtra("Price", itemAdapter.getItem(position).getValueAsString());
+        intent.putExtra("Serial", itemAdapter.getItem(position).getSerialNumber());
+        startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
 }
