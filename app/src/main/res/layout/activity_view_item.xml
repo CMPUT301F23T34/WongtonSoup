@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ViewItemActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/activity_view_item">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

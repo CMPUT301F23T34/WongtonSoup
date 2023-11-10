@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemList.setAdapter(itemList);
         com.example.wongtonsoup.ItemList.setListener(this);
 
-        // sample data for testing
+/*        // sample data for testing
         Item sampleItem1 = new Item("09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
         Item sampleItem2 = new Item("16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC");
         Item sampleItem3 = new Item("30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF");
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemDataList.add(sampleItem3);
 
         itemList.updateData(ItemDataList);
-        itemList.notifyDataSetChanged();
+        itemList.notifyDataSetChanged();*/
 
 
         binding.fab.setOnClickListener(view -> {
