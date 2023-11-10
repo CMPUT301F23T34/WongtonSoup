@@ -7,12 +7,13 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <CheckBox
             android:id="@+id/select"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true" />
         <ImageView
             android:id="@+id/photo"
             android:layout_width="wrap_content"
@@ -108,13 +109,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:textSize="11sp"
-                android:text="Tags to do">
-            </TextView>
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/content_chip_group"
+                android:layout_width="353dp"
+                android:layout_height="48dp"
+                android:layout_below="@id/tags"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:longClickable="true"
+                app:singleSelection="false"
+                app:singleLine="true">
+            </com.google.android.material.chip.ChipGroup>
+
         </LinearLayout>
     </HorizontalScrollView>
 </LinearLayout>

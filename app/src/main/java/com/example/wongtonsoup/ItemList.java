@@ -1,10 +1,13 @@
 package com.example.wongtonsoup;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +21,7 @@ public class ItemList extends ArrayAdapter<Item> {
     private Context mContext;
     private List<Item> itemList; // The adapter's own list for display
     private static ItemListListener listener; // Listener for adapter changes
+
 
     // Interface for a class that wants to implement a listener on this class
     public interface ItemListListener {
@@ -58,6 +62,20 @@ public class ItemList extends ArrayAdapter<Item> {
         makeTextView.setText(currentItem.getMake());
         priceTextView.setText(String.format(Locale.getDefault(), "%.2f", currentItem.getValue()));
 
+        CheckBox checkBox = convertView.findViewById(R.id.select);
+        checkBox.setChecked(currentItem.isSelected());
+        // Set an OnCheckedChangeListener to update the selected state when the CheckBox is clicked
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                currentItem.setSelected(isChecked);
+                //Set delete button visibility
+
+
+            }
+        });
+
+
         // Return the completed view to render on screen
         return convertView;
     }
@@ -72,7 +90,8 @@ public class ItemList extends ArrayAdapter<Item> {
         clear(); // Clear the ArrayAdapter's internal list
         addAll(itemList); // Add the adapter's list to the ArrayAdapter's internal list
         notifyDataSetChanged(); // Notify the adapter that the data set has changed
-        if (listener != null){
+        // Notify the listener
+        if (listener != null) {
             listener.onItemListChanged();
         }
     }
@@ -112,12 +131,47 @@ public class ItemList extends ArrayAdapter<Item> {
     }
     /**
      * Searchs itemList by value
-     * @return sorted list.
+     * @return sorted lista.
      */
     public List<Item> sortByValue(){
         itemList.sort(Item.byValue); // use the comparator in the Item class
         return itemList;
     }
+    public void deleteSelectedItems() {
+        Log.d("ItemList", "deleteSelectedItems: " + itemList.size());
+        List<Item> itemsToDelete = new ArrayList<>();
+
+        // Collect selected items
+        for (Item item : itemList) {
+            if (item.isSelected()) {
+                Log.d("ItemList", "isSelected called: " + item.getDescription());
+                itemsToDelete.add(item);
+            }
+        }
+
+        // Remove selected items from the main list
+        itemList.removeAll(itemsToDelete);
+
+        // Clear the adapter's list and add the updated list
+        clear();
+        addAll(itemList);
+
+        // Notify the adapter that the data set has changed
+        notifyDataSetChanged();
+
+        // Clear the selection
+        clearSelection();
+    }
+
+    /**
+     * Clear the selection of all items
+     */
+    private void clearSelection() {
+        for (Item item : itemList) {
+            item.setSelected(false);
+        }
+    }
+   
 
 }
 
