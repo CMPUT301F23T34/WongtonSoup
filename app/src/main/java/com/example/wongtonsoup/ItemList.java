@@ -122,19 +122,7 @@ public class ItemList extends ArrayAdapter<Item> {
         itemList.sort(Item.byValue); // use the comparator in the Item class
         return itemList;
     }
-    /**
-     * check if item is checked
-     * @return true if checked, false otherwise.
-     * @param position
-     */
-    public boolean isItemChecked(int position) {
-        // Ensure the position is valid
-        if (position >= 0 && position < getCount()) {
-            // Check if the item is selected in the adapter
-            return getItem(position).isSelected();
-        }
-        return false;
-    }
+
 
 }
 

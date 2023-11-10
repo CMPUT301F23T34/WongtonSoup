@@ -1,5 +1,7 @@
 package com.example.wongtonsoup;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.Comparator;
 
@@ -253,9 +255,12 @@ public class Item implements Serializable {
      * @since 10/25/2023
      */
     public boolean isSelected() {
+        Log.d("Item", "isSelected: " + selected);
         return selected;
     }
     public void setSelected(boolean selected) {
+        Log.d("Item", "set selected: " + selected);
+
         this.selected = selected;
     }
 

@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         fabDelete = findViewById(R.id.fab_delete);
 
         // Set up adapter for list vew
-        ItemList.setAdapter(itemList);
         ItemList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         //Set up item click listener
         ItemList.setOnItemClickListener((parent, view, position, id) -> {
