@@ -41,10 +41,9 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/tags_chip_group"
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:longClickable="true"
-        android:layout_height="109dp"></com.google.android.material.chip.ChipGroup>
+        android:layout_height="match_parent" />
+
 </LinearLayout>
 

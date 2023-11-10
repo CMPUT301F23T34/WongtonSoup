@@ -11,6 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+
 import java.util.ArrayList;
 
 /**
@@ -43,6 +46,16 @@ public class ItemList extends ArrayAdapter<Item> {
 
         // Log position and other relevant information
         Log.d("ItemAdapter", "getView - position: " + position);
+
+        // Set tags in the layout
+        ChipGroup chipGroup = convertView.findViewById(R.id.content_chip_group);
+        chipGroup.removeAllViews();
+        for (Tag tag : currentItem.getTags().getTags()) {
+            Chip chip = new Chip(context);
+            chip.setText(tag.getName());
+            chipGroup.addView(chip);
+        }
+
 
         // Set the image, content, and tags in the layout
         assert convertView != null;

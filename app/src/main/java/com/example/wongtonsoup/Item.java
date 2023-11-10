@@ -21,6 +21,7 @@ public class Item implements Serializable {
     private String serialNumber;
     private Float value;
     private String comment;
+    private TagList tags;
 
     /**
      * Constructs an item containing a serial number
@@ -42,6 +43,7 @@ public class Item implements Serializable {
         this.serialNumber = serialNumber;
         this.value = value;
         this.comment = comment;
+        this.tags = new TagList();
         if (value < 0){
             throw new IllegalArgumentException();
         }
@@ -235,6 +237,14 @@ public class Item implements Serializable {
         else {
             throw new IllegalArgumentException();
         }
+    }
+    /**
+     * Return tags
+     * @return tags
+     * @since 10/25/2023
+     */
+    public TagList getTags() {
+        return tags;
     }
 
     /**
