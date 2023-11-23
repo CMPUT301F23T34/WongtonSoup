@@ -146,13 +146,13 @@ public class AddEditActivity extends AppCompatActivity {
             expenseDate.setError("Invalid date format. Please use dd-mm-yyyy");
         }
 
-       boolean isExpenseCommentInvalid = !(expenseComment.getText().length() <= 20);
+       boolean isExpenseCommentInvalid = !(expenseComment.getText().length() <= 40);
 
        if (!isExpenseCommentInvalid){
            expenseComment.setError(null);
        }
        else if (isExpenseCommentInvalid){
-           expenseComment.setError("Comment cannot exceed 20 characters");
+           expenseComment.setError("Comment cannot exceed 40 characters");
        }
 
        boolean isExpenseMakeEmpty = TextUtils.isEmpty(expenseMake.getText().toString());
@@ -230,6 +230,16 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber = findViewById(R.id.add_edit_serial);
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
+
+        // Fill out fields if editing
+        Intent intent = getIntent();
+        expenseDescription.setText(intent.getStringExtra("Description"));
+        expenseDate.setText(intent.getStringExtra("Date"));
+        expenseValue.setText(intent.getStringExtra("Price"));
+        expenseComment.setText(intent.getStringExtra("Comment"));
+        expenseSerialNumber.setText(intent.getStringExtra("Serial"));
+        expenseMake.setText(intent.getStringExtra("Make"));
+        expenseModel.setText(intent.getStringExtra("Model"));
 
         // To disable the button
         addEditCheckButton.setEnabled(false);

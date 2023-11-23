@@ -1,11 +1,9 @@
 package com.example.wongtonsoup;
-import android.annotation.SuppressLint;
+
+import android.util.Log;
 
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
-import java.util.Date;
 
 /**
  * Class for an item object
@@ -21,6 +19,9 @@ public class Item implements Serializable {
     private String serialNumber;
     private Float value;
     private String comment;
+    private TagList tags;
+    // for selecting to add tags or delete items
+    private boolean selected;
 
     /**
      * Constructs an item containing a serial number
@@ -42,6 +43,8 @@ public class Item implements Serializable {
         this.serialNumber = serialNumber;
         this.value = value;
         this.comment = comment;
+        this.tags = new TagList();
+        this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
@@ -65,6 +68,8 @@ public class Item implements Serializable {
         this.model = model;
         this.value = value;
         this.comment = comment;
+        this.tags = new TagList();
+        this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
@@ -236,6 +241,28 @@ public class Item implements Serializable {
             throw new IllegalArgumentException();
         }
     }
+    /**
+     * Return tags
+     * @return tags
+     * @since 10/25/2023
+     */
+    public TagList getTags() {
+        return tags;
+    }
+    /**
+     * return isSelected
+     * @return isSelected
+     * @since 10/25/2023
+     */
+    public boolean isSelected() {
+        Log.d("Item", "isSelected: " + selected);
+        return selected;
+    }
+    public void setSelected(boolean selected) {
+        Log.d("Item", "set selected: " + selected);
+
+        this.selected = selected;
+    }
 
     /**
      * Validates a date
@@ -261,6 +288,9 @@ public class Item implements Serializable {
     }
 
 
+    /**
+     * Returns a negative number if item1 has an earlier date than item2. 0 if equal. positive otherwise.
+     */
     public static Comparator<Item> byDate = new Comparator<Item>() {
         @Override
         public int compare(Item item1, Item item2) {
@@ -280,6 +310,9 @@ public class Item implements Serializable {
         }
     };
 
+    /**
+     * Returns a negative number if o1 has a description lexigraphically before o2. 0 if equal. positive otherwise.
+     */
     public static Comparator<Item> byDescription = new Comparator<Item>() {
         @Override
         public int compare(Item o1, Item o2) {
@@ -287,6 +320,9 @@ public class Item implements Serializable {
         }
     };
 
+    /**
+     * Returns a negative number if o1 has a make lexigraphically before o2. 0 if equal. positive otherwise.
+     */
     public static Comparator<Item> byMake = new Comparator<Item>() {
         @Override
         public int compare(Item o1, Item o2) {
@@ -294,6 +330,9 @@ public class Item implements Serializable {
         }
     };
 
+    /**
+     * Returns a negative number if o1 has a lesser value than o2. 0 if equal. positive otherwise.
+     */
     public static Comparator<Item> byValue = new Comparator<Item>() {
         @Override
         public int compare(Item o1, Item o2) {

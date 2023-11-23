@@ -1,5 +1,6 @@
 package com.example.wongtonsoup;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -8,7 +9,7 @@ import java.util.ArrayList;
  * @version 1.0
  * @since 11/01/2023
  */
-public class TagList{
+public class TagList implements Serializable {
     private ArrayList<Tag> current_tags;
 
     public TagList(Tag current_tag){

@@ -1,7 +1,6 @@
 package com.example.wongtonsoup;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import android.text.Editable;
@@ -9,39 +8,33 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.SearchView;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.view.WindowCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.wongtonsoup.databinding.ActivityMainBinding;
-import com.example.wongtonsoup.ItemAdapter;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemAdapterListener {
+public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     private static final int ADD_EDIT_REQUEST_CODE = 1;
+    private static final int VIEW_REQUEST_CODE = 2;
+    private int itemSelected;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     Boolean expanded = false;
@@ -49,11 +42,12 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
     private CollectionReference itemsRef;
     private CollectionReference tagsRef;
     private CollectionReference usersRef;
+    //delete button
+    private FloatingActionButton fabDelete;
 
     ListView ItemList;
     ArrayList<Item> ItemDataList;
-    ArrayList<Item> DisplayedItemDataList; // what's currently on the screen
-    ItemAdapter itemAdapter;
+    com.example.wongtonsoup.ItemList itemList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,11 +67,11 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         ItemList = binding.listView;
 
         ItemDataList = new ArrayList<>();
-        itemAdapter = new ItemAdapter(this, ItemDataList);
-        ItemList.setAdapter(itemAdapter);
-        ItemAdapter.setListener(this);
+        itemList = new ItemList(this, ItemDataList);
+        ItemList.setAdapter(itemList);
+        com.example.wongtonsoup.ItemList.setListener(this);
 
-        // sample data for testing
+/*        // sample data for testing
         Item sampleItem1 = new Item("09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
         Item sampleItem2 = new Item("16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC");
         Item sampleItem3 = new Item("30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF");
@@ -86,13 +80,12 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         ItemDataList.add(sampleItem2);
         ItemDataList.add(sampleItem3);
 
-        itemAdapter.updateData(ItemDataList);
-        itemAdapter.notifyDataSetChanged();
+        itemList.updateData(ItemDataList);
+        itemList.notifyDataSetChanged();*/
 
 
         binding.fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-            //intent.putExtra();
             startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
         });
 
@@ -114,26 +107,44 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         });
         initSearchWidgets();
         initSortWidgets();
+        fabDelete = findViewById(R.id.fab_delete);
+        fabDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // delete all selected items
+                deleteSelectedItems();
+            }
+        });
 
     }
 
+    /**
+     * Specifies the behaviour that should be performed when the displayed itemList changes.
+     */
     @Override
-    public void onItemAdapterChanged() {
+    public void onItemListChanged() {
+        // Update the total amount after deletion
         updateTotalAmount();
     }
 
+    /**
+     * Updates the estimated value with the sum of all items currently displayed
+     */
     private void updateTotalAmount() {
         TextView totalAmount = findViewById(R.id.estimated_value);
-        totalAmount.setText(itemAdapter.getTotalDisplayed());
+        totalAmount.setText(itemList.getTotalDisplayed());
     }
 
+    /**
+     * Initialize the sorting buttons and their onClickListeners.
+     */
     private void initSortWidgets(){
         AppCompatButton dateSortButton = findViewById(R.id.sort_date);
         dateSortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemAdapter.sortByDate());
-                itemAdapter.updateData(sorted_list);
+                List<Item> sorted_list = new ArrayList<>(itemList.sortByDate());
+                itemList.updateData(sorted_list);
             }
         });
 
@@ -141,8 +152,8 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         descSortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemAdapter.sortByDescription());
-                itemAdapter.updateData(sorted_list);
+                List<Item> sorted_list = new ArrayList<>(itemList.sortByDescription());
+                itemList.updateData(sorted_list);
             }
         });
 
@@ -150,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         makeSortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemAdapter.sortByMake());
-                itemAdapter.updateData(sorted_list);
+                List<Item> sorted_list = new ArrayList<>(itemList.sortByMake());
+                itemList.updateData(sorted_list);
             }
         });
 
@@ -159,12 +170,15 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         valueSortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemAdapter.sortByValue());
-                itemAdapter.updateData(sorted_list);
+                List<Item> sorted_list = new ArrayList<>(itemList.sortByValue());
+                itemList.updateData(sorted_list);
             }
         });
     }
 
+    /**
+     * Initializes the listeners for any changes in the search boxes.
+     */
     private void initSearchWidgets() {
         SearchView descrptionSearchView = (SearchView) findViewById(R.id.search_view);
         descrptionSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -174,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                itemAdapter.updateData(getFilteredItems());
+                itemList.updateData(getFilteredItems());
                 return false;
             }
         });
@@ -187,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                itemAdapter.updateData(getFilteredItems());
+                itemList.updateData(getFilteredItems());
                 return false;
             }
         });
@@ -201,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (isValidDate(startDateEditText.getText().toString())){
                     startDateEditText.setError(null);
-                    itemAdapter.updateData(getFilteredItems());
+                    itemList.updateData(getFilteredItems());
                 }
                 else {
                     startDateEditText.setError("Invalid date format. Please use dd-mm-yyyy");
@@ -221,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (isValidDate(endDateEditText.getText().toString())){
                     endDateEditText.setError(null);
-                    itemAdapter.updateData(getFilteredItems());
+                    itemList.updateData(getFilteredItems());
                 }
                 else {
                     endDateEditText.setError("Invalid date format. Please use dd-mm-yyyy");
@@ -233,6 +247,10 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         });
     }
 
+    /**
+     * Get the list of items adhering to ALL filters currently displayed.
+     * @return an ArrayList of Items that all match the filters.
+     */
     private ArrayList<Item> getFilteredItems(){
         ArrayList<Item> filteredItems = new ArrayList<Item>(ItemDataList); // copy item data list
 
@@ -348,8 +366,57 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
                 Item resultItem = (Item) data.getSerializableExtra("resultItem");
 
                 ItemDataList.add(resultItem);
-                itemAdapter.updateData(ItemDataList);
-                itemAdapter.notifyDataSetChanged();
+                itemList.updateData(ItemDataList);
+                itemList.notifyDataSetChanged();
+
+                // Log the size of ItemDataList
+                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+            }
+        }
+        else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Check if the request code matches and the result is OK
+            if (data != null && data.hasExtra("resultItem")) {
+                Item resultItem = (Item) data.getSerializableExtra("resultItem");
+
+                ItemDataList.set(itemSelected, resultItem);
+                itemList.updateData(ItemDataList);
+                itemList.notifyDataSetChanged();
+
+                // Return to view item
+                Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+                intent.putExtra("Description", itemList.getItem(itemSelected).getDescription());
+                intent.putExtra("Make", itemList.getItem(itemSelected).getMake());
+                intent.putExtra("Model", itemList.getItem(itemSelected).getModel());
+                intent.putExtra("Comment", itemList.getItem(itemSelected).getComment());
+                intent.putExtra("Date", itemList.getItem(itemSelected).getPurchaseDate());
+                intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
+                intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
+                startActivityForResult(intent,VIEW_REQUEST_CODE);
+
+                // Log the size of ItemDataList
+                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+            }
+        }
+        else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Check if the request code matches and the result is OK
+            if (data != null && data.hasExtra("resultItem")) {
+                Item resultItem = (Item) data.getSerializableExtra("resultItem");
+
+                ItemDataList.set(itemSelected, resultItem);
+                itemList.updateData(ItemDataList);
+                itemList.notifyDataSetChanged();
+
+
+                // Return to view item
+                Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+                intent.putExtra("Description", itemList.getItem(itemSelected).getDescription());
+                intent.putExtra("Make", itemList.getItem(itemSelected).getMake());
+                intent.putExtra("Model", itemList.getItem(itemSelected).getModel());
+                intent.putExtra("Comment", itemList.getItem(itemSelected).getComment());
+                intent.putExtra("Date", itemList.getItem(itemSelected).getPurchaseDate());
+                intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
+                intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
+                startActivityForResult(intent,VIEW_REQUEST_CODE);
 
                 // Log the size of ItemDataList
                 Log.d("ItemDataList", "Size: " + ItemDataList.size());
@@ -357,6 +424,11 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         }
     }
 
+    /**
+     * Validates whether a string date follows dd-mm-yyyy format.
+     * @param date
+     * @return True if the string date is valid, false otherwise.
+     */
     public boolean isValidDate(String date) {
         // Define a regular expression for the dd_mm_yyyy format
         String datePattern = "^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(\\d{4})$";
@@ -374,4 +446,33 @@ public class MainActivity extends AppCompatActivity implements ItemAdapter.ItemA
         // Check if the day is in the valid range (1 to 31) and the month is in the valid range (1 to 12)
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
     }
+
+    public void viewItem(View v) {
+        // get view position
+        View parentRow = (View) v.getParent();
+        ListView listView = (ListView) parentRow.getParent();
+        final int position = listView.getPositionForView(parentRow);
+
+        // go to ViewItemActivity
+        Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
+        itemSelected = position;
+        intent.putExtra("Description", itemList.getItem(position).getDescription());
+        intent.putExtra("Make", itemList.getItem(position).getMake());
+        intent.putExtra("Model", itemList.getItem(position).getModel());
+        intent.putExtra("Comment", itemList.getItem(position).getComment());
+        intent.putExtra("Date", itemList.getItem(position).getPurchaseDate());
+        intent.putExtra("Price", itemList.getItem(position).getValueAsString());
+        intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
+        startActivityForResult(intent,VIEW_REQUEST_CODE);
+    }
+    /**
+     * Delete selected items when the delete button is clicked
+     */
+    private void deleteSelectedItems() {
+        Log.d("MainActivity", "deleteSelectedItems: ");
+        itemList.deleteSelectedItems();
+        updateTotalAmount(); // Update the total amount after deletion
+    }
+
+
 }

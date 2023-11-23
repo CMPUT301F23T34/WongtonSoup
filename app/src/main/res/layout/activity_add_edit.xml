@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".AddEditActivity">
+    tools:context=".AddEditActivity"
+    android:id="@+id/activity_add_edit">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -227,16 +228,16 @@
             android:textSize="18sp" />
 
         <EditText
-                android:id="@+id/add_edit_comment"
-                android:layout_width="329dp"
-                android:layout_height="88dp"
-                android:layout_below="@id/comment"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="5dp"
-                android:hint="@string/add_a_comment_about_the_item"
-                android:textSize="15sp"
-                android:autofillHints=""
-                android:inputType="textPersonName"/>
+            android:id="@+id/add_edit_comment"
+            android:layout_width="354dp"
+            android:layout_height="63dp"
+            android:layout_below="@id/comment"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="5dp"
+            android:autofillHints=""
+            android:hint="@string/add_a_comment_about_the_item"
+            android:inputType="textPersonName"
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/tags"
@@ -257,20 +258,31 @@
                 android:layout_marginTop="-7dp"
                 android:background="@android:color/transparent"
                 android:drawableTop="@drawable/add_box"/>
-        
-        <com.google.android.material.chip.ChipGroup
-                android:id="@+id/add_edit_chip_group"
-                android:layout_width="353dp"
-                android:layout_height="48dp"
-                android:layout_below="@id/tags"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="5dp"
-                android:longClickable="true"
-                app:singleSelection="false">
-        </com.google.android.material.chip.ChipGroup>
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tags"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/add_edit_chip_group"
+                    android:layout_width="353dp"
+                    android:layout_height="48dp"
+                    android:layout_below="@id/tags"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="5dp"
+                    android:longClickable="true"
+                    app:singleSelection="false"
+                    app:singleLine="true">
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
     </RelativeLayout>
 
     <Button
+
         android:id="@+id/add_edit_check"
         android:layout_width="52dp"
         android:layout_height="48dp"
