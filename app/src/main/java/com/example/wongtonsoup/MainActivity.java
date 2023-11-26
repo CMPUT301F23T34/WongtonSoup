@@ -30,6 +30,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+
+import android.provider.Settings;
+
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     private static final int ADD_EDIT_REQUEST_CODE = 1;
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private CollectionReference usersRef;
     //delete button
     private FloatingActionButton fabDelete;
+    private String defaultUserPfp;
 
     ListView ItemList;
     ArrayList<Item> ItemDataList;
@@ -51,16 +58,46 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
+
+        String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d("MainActivity", "Device ID: " + device_id);
 
         db = FirebaseFirestore.getInstance();
 
         itemsRef = db.collection("items");
         tagsRef = db.collection("tags");
         usersRef = db.collection("users");
+
+        usersRef.document(device_id).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().exists()) {  // if user id exists in db
+                    Log.d("MainActivity", "User exists");
+                } else {
+                    Log.d("MainActivity", "User does not exist. Creating new user...");
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+                    String currentDate = sdf.format(new Date());
+
+                    String defaultName = "User";
+
+                    User newUser = new User(device_id, currentDate, defaultName);
+
+                    usersRef.document(device_id).set(newUser.toMap()).addOnSuccessListener(aVoid -> {
+                        Log.d("MainActivity", "User successfully created!");
+                    }).addOnFailureListener(e -> {
+                        Log.d("MainActivity", "Failed with: ", e);
+                    });
+
+                }
+            } else {
+                Log.d("MainActivity", "Failed with: ", task.getException());
+            }
+        });
 
 //        ItemList = findViewById(R.id.listView);
 
@@ -345,6 +382,24 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.profile) {
+
+            Intent intent = new Intent(this, ProfileActivity.class);
+
+            String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+            usersRef.document(device_id).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult().exists()) {
+                    String joinDate = task.getResult().getString("joined");
+                    String name = task.getResult().getString("name");
+                    intent.putExtra("USER_ID", device_id);
+                    intent.putExtra("JOIN_DATE", joinDate);
+                    intent.putExtra("USER_NAME", name);
+
+                    startActivity(intent);
+                } else {
+                    Log.d("MainActivity", "Failed with: ", task.getException());
+                }
+            });
             return true;
         }
         else if (id == R.id.scan) {
