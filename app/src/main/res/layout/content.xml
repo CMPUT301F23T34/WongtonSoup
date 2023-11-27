@@ -90,6 +90,7 @@
             </LinearLayout>
 
         </LinearLayout>
+
     </RelativeLayout>
     <Button
         android:id="@+id/get_item_info_button"
@@ -103,10 +104,12 @@
         android:onClick="viewItem"
         android:layout_gravity="right"/>
     <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <com.google.android.material.chip.ChipGroup
             android:layout_width="wrap_content"
+<<<<<<< Updated upstream
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <com.google.android.material.chip.ChipGroup
@@ -122,5 +125,14 @@
             </com.google.android.material.chip.ChipGroup>
 
         </LinearLayout>
+=======
+            android:layout_height="29dp"
+            android:id="@+id/content_chip_group"
+            app:singleSelection="false"
+            app:signleline="true">
+        </com.google.android.material.chip.ChipGroup>
+>>>>>>> Stashed changes
     </HorizontalScrollView>
+
+
 </LinearLayout>
