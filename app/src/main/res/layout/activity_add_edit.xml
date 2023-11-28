@@ -282,6 +282,7 @@
     </RelativeLayout>
 
     <Button
+
         android:id="@+id/add_edit_check"
         android:layout_width="52dp"
         android:layout_height="48dp"

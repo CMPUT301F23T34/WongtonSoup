@@ -12,14 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import kotlin.contracts.Returns;
 
 public class ItemList extends ArrayAdapter<Item> {
 
@@ -80,18 +75,6 @@ public class ItemList extends ArrayAdapter<Item> {
             }
         });
 
-<<<<<<< Updated upstream
-=======
-        // set tags in the layout
-        ChipGroup chipGroup = convertView.findViewById(R.id.content_chip_group);
-        ArrayList<Tag> tags = currentItem.getTags().getTags();
-        for (Tag tag : tags) {
-            Chip chip = new Chip(context);
-            chip.setText(tag.getName());
-            chipGroup.addView(chip);
-        }
-
->>>>>>> Stashed changes
 
         // Return the completed view to render on screen
         return convertView;
@@ -112,9 +95,7 @@ public class ItemList extends ArrayAdapter<Item> {
             listener.onItemListChanged();
         }
     }
-    /**
-     * Returns the total value of all items in the list
-     */
+
     public String getTotalDisplayed(){
         double total = 0;
         for (int i = 0 ; i < itemList.size() ; i++){
@@ -183,14 +164,14 @@ public class ItemList extends ArrayAdapter<Item> {
     }
 
     /**
-     * Clear the selection of all items, public for testing
+     * Clear the selection of all items
      */
-    public void clearSelection() {
+    private void clearSelection() {
         for (Item item : itemList) {
             item.setSelected(false);
         }
     }
-
+   
 
 }
 

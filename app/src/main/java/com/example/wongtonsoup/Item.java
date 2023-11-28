@@ -20,11 +20,8 @@ public class Item implements Serializable {
     private Float value;
     private String comment;
     private TagList tags;
-<<<<<<< Updated upstream
     // for selecting to add tags or delete items
     private boolean selected;
-=======
->>>>>>> Stashed changes
 
     /**
      * Constructs an item containing a serial number
@@ -47,13 +44,10 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
-<<<<<<< Updated upstream
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
-=======
->>>>>>> Stashed changes
     }
 
     /**
@@ -75,14 +69,10 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
-<<<<<<< Updated upstream
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
-=======
-
->>>>>>> Stashed changes
     }
 
     /**
@@ -243,7 +233,6 @@ public class Item implements Serializable {
      * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-<<<<<<< Updated upstream
     public void setPurchaseDate(String purchaseDate) {
         if (isValidDate(purchaseDate)){
             this.purchaseDate = purchaseDate;
@@ -297,20 +286,6 @@ public class Item implements Serializable {
         // Check if the day is in the valid range (1 to 31) and the month is in the valid range (1 to 12)
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
     }
-=======
-    public void setPurchaseDate(Date purchaseDate) {
-        this.purchaseDate = purchaseDate;
-    }
-    /**
-     * Get tags
-     * @return tags
-     * @since 10/25/2023
-     */
-    public TagList getTags() {
-        return tags;
-    }
-}
->>>>>>> Stashed changes
 
 
     /**
