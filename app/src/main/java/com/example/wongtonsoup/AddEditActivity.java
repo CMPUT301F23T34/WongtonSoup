@@ -15,8 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class AddEditActivity extends AppCompatActivity {
-    // Assume we have item with associated tags lise
-//    private Item item;
+
     private EditText expenseDescription;
     private EditText expenseDate;
     private EditText expenseValue;
@@ -25,25 +24,6 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseMake;
     private EditText expenseModel;
 
-    //List<Tag> tags = item.getTags();
-
-    // Find the ChipGroup view in layout
-//    ChipGroup chipGroup = findViewById(R.id.add_edit_chip_group);
-    //    //Iterate through tags and add a chip for each one
-//    for (Tag tag : tags) {
-//        Chip chip = new Chip(this);
-//        chip.setText(tag.getName());
-//        chip.setCloseIconVisible(true);
-//    //Add a click listener to handle interactions with the tag
-//    chip.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onLongClick(View view) {
-//            // Handle tag click, e.g., remove the tag from the item
-//        }
-//    });
-//
-//    // Add the Chip to the ChipGroup
-//    chipGroup.addView(chip);
     /**
      * Creates an Item object with data from EditText fields and performs actions when the button is enabled.
      *
@@ -57,6 +37,7 @@ public class AddEditActivity extends AppCompatActivity {
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
+        TagList tags = new TagList();
 
         // convert charge to a float object
         Float value = Float.valueOf(str_value);
@@ -227,6 +208,7 @@ public class AddEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
+        Button addTagButton = findViewById(R.id.add_tag_button);
 
         expenseDescription = findViewById(R.id.add_edit_description);
         expenseDate = findViewById(R.id.add_edit_date);
@@ -257,6 +239,17 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseSerialNumber, addEditCheckButton);
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
+
+        // set up click listener for add tag button
+        addTagButton.setOnClickListener(view -> {
+            // Check if the button is enabled before performing actions
+            if (addTagButton.isEnabled()) {
+                Tags<String> existingTags = /* Get existing tags from your item */;
+                TagDialog tagDialog = new TagDialog(AddEditActivity.this, Tags);
+                tagDialog.show();
+            }
+        });
+
 
         addEditCheckButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
