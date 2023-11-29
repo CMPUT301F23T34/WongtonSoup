@@ -90,6 +90,7 @@
             </LinearLayout>
 
         </LinearLayout>
+
     </RelativeLayout>
     <Button
         android:id="@+id/get_item_info_button"
@@ -103,12 +104,9 @@
         android:onClick="viewItem"
         android:layout_gravity="right"/>
     <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1">
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/content_chip_group"
                 android:layout_width="353dp"
@@ -116,11 +114,11 @@
                 android:layout_below="@id/tags"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="5dp"
-                android:longClickable="true"
                 app:singleSelection="false"
                 app:singleLine="true">
             </com.google.android.material.chip.ChipGroup>
 
-        </LinearLayout>
     </HorizontalScrollView>
+
+
 </LinearLayout>
