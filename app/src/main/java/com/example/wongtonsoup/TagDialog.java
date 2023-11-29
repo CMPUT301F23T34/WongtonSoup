@@ -10,6 +10,8 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -38,7 +40,7 @@ public class TagDialog extends Dialog {
         setContentView(R.layout.tag_dialog_layout);
 
         tagInput = findViewById(R.id.tag_input);
-        chipGroup = findViewById(R.id.content_chip_group);
+        chipGroup = findViewById(R.id.tag_dialog_chip_group);
 
         // Add existing tags to ChipGroup
         for (Tag tag : existingTags) {
@@ -64,6 +66,22 @@ public class TagDialog extends Dialog {
             }
         });
 
+        Button submitButton = findViewById(R.id.submit_tags_button);
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // add selected tags to selectedTags
+                for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                    Chip chip = (Chip) chipGroup.getChildAt(i);
+                    if (chip.isChecked()) {
+                        selectedTags.add(chip.getText().toString());
+                    }
+                }
+                Toast.makeText(context, "tags: " + existingTags.toString(), Toast.LENGTH_SHORT).show();
+                dismiss();
+            }
+        });
+
         Button cancelButton = findViewById(R.id.cancel_tag_dialog_button);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,12 +99,14 @@ public class TagDialog extends Dialog {
         chip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // Add or remove tag from selectedTags
+                // print the tag that was checked
                 if (isChecked) {
-                    selectedTags.add(tag);
-                } else {
-                    selectedTags.remove(tag);
+                    Toast.makeText(context, "checked: " + tag, Toast.LENGTH_SHORT).show();
                 }
+                else {
+                    Toast.makeText(context, "unchecked: " + tag, Toast.LENGTH_SHORT).show();
+                }
+                selectedTags.add(tag);
             }
         });
         chip.setOnCloseIconClickListener(new View.OnClickListener() {

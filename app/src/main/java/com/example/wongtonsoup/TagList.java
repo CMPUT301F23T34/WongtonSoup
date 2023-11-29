@@ -119,7 +119,15 @@ public class TagList implements Iterable<Tag> {
     }
 
     /**
-     * return whether
+     * print the list of tags
+     * @return string representation of the list of tags
      */
-
+    @Override
+    public String toString() {
+        String s = "";
+        for (int i = 0 ; i < current_tags.size() ; i++){
+            s += current_tags.get(i).getName() + "\n";
+        }
+        return s;
+    }
 }
