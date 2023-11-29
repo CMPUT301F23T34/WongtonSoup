@@ -3,6 +3,7 @@ package com.example.wongtonsoup;
 import android.util.Log;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
@@ -20,7 +21,7 @@ public class Item implements Serializable {
     private Float value;
     private String comment;
     private TagList tags;
-    // for selecting to add tags or delete items
+    private TagList selectedTags;
     private boolean selected;
 
     /**
@@ -36,7 +37,7 @@ public class Item implements Serializable {
      * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, TagList tags) {
+    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, TagList tags, TagList selectedTags) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -45,6 +46,7 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
+        this.selectedTags = new TagList();
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
@@ -63,7 +65,7 @@ public class Item implements Serializable {
      * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, TagList tags) {
+    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, TagList tags, TagList selectedTags) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -71,6 +73,7 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
+        this.selectedTags = new TagList();
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
@@ -251,6 +254,25 @@ public class Item implements Serializable {
     public TagList getTags() {
         return tags;
     }
+
+    /**
+     * get selected tags
+     * @return selected tags
+     * @since 10/25/2023
+     */
+    public TagList getSelectedTags() {
+        return selectedTags;
+    }
+
+    /**
+     * set selected tags
+     * @param selectedTags
+     * @since 10/25/2023
+     */
+    public void setSelectedTags(TagList selectedTags) {
+        this.selectedTags = selectedTags;
+    }
+
     /**
      * return isSelected
      * @return isSelected

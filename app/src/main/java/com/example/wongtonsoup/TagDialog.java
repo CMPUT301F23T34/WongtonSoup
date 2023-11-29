@@ -23,10 +23,11 @@ public class TagDialog extends Dialog {
     private TagList existingTags;
     private ChipGroup chipGroup;
     private EditText tagInput;
-
     private ArrayList<String> selectedTags = new ArrayList<>();
 
-    public TagDialog(Context context, TagList existingTags) {
+    private Item currentItem;
+
+    public TagDialog(Context context, TagList existingTags, TagList selectedTags) {
         super(context);
         this.context = context;
         this.existingTags = existingTags;

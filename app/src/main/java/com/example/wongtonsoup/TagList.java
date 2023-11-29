@@ -2,6 +2,8 @@ package com.example.wongtonsoup;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class for the current list of valid tags.
@@ -11,6 +13,7 @@ import java.util.ArrayList;
  */
 public class TagList implements Iterable<Tag> {
     private ArrayList<Tag> current_tags;
+    private Map<Item, ArrayList<Tag>> selected_tags_map = new HashMap<>();
 
     public TagList(Tag current_tag){
         this.current_tags = new ArrayList<Tag>();
@@ -129,5 +132,23 @@ public class TagList implements Iterable<Tag> {
             s += current_tags.get(i).getName() + "\n";
         }
         return s;
+    }
+
+    /**
+     * getter for selected_tags_map
+     * @param item
+     * @return selected_tags
+     */
+    public ArrayList<Tag> getSelectedTags(Item item){
+        return selected_tags_map.getOrDefault(item, new ArrayList<Tag>());
+    }
+
+    /**
+     * setter for selected_tags_map
+     * @param item, selected_tags
+     * @return void
+     */
+    public void setSelectedTags(Item item, ArrayList<Tag> selected_tags){
+        selected_tags_map.put(item, selected_tags);
     }
 }

@@ -38,13 +38,14 @@ public class AddEditActivity extends AppCompatActivity {
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
-        TagList tags = new TagList();
+        TagList existingTags = new TagList();
+        TagList selectedTags = new TagList();
 
         // convert charge to a float object
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(date, description, make, model, value, comment, serialNumber, tags);
+        return new Item(date, description, make, model, value, comment, serialNumber, existingTags, selectedTags);
     }
 
     /**
@@ -245,8 +246,9 @@ public class AddEditActivity extends AppCompatActivity {
         addTagButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
             if (addTagButton.isEnabled()) {
-                TagList tags = new TagList();
-                TagDialog tagDialog = new TagDialog(AddEditActivity.this, tags);
+                TagList existingTags = new TagList();
+                TagList selectedTags = new TagList();
+                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existingTags, selectedTags);
                 tagDialog.show();
             }
         });
