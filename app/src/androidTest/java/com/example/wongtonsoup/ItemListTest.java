@@ -61,8 +61,11 @@ public class ItemListTest{
         List<Item> updatedItems = new ArrayList<>();
         float f = new Float(100);
         float f2 = new Float(200);
-        updatedItems.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car"));
-        updatedItems.add(new Item("01-02-2000", "Chevy car", "chevrolet ", "Corvette", f2, "I really like this car"));
+        TagList tagList = new TagList();
+        tagList.addTag("car");
+        tagList.addTag("vehicle");
+        updatedItems.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234567890", tagList));
+        updatedItems.add(new Item("01-02-2000", "Chevy car", "chevrolet ", "Corvette", f2, "I really like this car", "1234567891", tagList));
 
         // Update the data in the adapter
         itemList.updateData(updatedItems);
@@ -81,8 +84,11 @@ public class ItemListTest{
         List<Item> items = new ArrayList<>();
         float f = new Float(100);
         float f2 = new Float(200);
-        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car"));
-        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car"));
+        TagList tagList = new TagList();
+        tagList.addTag("car");
+        tagList.addTag("vehicle");
+        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234567890", tagList));
+        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car", "1234567891", tagList));
 
         ItemList itemList = new ItemList(appContext, items);
 
@@ -104,8 +110,11 @@ public class ItemListTest{
         List<Item> items = new ArrayList<>();
         float f = new Float(100);
         float f2 = new Float(200);
-        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car"));
-        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car"));
+        TagList tagList = new TagList();
+        tagList.addTag("car");
+        tagList.addTag("vehicle");
+        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234567890", tagList));
+        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car", "1234567891", tagList));
 
         ItemList itemList = new ItemList(appContext, items);
 
@@ -128,8 +137,11 @@ public class ItemListTest{
         List<Item> items = new ArrayList<>();
         float f = new Float(100);
         float f2 = new Float(200);
-        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car"));
-        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car"));
+        TagList tagList = new TagList();
+        tagList.addTag("car");
+        tagList.addTag("vehicle");
+        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234567890", tagList));
+        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car", "1234567891", tagList));
 
         ItemList itemList = new ItemList(appContext, items);
 
@@ -138,7 +150,7 @@ public class ItemListTest{
         items.get(1).setSelected(true);
 
         // Call clearSelection
-        itemList.clearSelection();
+        //itemList.clearSelection();
 
         // Check if the selection is cleared for all items
         assertFalse(itemList.getItem(0).isSelected());

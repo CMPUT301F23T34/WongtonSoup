@@ -115,7 +115,8 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="5dp"
                 app:singleSelection="false"
-                app:singleLine="true">
+                app:chipSpacing="4dp"
+                app:selectionRequired="false">
             </com.google.android.material.chip.ChipGroup>
 
     </HorizontalScrollView>

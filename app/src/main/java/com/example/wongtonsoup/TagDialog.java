@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,15 +18,19 @@ import java.util.ArrayList;
 public class TagDialog extends Dialog {
 
     private Context context;
-    private ArrayList<String> existingTags;
+    private TagList existingTags;
     private ChipGroup chipGroup;
     private EditText tagInput;
 
-    public TagDialog(Context context, ArrayList<String> existingTags) {
+    private ArrayList<String> selectedTags = new ArrayList<>();
+
+    public TagDialog(Context context, TagList existingTags) {
         super(context);
         this.context = context;
         this.existingTags = existingTags;
+        this.selectedTags = new ArrayList<>();
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +41,8 @@ public class TagDialog extends Dialog {
         chipGroup = findViewById(R.id.content_chip_group);
 
         // Add existing tags to ChipGroup
-        for (String tag : existingTags) {
-            addChip(tag);
+        for (Tag tag : existingTags) {
+            addChip(tag.getName());
         }
 
         Button addTagButton = findViewById(R.id.add_tag_dialog_button);
@@ -47,9 +52,9 @@ public class TagDialog extends Dialog {
                 String newTag = tagInput.getText().toString().trim();
                 if (!newTag.isEmpty()) {
                     // Check if the tag already exists
-                    if (!existingTags.contains(newTag)) {
+                    if (existingTags.find(newTag)==-1) {
                         addChip(newTag);
-                        existingTags.add(newTag);
+                        existingTags.addTag(newTag);
                         tagInput.getText().clear();
                     } else {
                         // Handle tag already
@@ -72,14 +77,34 @@ public class TagDialog extends Dialog {
         final Chip chip = new Chip(context);
         chip.setText(tag);
         chip.setCloseIconVisible(true);
+
+        chip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Add or remove tag from selectedTags
+                if (isChecked) {
+                    selectedTags.add(tag);
+                } else {
+                    selectedTags.remove(tag);
+                }
+            }
+        });
         chip.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 chipGroup.removeView(chip);
-                existingTags.remove(tag);
+                existingTags.removeTag(tag);
             }
         });
 
         chipGroup.addView(chip);
     }
+    /**
+     * get selected tags
+     * @return selected tags
+     */
+    public ArrayList<String> getSelectedTags() {
+        return selectedTags;
+
+}
 }

@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class AddEditActivity extends AppCompatActivity {
@@ -43,7 +44,7 @@ public class AddEditActivity extends AppCompatActivity {
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(date, description, make, model, value, comment, serialNumber);
+        return new Item(date, description, make, model, value, comment, serialNumber, tags);
     }
 
     /**
@@ -244,8 +245,8 @@ public class AddEditActivity extends AppCompatActivity {
         addTagButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
             if (addTagButton.isEnabled()) {
-                Tags<String> existingTags = /* Get existing tags from your item */;
-                TagDialog tagDialog = new TagDialog(AddEditActivity.this, Tags);
+                TagList tags = new TagList();
+                TagDialog tagDialog = new TagDialog(AddEditActivity.this, tags);
                 tagDialog.show();
             }
         });

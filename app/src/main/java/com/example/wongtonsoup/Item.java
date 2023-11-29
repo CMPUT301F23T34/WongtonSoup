@@ -32,10 +32,11 @@ public class Item implements Serializable {
      * @param serialNumber
      * @param value
      * @param comment
+     * @param tags
      * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber) {
+    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, TagList tags) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -58,10 +59,11 @@ public class Item implements Serializable {
      * @param model
      * @param value
      * @param comment
+     * @param tags
      * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment) {
+    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, TagList tags) {
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;

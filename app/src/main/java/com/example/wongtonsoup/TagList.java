@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @version 1.0
  * @since 11/01/2023
  */
-public class TagList implements Serializable {
+public class TagList implements Iterable<Tag> {
     private ArrayList<Tag> current_tags;
 
     public TagList(Tag current_tag){
@@ -108,4 +108,18 @@ public class TagList implements Serializable {
     public ArrayList<Tag> getTags(){
         return current_tags;
     }
+
+    /**
+     * iterator for the tag list
+     * @return iterator
+     */
+    @Override
+    public java.util.Iterator<Tag> iterator() {
+        return current_tags.iterator();
+    }
+
+    /**
+     * return whether
+     */
+
 }
