@@ -266,14 +266,6 @@ public class AddEditActivity extends AppCompatActivity {
                     // Increment the total photo counter
                     totalPhotoCounter++;
                 }
-            } else {
-                // User selected a single image
-                Uri selectedImageUri = data.getData();
-                // Update the corresponding ImageView based on the totalPhotoCounter
-                updateImageView(selectedImageUri, totalPhotoCounter + 1);
-
-                // Increment the total photo counter
-                totalPhotoCounter++;
             }
         }
     }
