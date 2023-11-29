@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import kotlin.contracts.Returns;
-
 public class ItemList extends ArrayAdapter<Item> {
 
     private Context mContext;
@@ -97,9 +95,7 @@ public class ItemList extends ArrayAdapter<Item> {
             listener.onItemListChanged();
         }
     }
-    /**
-     * Returns the total value of all items in the list
-     */
+
     public String getTotalDisplayed(){
         double total = 0;
         for (int i = 0 ; i < itemList.size() ; i++){
@@ -141,7 +137,7 @@ public class ItemList extends ArrayAdapter<Item> {
         itemList.sort(Item.byValue); // use the comparator in the Item class
         return itemList;
     }
-    public void deleteSelectedItems() {
+    public List<Item> deleteSelectedItems() {
         Log.d("ItemList", "deleteSelectedItems: " + itemList.size());
         List<Item> itemsToDelete = new ArrayList<>();
 
@@ -165,17 +161,19 @@ public class ItemList extends ArrayAdapter<Item> {
 
         // Clear the selection
         clearSelection();
+
+        return itemsToDelete;
     }
 
     /**
-     * Clear the selection of all items, public for testing
+     * Clear the selection of all items
      */
-    public void clearSelection() {
+    private void clearSelection() {
         for (Item item : itemList) {
             item.setSelected(false);
         }
     }
-
+   
 
 }
 
