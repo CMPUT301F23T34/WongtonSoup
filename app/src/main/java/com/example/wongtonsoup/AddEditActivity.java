@@ -1,18 +1,21 @@
 package com.example.wongtonsoup;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class AddEditActivity extends AppCompatActivity {
     // Assume we have item with associated tags lise
@@ -24,6 +27,9 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseSerialNumber;
     private EditText expenseMake;
     private EditText expenseModel;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int MAX_TOTAL_PHOTOS = 3;
+    private int totalPhotoCounter = 0;
 
     //List<Tag> tags = item.getTags();
 
@@ -91,7 +97,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     /**
      * Validates a value string is a valid currency.
-     * @param str_value
+     * @param str_value string to be validated
      * @return true if value is valid, false otherwise.
      */
     private boolean isValidValue(String str_value) {
@@ -112,12 +118,10 @@ public class AddEditActivity extends AppCompatActivity {
         // clear error message if neither error bool is true.
         if (!isExpenseDescriptionEmpty && isExpenseDescriptionInvalid){
             expenseDescription.setError(null); // clear error
-        }
-        else if (isExpenseDescriptionEmpty){
-            expenseDescription.setError("Expense name cannot be empty");
-        }
-        else if (isExpenseDescriptionInvalid){
+        } else if(isExpenseDescriptionInvalid){
             expenseDescription.setError("Name cannot exceed 15 characters");
+        } else if (isExpenseDescriptionEmpty){
+            expenseDescription.setError("Expense name cannot be empty");
         }
 
         boolean isExpenseValueInvalid = !isValidValue(expenseValue.getText().toString());
@@ -129,7 +133,7 @@ public class AddEditActivity extends AppCompatActivity {
         else if (isExpenseValueEmpty){
             expenseValue.setError("Expense value cannot be empty");
         }
-        else if (isExpenseValueInvalid) {
+        else{
             expenseValue.setError("Expense value can only contain two digits after the decimal");
         }
 
@@ -142,7 +146,7 @@ public class AddEditActivity extends AppCompatActivity {
         else if (isExpenseDateEmpty){
             expenseDate.setError("Expense Date cannot be empty");
         }
-        else if (isExpenseDateInvalid){
+        else{
             expenseDate.setError("Invalid date format. Please use dd-mm-yyyy");
         }
 
@@ -151,7 +155,7 @@ public class AddEditActivity extends AppCompatActivity {
        if (!isExpenseCommentInvalid){
            expenseComment.setError(null);
        }
-       else if (isExpenseCommentInvalid){
+       else{
            expenseComment.setError("Comment cannot exceed 40 characters");
        }
 
@@ -164,7 +168,7 @@ public class AddEditActivity extends AppCompatActivity {
        else if (isExpenseMakeEmpty){
            expenseMake.setError("Expense make cannot be empty");
        }
-       else if (isExpenseMakeInvalid){
+       else{
            expenseMake.setError("Make cannot exceed 15 characters");
        }
 
@@ -177,7 +181,7 @@ public class AddEditActivity extends AppCompatActivity {
        else if (isExpenseModelEmpty){
            expenseModel.setError("Expense model cannot be empty");
        }
-       else if (isExpenseModelInvalid){
+       else{
            expenseModel.setError("Model cannot exceed 15 characters");
        }
 
@@ -216,12 +220,63 @@ public class AddEditActivity extends AppCompatActivity {
         setResult(RESULT_OK, resultIntent);
         finish();
     }
+
+    @SuppressLint("IntentReset")
+    private void openGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryIntent.setType("image/*");
+        galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(galleryIntent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    private void updateImageView(Uri imageUri, int position) {
+        // Update the corresponding ImageView based on the position
+        switch (position) {
+            case 1:
+                ImageView imageView_1 = findViewById(R.id.photo1);
+                imageView_1.setImageURI(imageUri);
+                imageView_1.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                ImageView imageView_2 = findViewById(R.id.photo2);
+                imageView_2.setImageURI(imageUri);
+                imageView_2.setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                ImageView imageView_3 = findViewById(R.id.photo3);
+                imageView_3.setImageURI(imageUri);
+                imageView_3.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            ClipData clipData = data.getClipData();
+            if (clipData != null) {
+                // User selected multiple images
+                for (int i = 0; i < clipData.getItemCount(); i++) {
+                    Uri selectedImageUri = clipData.getItemAt(i).getUri();
+                    // Update the corresponding ImageView based on the totalPhotoCounter
+                    updateImageView(selectedImageUri, totalPhotoCounter + 1);
+
+                    // Increment the total photo counter
+                    totalPhotoCounter++;
+                }
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
+        Button addEditGalleryButton = findViewById(R.id.add_edit_gallery_button);
 
         expenseDescription = findViewById(R.id.add_edit_description);
         expenseDate = findViewById(R.id.add_edit_date);
@@ -259,6 +314,14 @@ public class AddEditActivity extends AppCompatActivity {
                 Item createdItem = createItemFromFields();
                 // Pass the createdItem back to MainActivity
                 finishAndPassItem(createdItem);
+            }
+        });
+
+        addEditGalleryButton.setOnClickListener(v -> {
+            if (totalPhotoCounter < MAX_TOTAL_PHOTOS) {
+                openGallery();
+            } else {
+                Toast.makeText(AddEditActivity.this, "Maximum of " + MAX_TOTAL_PHOTOS + " photos allowed", Toast.LENGTH_SHORT).show();
             }
         });
 

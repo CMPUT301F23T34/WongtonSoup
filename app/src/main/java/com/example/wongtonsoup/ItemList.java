@@ -137,7 +137,7 @@ public class ItemList extends ArrayAdapter<Item> {
         itemList.sort(Item.byValue); // use the comparator in the Item class
         return itemList;
     }
-    public void deleteSelectedItems() {
+    public List<Item> deleteSelectedItems() {
         Log.d("ItemList", "deleteSelectedItems: " + itemList.size());
         List<Item> itemsToDelete = new ArrayList<>();
 
@@ -161,6 +161,8 @@ public class ItemList extends ArrayAdapter<Item> {
 
         // Clear the selection
         clearSelection();
+
+        return itemsToDelete;
     }
 
     /**
