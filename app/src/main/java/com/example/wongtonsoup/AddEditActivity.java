@@ -277,7 +277,7 @@ public class AddEditActivity extends AppCompatActivity {
             ClipData clipData = data.getClipData();
             if (clipData != null) {
                 // User selected multiple images
-                for (int i = 0; i < clipData.getItemCount(); i++) {
+                for (int i = 0; i < Math.min(3, clipData.getItemCount()); i++) {
                     Uri selectedImageUri = clipData.getItemAt(i).getUri();
                     // Update the corresponding ImageView based on the totalPhotoCounter
                     updateImageView(selectedImageUri, totalPhotoCounter + 1);
