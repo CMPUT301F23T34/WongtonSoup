@@ -522,8 +522,10 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         // Add the image paths list extra
         Queue<String> imagePathsQueue = itemList.getItem(itemSelected).getImagePathsCopy();
-        List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
-        intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
+        if(imagePathsQueue != null && !imagePathsQueue.isEmpty()) {
+            List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
+            intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
+        }
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
     /**
