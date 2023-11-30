@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.chip.Chip;
@@ -26,15 +27,14 @@ public class TagDialog extends Dialog {
     private TagList existingTags;
     private ChipGroup chipGroup;
     private EditText tagInput;
-    private ArrayList<String> selectedTags = new ArrayList<>();
+    private TagList selectedTags;
 
-    private Item currentItem;
 
     public TagDialog(Context context, TagList existingTags, TagList selectedTags) {
         super(context);
         this.context = context;
         this.existingTags = existingTags;
-        this.selectedTags = new ArrayList<>();
+        this.selectedTags = selectedTags;
     }
 
 
@@ -78,7 +78,7 @@ public class TagDialog extends Dialog {
                 for (int i = 0; i < chipGroup.getChildCount(); i++) {
                     Chip chip = (Chip) chipGroup.getChildAt(i);
                     if (chip.isChecked()) {
-                        selectedTags.add(chip.getText().toString());
+                        selectedTags.addTag(chip.getText().toString());
                     }
                 }
                 Toast.makeText(context, "tags: " + existingTags.toString(), Toast.LENGTH_SHORT).show();
@@ -100,15 +100,18 @@ public class TagDialog extends Dialog {
         chip.setText(tag);
         chip.setCloseIconVisible(true);
         chip.setCheckable(true);
-        chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            // print the tag that was checked
-            if (checkedId == -1) {
-                Toast.makeText(context, "checked: " + tag, Toast.LENGTH_SHORT).show();
+
+        chip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Chip is checked
+                    selectedTags.addTag(chip.getText().toString());
+                } else {
+                    // Chip is unchecked
+                    selectedTags.removeTag(chip.getText().toString());
+                }
             }
-            else {
-                Toast.makeText(context, "unchecked: " + tag, Toast.LENGTH_SHORT).show();
-            }
-            selectedTags.add(tag);
         });
 
         chip.setOnCloseIconClickListener(new View.OnClickListener() {
@@ -125,8 +128,8 @@ public class TagDialog extends Dialog {
      * get selected tags
      * @return selected tags
      */
-    public ArrayList<String> getSelectedTags() {
+    public TagList getSelectedTags() {
         return selectedTags;
+    }
 
-}
 }
