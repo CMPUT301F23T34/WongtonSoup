@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
     private CollectionReference tagsRef;
+    private CollectionReference selectedTagsRef;
     private CollectionReference usersRef;
     //delete button
     private FloatingActionButton fabDelete;
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         itemsRef = db.collection("items");
         tagsRef = db.collection("tags");
+        selectedTagsRef = db.collection("selectedTags");
         usersRef = db.collection("users");
 
         usersRef.document(device_id).get().addOnCompleteListener(task -> {
