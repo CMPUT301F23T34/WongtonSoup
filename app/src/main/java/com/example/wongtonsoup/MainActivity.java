@@ -1,5 +1,6 @@
 package com.example.wongtonsoup;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Queue;
 
 
 import android.provider.Settings;
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
 
         db = FirebaseFirestore.getInstance();
@@ -100,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         });
 
 //        ItemList = findViewById(R.id.listView);
-
         ItemList = binding.listView;
 
         ItemDataList = new ArrayList<>();
@@ -518,6 +519,11 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         intent.putExtra("Date", itemList.getItem(position).getPurchaseDate());
         intent.putExtra("Price", itemList.getItem(position).getValueAsString());
         intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
+
+        // Add the image paths list extra
+        Queue<String> imagePathsQueue = itemList.getItem(itemSelected).getImagePathsCopy();
+        List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
+        intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
     /**
@@ -525,8 +531,10 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      */
     private void deleteSelectedItems() {
         Log.d("MainActivity", "deleteSelectedItems: ");
-        itemList.deleteSelectedItems();
+        List<Item> ItemToDelete = itemList.deleteSelectedItems();
+        ItemDataList.removeAll(ItemToDelete);
         updateTotalAmount(); // Update the total amount after deletion
+        Log.d("ItemDataList", "delete size: " + ItemDataList.size());
     }
 
 

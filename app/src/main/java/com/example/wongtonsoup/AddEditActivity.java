@@ -1,20 +1,37 @@
 package com.example.wongtonsoup;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.content.Intent;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import androidx.appcompat.app.AppCompatActivity;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddEditActivity extends AppCompatActivity {
+    public static final int CAMERA_PERMISSION_CODE = 301;
     // Assume we have item with associated tags lise
 //    private Item item;
     private EditText expenseDescription;
@@ -24,6 +41,15 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseSerialNumber;
     private EditText expenseMake;
     private EditText expenseModel;
+
+    private Uri currentPhotoUri;
+    private final List<Uri> imageUris = new ArrayList<>();
+
+
+    private static final int PICK_IMAGE_REQUEST = 101;
+    private static final int OPEN_CAMERA_REQUEST = 102;
+    private static final int MAX_TOTAL_PHOTOS = 3;
+    private int totalPhotoCounter = 0;
 
     //List<Tag> tags = item.getTags();
 
@@ -91,7 +117,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     /**
      * Validates a value string is a valid currency.
-     * @param str_value
+     * @param str_value string to be validated
      * @return true if value is valid, false otherwise.
      */
     private boolean isValidValue(String str_value) {
@@ -112,12 +138,10 @@ public class AddEditActivity extends AppCompatActivity {
         // clear error message if neither error bool is true.
         if (!isExpenseDescriptionEmpty && isExpenseDescriptionInvalid){
             expenseDescription.setError(null); // clear error
-        }
-        else if (isExpenseDescriptionEmpty){
-            expenseDescription.setError("Expense name cannot be empty");
-        }
-        else if (isExpenseDescriptionInvalid){
+        } else if(isExpenseDescriptionInvalid){
             expenseDescription.setError("Name cannot exceed 15 characters");
+        } else if (isExpenseDescriptionEmpty){
+            expenseDescription.setError("Expense name cannot be empty");
         }
 
         boolean isExpenseValueInvalid = !isValidValue(expenseValue.getText().toString());
@@ -129,7 +153,7 @@ public class AddEditActivity extends AppCompatActivity {
         else if (isExpenseValueEmpty){
             expenseValue.setError("Expense value cannot be empty");
         }
-        else if (isExpenseValueInvalid) {
+        else{
             expenseValue.setError("Expense value can only contain two digits after the decimal");
         }
 
@@ -142,7 +166,7 @@ public class AddEditActivity extends AppCompatActivity {
         else if (isExpenseDateEmpty){
             expenseDate.setError("Expense Date cannot be empty");
         }
-        else if (isExpenseDateInvalid){
+        else{
             expenseDate.setError("Invalid date format. Please use dd-mm-yyyy");
         }
 
@@ -151,7 +175,7 @@ public class AddEditActivity extends AppCompatActivity {
        if (!isExpenseCommentInvalid){
            expenseComment.setError(null);
        }
-       else if (isExpenseCommentInvalid){
+       else{
            expenseComment.setError("Comment cannot exceed 40 characters");
        }
 
@@ -164,7 +188,7 @@ public class AddEditActivity extends AppCompatActivity {
        else if (isExpenseMakeEmpty){
            expenseMake.setError("Expense make cannot be empty");
        }
-       else if (isExpenseMakeInvalid){
+       else{
            expenseMake.setError("Make cannot exceed 15 characters");
        }
 
@@ -177,7 +201,7 @@ public class AddEditActivity extends AppCompatActivity {
        else if (isExpenseModelEmpty){
            expenseModel.setError("Expense model cannot be empty");
        }
-       else if (isExpenseModelInvalid){
+       else{
            expenseModel.setError("Model cannot exceed 15 characters");
        }
 
@@ -216,12 +240,76 @@ public class AddEditActivity extends AppCompatActivity {
         setResult(RESULT_OK, resultIntent);
         finish();
     }
+
+    @SuppressLint("IntentReset")
+    private void openGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryIntent.setType("image/*");
+        galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(galleryIntent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    private void updateImageView(Uri imageUri, int position) {
+        // Update the corresponding ImageView based on the position
+        switch (position) {
+            case 0:
+                ImageView imageView_1 = findViewById(R.id.photo1);
+                imageView_1.setImageURI(imageUri);
+                imageView_1.setVisibility(View.VISIBLE);
+                break;
+            case 1:
+                ImageView imageView_2 = findViewById(R.id.photo2);
+                imageView_2.setImageURI(imageUri);
+                imageView_2.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                ImageView imageView_3 = findViewById(R.id.photo3);
+                imageView_3.setImageURI(imageUri);
+                imageView_3.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            ClipData clipData = data.getClipData();
+            if (clipData != null) {
+                // User selected multiple images
+                for (int i = 0; i < Math.min(3, clipData.getItemCount()); i++) {
+                    Uri selectedImageUri = clipData.getItemAt(i).getUri();
+                    // Update the corresponding ImageView based on the totalPhotoCounter
+                    updateImageView(selectedImageUri, totalPhotoCounter);
+
+                    imageUris.add(selectedImageUri);
+
+                    // Increment the total photo counter
+                    totalPhotoCounter++;
+                }
+            }
+        }
+        else if (requestCode == OPEN_CAMERA_REQUEST && resultCode == RESULT_OK){
+            // update the corresponding ImageView based on the totalPhotoCounter
+            updateImageView(currentPhotoUri, totalPhotoCounter);
+
+            imageUris.add(currentPhotoUri);
+
+            // Increment the total photo counter
+            totalPhotoCounter++;
+        }
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
+        Button addEditCameraButton = findViewById(R.id.add_edit_camera_button);
+        Button addEditGalleryButton = findViewById(R.id.add_edit_gallery_button);
 
         expenseDescription = findViewById(R.id.add_edit_description);
         expenseDate = findViewById(R.id.add_edit_date);
@@ -257,11 +345,80 @@ public class AddEditActivity extends AppCompatActivity {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
                 Item createdItem = createItemFromFields();
+                if (imageUris != null){
+                    for (Uri imageUri : imageUris){
+                        createdItem.setDisplayImage(imageUri.toString());
+                    }
+                }
                 // Pass the createdItem back to MainActivity
                 finishAndPassItem(createdItem);
             }
         });
 
+        addEditGalleryButton.setOnClickListener(v -> {
+            if (totalPhotoCounter < MAX_TOTAL_PHOTOS) {
+                openGallery();
+            } else {
+                Toast.makeText(AddEditActivity.this, "Maximum of " + MAX_TOTAL_PHOTOS + " photos allowed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        addEditCameraButton.setOnClickListener(v -> {
+            if (totalPhotoCounter < MAX_TOTAL_PHOTOS) {
+                askCameraPermissions();
+            } else {
+                Toast.makeText(AddEditActivity.this, "Maximum of " + MAX_TOTAL_PHOTOS + " photos allowed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         back.setOnClickListener(v -> finish());
+    }
+
+    private void askCameraPermissions() {
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            // request permissions from user
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+        else {
+            // already have permissions
+            openCamera();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // user accepted camera permission request
+                openCamera();
+            } else {
+                // user denied camera permission request
+                Toast.makeText(this, "Camera Permission is required to use camera", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openCamera() {
+        // create a file
+        String fileName = "photo" + totalPhotoCounter;
+        File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+
+        try {
+            File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
+            String currentPhotoPath = imageFile.getAbsolutePath();
+
+            Uri imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            currentPhotoUri = imageUri;
+
+            // start an image capture intent
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intent, OPEN_CAMERA_REQUEST);
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
