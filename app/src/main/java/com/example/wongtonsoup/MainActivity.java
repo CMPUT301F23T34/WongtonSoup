@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         });
 
 //        ItemList = findViewById(R.id.listView);
-
         ItemList = binding.listView;
 
         ItemDataList = new ArrayList<>();
