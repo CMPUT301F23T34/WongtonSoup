@@ -27,6 +27,8 @@ import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddEditActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -41,7 +43,7 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseModel;
 
     private Uri currentPhotoUri;
-    private Uri displayPhotoUri;
+    private final List<Uri> imageUris = new ArrayList<>();
 
 
     private static final int PICK_IMAGE_REQUEST = 101;
@@ -253,7 +255,6 @@ public class AddEditActivity extends AppCompatActivity {
             case 0:
                 ImageView imageView_1 = findViewById(R.id.photo1);
                 imageView_1.setImageURI(imageUri);
-                displayPhotoUri = imageUri;
                 imageView_1.setVisibility(View.VISIBLE);
                 break;
             case 1:
@@ -282,6 +283,8 @@ public class AddEditActivity extends AppCompatActivity {
                     // Update the corresponding ImageView based on the totalPhotoCounter
                     updateImageView(selectedImageUri, totalPhotoCounter);
 
+                    imageUris.add(selectedImageUri);
+
                     // Increment the total photo counter
                     totalPhotoCounter++;
                 }
@@ -290,6 +293,8 @@ public class AddEditActivity extends AppCompatActivity {
         else if (requestCode == OPEN_CAMERA_REQUEST && resultCode == RESULT_OK){
             // update the corresponding ImageView based on the totalPhotoCounter
             updateImageView(currentPhotoUri, totalPhotoCounter);
+
+            imageUris.add(currentPhotoUri);
 
             // Increment the total photo counter
             totalPhotoCounter++;
@@ -340,8 +345,10 @@ public class AddEditActivity extends AppCompatActivity {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
                 Item createdItem = createItemFromFields();
-                if (displayPhotoUri != null){
-                    createdItem.setDisplayImage(displayPhotoUri.toString());
+                if (imageUris != null){
+                    for (Uri imageUri : imageUris){
+                        createdItem.setDisplayImage(imageUri.toString());
+                    }
                 }
                 // Pass the createdItem back to MainActivity
                 finishAndPassItem(createdItem);
@@ -382,7 +389,7 @@ public class AddEditActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length < 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // user accepted camera permission request
                 openCamera();
             } else {
@@ -394,7 +401,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     private void openCamera() {
         // create a file
-        String fileName = "photo" + Integer.toString(totalPhotoCounter);
+        String fileName = "photo" + totalPhotoCounter;
         File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
 

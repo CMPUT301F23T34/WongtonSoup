@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Queue;
 
 
 import android.provider.Settings;
@@ -518,6 +519,11 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         intent.putExtra("Date", itemList.getItem(position).getPurchaseDate());
         intent.putExtra("Price", itemList.getItem(position).getValueAsString());
         intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
+
+        // Add the image paths list extra
+        Queue<String> imagePathsQueue = itemList.getItem(itemSelected).getImagePathsCopy();
+        List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
+        intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
     /**
