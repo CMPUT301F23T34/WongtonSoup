@@ -12,10 +12,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TagDialog extends Dialog {
 
@@ -96,20 +99,18 @@ public class TagDialog extends Dialog {
         final Chip chip = new Chip(context);
         chip.setText(tag);
         chip.setCloseIconVisible(true);
-
-        chip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // print the tag that was checked
-                if (isChecked) {
-                    Toast.makeText(context, "checked: " + tag, Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    Toast.makeText(context, "unchecked: " + tag, Toast.LENGTH_SHORT).show();
-                }
-                selectedTags.add(tag);
+        chip.setCheckable(true);
+        chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            // print the tag that was checked
+            if (checkedId == -1) {
+                Toast.makeText(context, "checked: " + tag, Toast.LENGTH_SHORT).show();
             }
+            else {
+                Toast.makeText(context, "unchecked: " + tag, Toast.LENGTH_SHORT).show();
+            }
+            selectedTags.add(tag);
         });
+
         chip.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
