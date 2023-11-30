@@ -3,8 +3,11 @@ package com.example.wongtonsoup;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Intent;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -14,10 +17,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+
+import java.io.File;
+import java.io.IOException;
 
 public class AddEditActivity extends AppCompatActivity {
+    public static final int CAMERA_PERMISSION_CODE = 301;
     // Assume we have item with associated tags lise
 //    private Item item;
     private EditText expenseDescription;
@@ -27,7 +39,13 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseSerialNumber;
     private EditText expenseMake;
     private EditText expenseModel;
-    private static final int PICK_IMAGE_REQUEST = 1;
+
+    private Uri currentPhotoUri;
+    private Uri displayPhotoUri;
+
+
+    private static final int PICK_IMAGE_REQUEST = 101;
+    private static final int OPEN_CAMERA_REQUEST = 102;
     private static final int MAX_TOTAL_PHOTOS = 3;
     private int totalPhotoCounter = 0;
 
@@ -232,17 +250,18 @@ public class AddEditActivity extends AppCompatActivity {
     private void updateImageView(Uri imageUri, int position) {
         // Update the corresponding ImageView based on the position
         switch (position) {
-            case 1:
+            case 0:
                 ImageView imageView_1 = findViewById(R.id.photo1);
                 imageView_1.setImageURI(imageUri);
+                displayPhotoUri = imageUri;
                 imageView_1.setVisibility(View.VISIBLE);
                 break;
-            case 2:
+            case 1:
                 ImageView imageView_2 = findViewById(R.id.photo2);
                 imageView_2.setImageURI(imageUri);
                 imageView_2.setVisibility(View.VISIBLE);
                 break;
-            case 3:
+            case 2:
                 ImageView imageView_3 = findViewById(R.id.photo3);
                 imageView_3.setImageURI(imageUri);
                 imageView_3.setVisibility(View.VISIBLE);
@@ -268,6 +287,14 @@ public class AddEditActivity extends AppCompatActivity {
                 }
             }
         }
+        else if (requestCode == OPEN_CAMERA_REQUEST && resultCode == RESULT_OK){
+            // update the corresponding ImageView based on the totalPhotoCounter
+            updateImageView(currentPhotoUri, totalPhotoCounter);
+
+            // Increment the total photo counter
+            totalPhotoCounter++;
+        }
+
     }
 
     @Override
@@ -276,6 +303,7 @@ public class AddEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
+        Button addEditCameraButton = findViewById(R.id.add_edit_camera_button);
         Button addEditGalleryButton = findViewById(R.id.add_edit_gallery_button);
 
         expenseDescription = findViewById(R.id.add_edit_description);
@@ -312,6 +340,9 @@ public class AddEditActivity extends AppCompatActivity {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
                 Item createdItem = createItemFromFields();
+                if (displayPhotoUri != null){
+                    createdItem.setDisplayImage(displayPhotoUri.toString());
+                }
                 // Pass the createdItem back to MainActivity
                 finishAndPassItem(createdItem);
             }
@@ -325,6 +356,62 @@ public class AddEditActivity extends AppCompatActivity {
             }
         });
 
+        addEditCameraButton.setOnClickListener(v -> {
+            if (totalPhotoCounter < MAX_TOTAL_PHOTOS) {
+                askCameraPermissions();
+            } else {
+                Toast.makeText(AddEditActivity.this, "Maximum of " + MAX_TOTAL_PHOTOS + " photos allowed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         back.setOnClickListener(v -> finish());
+    }
+
+    private void askCameraPermissions() {
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            // request permissions from user
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+        else {
+            // already have permissions
+            openCamera();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length < 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // user accepted camera permission request
+                openCamera();
+            } else {
+                // user denied camera permission request
+                Toast.makeText(this, "Camera Permission is required to use camera", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openCamera() {
+        // create a file
+        String fileName = "photo" + Integer.toString(totalPhotoCounter);
+        File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+
+        try {
+            File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
+            String currentPhotoPath = imageFile.getAbsolutePath();
+
+            Uri imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            currentPhotoUri = imageUri;
+
+            // start an image capture intent
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intent, OPEN_CAMERA_REQUEST);
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }

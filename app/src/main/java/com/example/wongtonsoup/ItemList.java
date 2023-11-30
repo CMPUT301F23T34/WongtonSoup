@@ -1,6 +1,7 @@
 package com.example.wongtonsoup;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +9,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -56,11 +60,18 @@ public class ItemList extends ArrayAdapter<Item> {
         TextView dateTextView = convertView.findViewById(R.id.content_date);
         TextView makeTextView = convertView.findViewById(R.id.content_make);
         TextView priceTextView = convertView.findViewById(R.id.content_price);
+        ImageView imageView = convertView.findViewById(R.id.photo);
 
         descriptionTextView.setText(currentItem.getDescription());
         dateTextView.setText(currentItem.getPurchaseDate().toString());
         makeTextView.setText(currentItem.getMake());
         priceTextView.setText(String.format(Locale.getDefault(), "%.2f", currentItem.getValue()));
+        if (currentItem.getDisplayImage() != null){
+            String fileName = currentItem.getDisplayImage();
+            Uri uri = Uri.parse(fileName);
+
+            imageView.setImageURI(uri);
+        }
 
         CheckBox checkBox = convertView.findViewById(R.id.select);
         checkBox.setChecked(currentItem.isSelected());

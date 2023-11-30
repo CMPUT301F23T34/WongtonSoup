@@ -1,5 +1,6 @@
 package com.example.wongtonsoup;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.Serializable;
@@ -22,6 +23,8 @@ public class Item implements Serializable {
     private TagList tags;
     // for selecting to add tags or delete items
     private boolean selected;
+
+    private String imagePath;
 
     /**
      * Constructs an item containing a serial number
@@ -241,6 +244,23 @@ public class Item implements Serializable {
             throw new IllegalArgumentException();
         }
     }
+
+    /**
+     * Return the URI for the display image
+     * @return
+     */
+    public String getDisplayImage() {
+        return imagePath;
+    }
+
+    /**
+     * Set the URI for the display image
+     * @param displayImage
+     */
+    public void setDisplayImage(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
     /**
      * Return tags
      * @return tags
