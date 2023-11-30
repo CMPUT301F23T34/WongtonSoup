@@ -280,7 +280,7 @@ public class AddEditActivity extends AppCompatActivity {
                 for (int i = 0; i < Math.min(3, clipData.getItemCount()); i++) {
                     Uri selectedImageUri = clipData.getItemAt(i).getUri();
                     // Update the corresponding ImageView based on the totalPhotoCounter
-                    updateImageView(selectedImageUri, totalPhotoCounter + 1);
+                    updateImageView(selectedImageUri, totalPhotoCounter);
 
                     // Increment the total photo counter
                     totalPhotoCounter++;
