@@ -9,9 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -82,11 +84,23 @@ public class AddEditActivity extends AppCompatActivity {
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
 
+        // Get device ID
+        @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        // generate random hex address
+        String id = java.util.UUID.randomUUID().toString();
+
+        if (getIntent().hasExtra("ID")) {  // if editing preserve item id
+            Log.d("AddEditActivity INSIDE", "createItemFromFields: " + id);
+            id = getIntent().getStringExtra("ID");
+            Log.d("AddEditActivity INSIDE AFTER", "createItemFromFields: " + id);
+        }
+        Log.d("AddEditActivity", "createItemFromFields: " + id);
         // convert charge to a float object
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(date, description, make, model, value, comment, serialNumber);
+        return new Item(id, date, description, make, model, value, comment, serialNumber, owner);
     }
 
     /**
@@ -235,9 +249,13 @@ public class AddEditActivity extends AppCompatActivity {
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("resultItem", item);
+        resultIntent.putExtra("itemID", item.getID()); // Pass the ID back
+        String itemID = item.getID();
+        Log.d("ViewItemActivity PASS", "PASS Item ID: " + itemID); // Log to confirm ID is received
         setResult(RESULT_OK, resultIntent);
         finish();
     }
+
 
     @SuppressLint("IntentReset")
     private void openGallery() {
