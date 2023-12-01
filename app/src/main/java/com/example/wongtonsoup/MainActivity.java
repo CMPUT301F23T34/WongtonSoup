@@ -35,9 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Queue;
 
-
 import android.provider.Settings;
-
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     private static final int ADD_EDIT_REQUEST_CODE = 1;
@@ -53,7 +52,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     //delete button
     private FloatingActionButton fabDelete;
     private String defaultUserPfp;
-
+    private ItemListDB itemListDB;
+//
     ListView ItemList;
     ArrayList<Item> ItemDataList;
     com.example.wongtonsoup.ItemList itemList;
@@ -66,10 +66,22 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
+        ItemList = findViewById(R.id.listView);
+
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
 
         db = FirebaseFirestore.getInstance();
+
+        itemListDB = new ItemListDB(this, new ArrayList<Item>());
+        ItemDataList = new ArrayList<>();
+        itemList = new ItemList(this, ItemDataList);
+        ItemList.setAdapter(itemList);
+
+        fetchItemsFromDatabase(device_id); // Fetch items from database
+
+
+        itemListDB = new ItemListDB(this, new ArrayList<Item>());
 
         itemsRef = db.collection("items");
         tagsRef = db.collection("tags");
@@ -108,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         itemList = new ItemList(this, ItemDataList);
         ItemList.setAdapter(itemList);
         com.example.wongtonsoup.ItemList.setListener(this);
+
 
 /*        // sample data for testing
         Item sampleItem1 = new Item("09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
@@ -420,8 +433,10 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             // Check if the request code matches and the result is OK
             if (data != null && data.hasExtra("resultItem")) {
                 Item resultItem = (Item) data.getSerializableExtra("resultItem");
-
                 ItemDataList.add(resultItem);
+
+                // use new ItemListDB here
+                itemListDB.addItem(resultItem);
                 itemList.updateData(ItemDataList);
                 itemList.notifyDataSetChanged();
 
@@ -430,9 +445,14 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }
         }
         else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
-            // Check if the request code matches and the result is OK
             if (data != null && data.hasExtra("resultItem")) {
                 Item resultItem = (Item) data.getSerializableExtra("resultItem");
+
+                // Use the getID() method from the resultItem
+                String itemId = resultItem.getID();
+                Log.d("MainActivity ITEM ID", "Item ID: " + itemId);
+
+                itemListDB.updateItem(resultItem);
 
                 ItemDataList.set(itemSelected, resultItem);
                 itemList.updateData(ItemDataList);
@@ -447,6 +467,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 intent.putExtra("Date", itemList.getItem(itemSelected).getPurchaseDate());
                 intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
                 intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
+                intent.putExtra("ID", itemList.getItem(itemSelected).getID());
                 startActivityForResult(intent,VIEW_REQUEST_CODE);
 
                 // Log the size of ItemDataList
@@ -458,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             if (data != null && data.hasExtra("resultItem")) {
                 Item resultItem = (Item) data.getSerializableExtra("resultItem");
 
+
                 ItemDataList.set(itemSelected, resultItem);
                 itemList.updateData(ItemDataList);
                 itemList.notifyDataSetChanged();
@@ -472,6 +494,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 intent.putExtra("Date", itemList.getItem(itemSelected).getPurchaseDate());
                 intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
                 intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
+                intent.putExtra("ID", itemList.getItem(itemSelected).getID());
                 startActivityForResult(intent,VIEW_REQUEST_CODE);
 
                 // Log the size of ItemDataList
@@ -519,6 +542,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         intent.putExtra("Date", itemList.getItem(position).getPurchaseDate());
         intent.putExtra("Price", itemList.getItem(position).getValueAsString());
         intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
+        intent.putExtra("ID", itemList.getItem(position).getID());
 
         // Add the image paths list extra
         Queue<String> imagePathsQueue = itemList.getItem(itemSelected).getImagePathsCopy();
@@ -526,6 +550,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
             intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
         }
+
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
     /**
@@ -534,10 +559,59 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private void deleteSelectedItems() {
         Log.d("MainActivity", "deleteSelectedItems: ");
         List<Item> ItemToDelete = itemList.deleteSelectedItems();
+
+        for (Item item : ItemToDelete) {
+            itemListDB.deleteItem(item);
+        }
+
         ItemDataList.removeAll(ItemToDelete);
         updateTotalAmount(); // Update the total amount after deletion
         Log.d("ItemDataList", "delete size: " + ItemDataList.size());
     }
+
+    private void fetchItemsFromDatabase(String device_id) {
+
+        db.collection("items")
+                .whereEqualTo("owner", device_id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String id = document.getId();
+                                String purchaseDate = document.getString("DOP");
+                                String description = document.getString("description");
+                                String make = document.getString("make");
+                                String model = document.getString("model");
+                                Float value = document.getDouble("value").floatValue();
+                                String comment = document.getString("comment");
+                                String serialNumber = document.getString("serial");
+                                String owner = document.getString("owner");
+
+                                // Create an Item object
+                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner);
+                                ItemDataList.add(item);
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                        itemList.updateData(ItemDataList);
+                        itemList.notifyDataSetChanged();
+                    } else {
+                        Log.d("MainActivity", "Error getting documents: ", task.getException());
+                    }
+
+                    Log.d("MainActivity", "Logging item IDs from DB:");
+                    for (Item item : ItemDataList) {
+                        Log.d("MainActivity", "Item ID: " + item.getID() + " | Desc: " + item.getDescription());
+                    }
+                });
+        itemListDB = new ItemListDB(this, ItemDataList);
+        ItemList.setAdapter(itemListDB);
+    }
+
+
 
 
 }
