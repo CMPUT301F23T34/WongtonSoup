@@ -8,14 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -63,7 +60,7 @@ public class ItemList extends ArrayAdapter<Item> {
         ImageView imageView = convertView.findViewById(R.id.photo);
 
         descriptionTextView.setText(currentItem.getDescription());
-        dateTextView.setText(currentItem.getPurchaseDate().toString());
+        dateTextView.setText(currentItem.getPurchaseDate());
         makeTextView.setText(currentItem.getMake());
         priceTextView.setText(String.format(Locale.getDefault(), "%.2f", currentItem.getValue()));
         if (currentItem.getDisplayImage() != null){
@@ -76,14 +73,11 @@ public class ItemList extends ArrayAdapter<Item> {
         CheckBox checkBox = convertView.findViewById(R.id.select);
         checkBox.setChecked(currentItem.isSelected());
         // Set an OnCheckedChangeListener to update the selected state when the CheckBox is clicked
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                currentItem.setSelected(isChecked);
-                //Set delete button visibility
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            currentItem.setSelected(isChecked);
+            //Set delete button visibility
 
 
-            }
         });
 
 
