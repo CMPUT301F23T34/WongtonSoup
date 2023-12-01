@@ -21,7 +21,6 @@ public class Item implements Serializable {
     private Float value;
     private String comment;
     private TagList tags;
-    private TagList selectedTags;
     private boolean selected;
 
     /**
@@ -46,7 +45,6 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
-        this.selectedTags = new TagList();
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
@@ -73,7 +71,6 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
-        this.selectedTags = new TagList();
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
@@ -254,23 +251,19 @@ public class Item implements Serializable {
     public TagList getTags() {
         return tags;
     }
-
-    /**
-     * get selected tags
-     * @return selected tags
+/**
+     * Sets tags
+     * @param tags
+     * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public TagList getSelectedTags() {
-        return selectedTags;
-    }
-
-    /**
-     * set selected tags
-     * @param selectedTags
-     * @since 10/25/2023
-     */
-    public void setSelectedTags(TagList selectedTags) {
-        this.selectedTags = selectedTags;
+    public void setTags(TagList tags) {
+        if (tags == null){
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.tags = tags;
+        }
     }
 
     /**
@@ -363,4 +356,23 @@ public class Item implements Serializable {
            return o1.getValue().compareTo(o2.getValue());
         }
     };
+
+    /**
+     * get serial number
+     * @return serial number
+     * @since 10/25/2023
+     */
+    public String getSerialNumberAsString() {
+        return this.serialNumber;
+    }
+
+    /**
+     * Update selected tags
+     * @param selectedTags
+     * @since 10/25/2023
+     */
+    public void updateSelectedTags(TagList selectedTags) {
+        // should be this.serialNumber but no db yet
+        tags.updateTagsInItem(getDescription(), selectedTags);
+    }
 }

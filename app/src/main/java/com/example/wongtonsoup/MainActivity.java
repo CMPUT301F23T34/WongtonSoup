@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 
 import android.provider.Settings;
@@ -47,8 +48,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     Boolean expanded = false;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
-    private CollectionReference tagsRef;
-    private CollectionReference selectedTagsRef;
+    //private CollectionReference tagsRef; this happens in TagList
+    private TagList tags;
     private CollectionReference usersRef;
     //delete button
     private FloatingActionButton fabDelete;
@@ -69,11 +70,11 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
 
+        tags = new TagList();
+
         db = FirebaseFirestore.getInstance();
 
         itemsRef = db.collection("items");
-        tagsRef = db.collection("tags");
-        selectedTagsRef = db.collection("selectedTags");
         usersRef = db.collection("users");
 
         usersRef.document(device_id).get().addOnCompleteListener(task -> {
@@ -533,6 +534,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         updateTotalAmount(); // Update the total amount after deletion
         Log.d("ItemDataList", "delete size: " + ItemDataList.size());
     }
+
+
+
 
 
 }
