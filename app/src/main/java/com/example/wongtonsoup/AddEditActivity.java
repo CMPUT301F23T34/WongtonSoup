@@ -45,7 +45,7 @@ public class AddEditActivity extends AppCompatActivity {
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(date, description, make, model, value, comment, serialNumber, existingTags, selectedTags);
+        return new Item(date, description, make, model, value, comment, serialNumber, selectedTags);
     }
 
     /**

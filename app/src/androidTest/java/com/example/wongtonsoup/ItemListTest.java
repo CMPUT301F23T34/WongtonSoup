@@ -64,8 +64,8 @@ public class ItemListTest{
         TagList tagList = new TagList();
         tagList.addTag("car");
         tagList.addTag("vehicle");
-        updatedItems.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234",tagList, tagList));
-        updatedItems.add(new Item("01-02-2000", "Chevy car", "chevrolet ", "Corvette", f2, "I really like this car", "1234",tagList, tagList));
+        updatedItems.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234", tagList));
+        updatedItems.add(new Item("01-02-2000", "Chevy car", "chevrolet ", "Corvette", f2, "I really like this car", "1234", tagList));
 
         // Update the data in the adapter
         itemList.updateData(updatedItems);
@@ -87,8 +87,8 @@ public class ItemListTest{
         TagList tagList = new TagList();
         tagList.addTag("car");
         tagList.addTag("vehicle");
-        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234",tagList, tagList));
-        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car", "1234",tagList, tagList));
+        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234", tagList));
+        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car", "1234", tagList));
 
         ItemList itemList = new ItemList(appContext, items);
 
@@ -113,8 +113,8 @@ public class ItemListTest{
         TagList tagList = new TagList();
         tagList.addTag("car");
         tagList.addTag("vehicle");
-        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car","1234", tagList, tagList));
-        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car", "1235", tagList, tagList));
+        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car","1234", tagList));
+        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car", "1235", tagList));
 
         ItemList itemList = new ItemList(appContext, items);
 
@@ -140,8 +140,8 @@ public class ItemListTest{
         TagList tagList = new TagList();
         tagList.addTag("car");
         tagList.addTag("vehicle");
-        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car","1234", tagList, tagList));
-        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car","1235", tagList, tagList));
+        items.add(new Item("01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car","1234", tagList));
+        items.add(new Item("01-02-2000", "Chevy car", "Chevrolet ", "Corvette", f2, "I really like this car","1235", tagList));
 
         ItemList itemList = new ItemList(appContext, items);
 
