@@ -105,10 +105,10 @@ public class TagDialog extends Dialog {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    // Chip is checked
+                    // db version: updateTagsInItem(item, selectedTags);
                     selectedTags.addTag(chip.getText().toString());
                 } else {
-                    // Chip is unchecked
+                    // db version: updateTagsInItem(item, selectedTags);
                     selectedTags.removeTag(chip.getText().toString());
                 }
             }
@@ -118,6 +118,8 @@ public class TagDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 chipGroup.removeView(chip);
+                //db version: deleteTagDb(tag);
+                //db version: deleteTagFromItem(item, tag);
                 existingTags.removeTag(tag);
             }
         });

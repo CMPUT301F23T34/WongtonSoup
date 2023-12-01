@@ -167,15 +167,42 @@ public class TagList implements Iterable<Tag> {
     }
     /**
      * update tags in an item, db version
-     * @param itemName, tags
+     * @param item, tags
      * @since 10/25/2023
      */
-    public void updateTagsInItem(String itemName, TagList tags) {
+    public void updateTagsInItem(Item item, TagList tags) {
         db.collection("items")
-                .document(itemName)
+                .document(item.getSerialNumberAsString())
                 .update("tags", tags.getTags())
                 .addOnSuccessListener(aVoid -> Log.d("Item", "Item successfully updated!"))
                 .addOnFailureListener(e -> Log.w("Item", "Error updating item", e));
+    }
+    /**
+     * Delete tag from an item, db version
+     * @param item, tag
+     * @since 10/25/2023
+     */
+    public void deleteTagFromItem(Item item, Tag tag) {
+        db.collection("items")
+                .document(item.getSerialNumberAsString())
+                .update("tags", tag)
+                .addOnSuccessListener(aVoid -> Log.d("Item", "Item successfully updated!"))
+                .addOnFailureListener(e -> Log.w("Item", "Error updating item", e));
+    }
+
+    /**
+     * delete a tag from the list of tags, db version
+     * @param tagName
+     * @since 10/25/2023
+     */
+    public void deleteTagDB(String tagName) {
+        tagsRef.whereEqualTo("name", tagName).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (!task.getResult().isEmpty()) {
+                    tagsRef.document(task.getResult().getDocuments().get(0).getId()).delete();
+                }
+            }
+        });
     }
 
 }

@@ -373,6 +373,6 @@ public class Item implements Serializable {
      */
     public void updateSelectedTags(TagList selectedTags) {
         // should be this.serialNumber but no db yet
-        tags.updateTagsInItem(getDescription(), selectedTags);
+        tags.updateTagsInItem(this, selectedTags);
     }
 }
