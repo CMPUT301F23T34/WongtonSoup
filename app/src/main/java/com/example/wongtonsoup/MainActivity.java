@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SearchView;
 
@@ -37,6 +39,7 @@ import java.util.Queue;
 
 
 import android.provider.Settings;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     ListView ItemList;
     ArrayList<Item> ItemDataList;
     com.example.wongtonsoup.ItemList itemList;
+    private boolean isEditVisible = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +155,30 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             public void onClick(View v) {
                 // delete all selected items
                 deleteSelectedItems();
+            }
+        });
+
+        Button top_back_button = findViewById(R.id.top_back_button);
+        top_back_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                itemList.setVisible(0);
+                itemList.notifyDataSetChanged();
+
+                FloatingActionButton delete = findViewById(R.id.fab_delete);
+                delete.setVisibility(View.GONE);
+
+                FloatingActionButton add = findViewById(R.id.fab);
+                add.setVisibility(View.VISIBLE);
+
+                isEditVisible = !isEditVisible;
+                invalidateOptionsMenu();
+
+                View top = findViewById(R.id.top);
+                top.setVisibility(View.VISIBLE);
+
+                View top_back = findViewById(R.id.top_back);
+                top_back.setVisibility(View.GONE);
             }
         });
 
@@ -409,7 +437,38 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         else if (id == R.id.sign_out) {
             return true;
         }
+        else if (id == R.id.edit) {
+            // Edit the list of items. Show check boxes and delete buttons. Have back button and tags
+            if (ItemDataList.size() > 0){
+                itemList.setVisible(1);
+                itemList.notifyDataSetChanged();
+
+                FloatingActionButton delete = findViewById(R.id.fab_delete);
+                delete.setVisibility(View.VISIBLE);
+
+                FloatingActionButton add = findViewById(R.id.fab);
+                add.setVisibility(View.GONE);
+
+                isEditVisible = !isEditVisible;
+                invalidateOptionsMenu();
+
+                View top = findViewById(R.id.top);
+                top.setVisibility(View.GONE);
+
+                View top_back = findViewById(R.id.top_back);
+                top_back.setVisibility(View.VISIBLE);
+            }
+            else {
+                Toast.makeText(this, "No Items to Edit", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.edit).setVisible(isEditVisible);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
