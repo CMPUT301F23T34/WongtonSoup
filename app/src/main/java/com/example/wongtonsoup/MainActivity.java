@@ -550,6 +550,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
             intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
         }
+
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
     /**
