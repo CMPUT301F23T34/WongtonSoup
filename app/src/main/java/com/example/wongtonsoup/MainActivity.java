@@ -1,50 +1,52 @@
 package com.example.wongtonsoup;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
-
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.widget.AdapterView;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.SearchView;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.navigation.ui.AppBarConfiguration;
-
-import com.example.wongtonsoup.databinding.ActivityMainBinding;
-
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
-
+import android.view.View;
+import android.widget.*;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.navigation.ui.AppBarConfiguration;
+import com.example.wongtonsoup.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import java.util.Map;
-import java.util.Queue;
-
-import android.provider.Settings;
-import android.widget.Toast;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
+    public static final int CAMERA_PERMISSION_CODE = 301;
     private static final int ADD_EDIT_REQUEST_CODE = 1;
+    private static final int OPEN_CAMERA_REQUEST = 102;
     private static final int VIEW_REQUEST_CODE = 2;
     private int itemSelected;
     private AppBarConfiguration appBarConfiguration;
@@ -61,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private ItemListDB itemListDB;
 //
     ListView ItemList;
+    private Uri currentPhotoUri;
+    int TotalPhotoCounter = 0;
+    FirebaseVision dbvision;
     ArrayList<Item> ItemDataList;
     com.example.wongtonsoup.ItemList itemList;
     private boolean isEditVisible = true;
@@ -93,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         itemListDB = new ItemListDB(this, new ArrayList<Item>());
 
         itemsRef = db.collection("items");
-        tagsRef = db.collection("tags");
         usersRef = db.collection("users");
 
         usersRef.document(device_id).get().addOnCompleteListener(task -> {
@@ -152,52 +156,43 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         // Expand Search
         Button expand = findViewById(R.id.expand_search_button);
         View expandedSearch = findViewById(R.id.expanded);
-        expand.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (expanded){
-                    expandedSearch.setVisibility(View.GONE);
-                    expanded = false;
-                }
-                else {
-                    expandedSearch.setVisibility(View.VISIBLE);
-                    expanded = true;
-                }
+        expand.setOnClickListener(v -> {
+            if (expanded){
+                expandedSearch.setVisibility(View.GONE);
+                expanded = false;
+            }
+            else {
+                expandedSearch.setVisibility(View.VISIBLE);
+                expanded = true;
             }
         });
         initSearchWidgets();
         initSortWidgets();
         fabDelete = findViewById(R.id.fab_delete);
-        fabDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // delete all selected items
-                deleteSelectedItems();
-            }
+        fabDelete.setOnClickListener(v -> {
+            // delete all selected items
+            deleteSelectedItems();
         });
 
         Button top_back_button = findViewById(R.id.top_back_button);
-        top_back_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                itemList.setVisible(0);
-                itemList.notifyDataSetChanged();
+        top_back_button.setOnClickListener(v -> {
+            itemList.setVisible(0);
+            itemList.notifyDataSetChanged();
 
-                FloatingActionButton delete = findViewById(R.id.fab_delete);
-                delete.setVisibility(View.GONE);
+            View edit_bar = findViewById(R.id.edit_list);
+            edit_bar.setVisibility(View.GONE);
 
-                FloatingActionButton add = findViewById(R.id.fab);
-                add.setVisibility(View.VISIBLE);
+            FloatingActionButton add = findViewById(R.id.fab);
+            add.setVisibility(View.VISIBLE);
 
-                isEditVisible = !isEditVisible;
-                invalidateOptionsMenu();
+            isEditVisible = !isEditVisible;
+            invalidateOptionsMenu();
 
-                View top = findViewById(R.id.top);
-                top.setVisibility(View.VISIBLE);
+            View top = findViewById(R.id.top);
+            top.setVisibility(View.VISIBLE);
 
-                View top_back = findViewById(R.id.top_back);
-                top_back.setVisibility(View.GONE);
-            }
+            View top_back = findViewById(R.id.top_back);
+            top_back.setVisibility(View.GONE);
         });
 
     }
@@ -224,39 +219,27 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      */
     private void initSortWidgets(){
         AppCompatButton dateSortButton = findViewById(R.id.sort_date);
-        dateSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByDate());
-                itemList.updateData(sorted_list);
-            }
+        dateSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByDate());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton descSortButton = findViewById(R.id.sort_description);
-        descSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByDescription());
-                itemList.updateData(sorted_list);
-            }
+        descSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByDescription());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton makeSortButton = findViewById(R.id.sort_make);
-        makeSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByMake());
-                itemList.updateData(sorted_list);
-            }
+        makeSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByMake());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton valueSortButton = findViewById(R.id.sort_value);
-        valueSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByValue());
-                itemList.updateData(sorted_list);
-            }
+        valueSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByValue());
+            itemList.updateData(sorted_list);
         });
     }
 
@@ -450,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             return true;
         }
         else if (id == R.id.scan) {
-            return true;
+            scanCode();
         }
         else if (id == R.id.sign_out) {
             return true;
@@ -461,8 +444,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 itemList.setVisible(1);
                 itemList.notifyDataSetChanged();
 
-                FloatingActionButton delete = findViewById(R.id.fab_delete);
-                delete.setVisibility(View.VISIBLE);
+                View edit_bar = findViewById(R.id.edit_list);
+                edit_bar.setVisibility(View.VISIBLE);
 
                 FloatingActionButton add = findViewById(R.id.fab);
                 add.setVisibility(View.GONE);
@@ -489,6 +472,49 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         return super.onPrepareOptionsMenu(menu);
     }
 
+    private void onScanning() {
+        askCameraPermissions();
+        String photoUri = currentPhotoUri.toString();
+        FirebaseVisionImage image = null;
+        try {
+            image = FirebaseVisionImage.fromFilePath(MainActivity.this, Uri.fromFile(new File(photoUri)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector();
+        Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
+                .addOnSuccessListener(barcodes -> {
+                    for (FirebaseVisionBarcode barcode : barcodes) {
+                        String rawValue = barcode.getRawValue();
+                        Item resultItem;
+                        db.collection("items")
+                                .whereEqualTo("barcodes", rawValue)
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            try {
+                                                String description = document.getString("description");
+                                                String make = document.getString("make");
+                                                String model = document.getString("model");
+                                                Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                                startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+
+                                            } catch (Exception e) {
+                                                Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                            }
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    throw new IllegalArgumentException();
+                                });
+                    }
+                });
+    }
+
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -500,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 ItemDataList.add(resultItem);
 
                 // use new ItemListDB here
-                itemListDB.addItem(resultItem);
+                //itemListDB.addItem(resultItem);
                 itemList.updateData(ItemDataList);
                 itemList.notifyDataSetChanged();
 
@@ -643,17 +669,26 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
                                 String id = document.getId();
-                                String purchaseDate = document.getString("DOP");
+                                String purchaseDate = document.getString("purchaseDate");
                                 String description = document.getString("description");
                                 String make = document.getString("make");
                                 String model = document.getString("model");
-                                Float value = document.getDouble("value").floatValue();
+                                Float value = Objects.requireNonNull(document.getDouble("value")).floatValue();
                                 String comment = document.getString("comment");
                                 String serialNumber = document.getString("serial");
                                 String owner = document.getString("owner");
 
+                                List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
+
                                 // Create an Item object
-                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner);
+                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
+                                if (rawImageUrls != null) {
+                                    for (Object rawImageUrl : rawImageUrls) {
+                                        if (rawImageUrl instanceof String) {
+                                            item.setDisplayImage((String) rawImageUrl);
+                                        }
+                                    }
+                                }
                                 ItemDataList.add(item);
 
                             } catch (Exception e) {
@@ -675,7 +710,90 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemList.setAdapter(itemListDB);
     }
 
+    private void askCameraPermissions() {
+        Uri uri = null;
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            // request permissions from user
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+        else {
+            // already have permissions
+            openCamera();
+        }
+    }
 
+    private void openCamera() {
 
+        // create a file
+        String fileName = "image" + TotalPhotoCounter;
+        ++TotalPhotoCounter;
+        File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Uri imageUri = null;
 
+        try {
+            File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
+            String currentPhotoPath = imageFile.getAbsolutePath();
+
+            imageUri = FileProvider.getUriForFile(MainActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            currentPhotoUri = imageUri;
+
+            // start an image capture intent
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intent, OPEN_CAMERA_REQUEST);
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void scanCode(){
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Volume up to flash on");
+        options.setBeepEnabled(true);
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureAct.class);
+        barLauncher.launch(options);
+
+    }
+
+    ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
+    {
+        if (result.getContents() != null){
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("result");
+            builder.setMessage(result.getContents());
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //db.collection("barcodes")
+                    //.whereEqualTo("barcodes", result.getContents())
+                    db.collection("barcodes").document(result.getContents())
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                        try {
+                                            String description = task.getResult().getString("description");
+                                            String make = task.getResult().getString("make");
+                                            String model = task.getResult().getString("model");
+                                            Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                            Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
+                                            intent.putExtra("Description", description);
+                                            intent.putExtra("Make", make);
+                                            intent.putExtra("Model", model);
+                                            startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+
+                                        } catch (Exception e) {
+                                            Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                        }
+                                    }
+                                }
+                            )
+                            .addOnFailureListener(e -> {
+                                throw new IllegalArgumentException();
+                            });
+                }
+            }).show();
+        }
+    });
 }
