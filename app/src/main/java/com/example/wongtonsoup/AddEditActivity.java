@@ -1,9 +1,9 @@
 package com.example.wongtonsoup;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Intent;
-import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,18 +19,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +37,7 @@ import java.util.List;
 public class AddEditActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 301;
     // Assume we have item with associated tags lise
-//    private Item item;
+    // private Item item;
     private EditText expenseDescription;
     private EditText expenseDate;
     private EditText expenseValue;
@@ -56,6 +54,9 @@ public class AddEditActivity extends AppCompatActivity {
     private static final int OPEN_CAMERA_REQUEST = 102;
     private static final int MAX_TOTAL_PHOTOS = 3;
     private int totalPhotoCounter = 0;
+
+    private FirebaseStorage storage;
+    private FirebaseFirestore db;
 
     //List<Tag> tags = item.getTags();
 
@@ -257,7 +258,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     /**
      * Passes the created Item back to MainActivity and finishes the AddEditActivity.
-     * @param item
+     * @param item item to pass
      */
 
     private void finishAndPassItem(Item item) {
@@ -335,6 +336,10 @@ public class AddEditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        storage = FirebaseStorage.getInstance();
+        db = FirebaseFirestore.getInstance();
+
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
@@ -352,6 +357,8 @@ public class AddEditActivity extends AppCompatActivity {
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
 
+
+
         // Fill out fields if editing
         Intent intent = getIntent();
         expenseDescription.setText(intent.getStringExtra("Description"));
@@ -361,6 +368,12 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber.setText(intent.getStringExtra("Serial"));
         expenseMake.setText(intent.getStringExtra("Make"));
         expenseModel.setText(intent.getStringExtra("Model"));
+
+//        expenseDescription.setText("desc");
+//        expenseDate.setText("11-11-1111");
+//        expenseValue.setText("10.00");
+//        expenseMake.setText("make");
+//        expenseMake.setText("model");
 
         // To disable the button
         addEditCheckButton.setEnabled(false);
@@ -390,11 +403,8 @@ public class AddEditActivity extends AppCompatActivity {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
                 Item createdItem = createItemFromFields();
-                if (imageUris != null){
-                    for (Uri imageUri : imageUris){
-                        createdItem.setDisplayImage(imageUri.toString());
-                    }
-                }
+                uploadImagesAndUpdateItem(createdItem, imageUris);
+
                 // Pass the createdItem back to MainActivity
                 finishAndPassItem(createdItem);
             }
@@ -445,16 +455,17 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
+
         // create a file
         String fileName = "photo" + totalPhotoCounter;
         File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
+        Uri imageUri = null;
 
         try {
             File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
             String currentPhotoPath = imageFile.getAbsolutePath();
 
-            Uri imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
             currentPhotoUri = imageUri;
 
             // start an image capture intent
@@ -465,5 +476,36 @@ public class AddEditActivity extends AppCompatActivity {
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    // Method to upload images and update item
+    public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
+        if (imageUris != null && !imageUris.isEmpty()) {
+            for (Uri imageUri : imageUris) {
+                uploadImageToFirebaseStorage(item, imageUri);
+            }
+        } else {
+            updateItemInFirestore(item);
+        }
+    }
+
+    private void uploadImageToFirebaseStorage(Item item, Uri imageUri) {
+        StorageReference storageRef = storage.getReference();
+        StorageReference imageRef = storageRef.child("items/" + item.getID() + "/" + imageUri.getLastPathSegment());
+
+        imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+            item.setDisplayImage(downloadUrl.toString());
+            updateItemInFirestore(item);
+        })).addOnFailureListener(e -> {
+            // Handle unsuccessful uploads
+            Toast.makeText(AddEditActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void updateItemInFirestore(Item item) {
+        // Update item in Firestore
+        db.collection("items").document(item.getID()).set(item)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully updated!"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error updating document", e));
     }
 }
