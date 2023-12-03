@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/tag_dialog_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tag_dialog_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="15dp"
@@ -41,9 +42,26 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/tag_dialog_chip_group"
+        style="@style/Widget.MaterialComponents.Chip.Entry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tags"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="5dp">
+    </com.google.android.material.chip.ChipGroup>
+
+    <Button
+        android:id="@+id/submit_tags_button"
+        android:layout_width="52dp"
+        android:layout_height="48dp"
+        android:layout_gravity="right"
+        android:background="@android:color/transparent"
+        android:drawableTop="@drawable/check_mark"
+        android:text="@string/text" />
+
+
 
 </LinearLayout>
 
