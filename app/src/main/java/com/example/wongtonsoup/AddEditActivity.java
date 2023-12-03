@@ -26,7 +26,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +42,7 @@ import java.util.List;
 public class AddEditActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 301;
     // Assume we have item with associated tags lise
-//    private Item item;
+    // private Item item;
     private EditText expenseDescription;
     private EditText expenseDate;
     private EditText expenseValue;
@@ -52,6 +59,9 @@ public class AddEditActivity extends AppCompatActivity {
     private static final int OPEN_CAMERA_REQUEST = 102;
     private static final int MAX_TOTAL_PHOTOS = 3;
     private int totalPhotoCounter = 0;
+
+    private FirebaseStorage storage;
+    private FirebaseFirestore db;
 
     //List<Tag> tags = item.getTags();
 
@@ -85,6 +95,8 @@ public class AddEditActivity extends AppCompatActivity {
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
+        TagList existingTags = new TagList();
+        TagList selectedTags = new TagList();
 
         // Get device ID
         @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -102,7 +114,8 @@ public class AddEditActivity extends AppCompatActivity {
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(id, date, description, make, model, value, comment, serialNumber, owner);
+        return new Item(id, date, description, make, model, value, comment, serialNumber, owner, selectedTags);
+
     }
 
     /**
@@ -248,6 +261,11 @@ public class AddEditActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Passes the created Item back to MainActivity and finishes the AddEditActivity.
+     * @param item
+     */
+
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("resultItem", item);
@@ -323,9 +341,16 @@ public class AddEditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        storage = FirebaseStorage.getInstance();
+        db = FirebaseFirestore.getInstance();
+
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
+
+        Button addTagButton = findViewById(R.id.add_tag_button);
+
         Button addEditCameraButton = findViewById(R.id.add_edit_camera_button);
         Button addEditGalleryButton = findViewById(R.id.add_edit_gallery_button);
 
@@ -337,6 +362,8 @@ public class AddEditActivity extends AppCompatActivity {
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
 
+
+
         // Fill out fields if editing
         Intent intent = getIntent();
         expenseDescription.setText(intent.getStringExtra("Description"));
@@ -346,6 +373,12 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber.setText(intent.getStringExtra("Serial"));
         expenseMake.setText(intent.getStringExtra("Make"));
         expenseModel.setText(intent.getStringExtra("Model"));
+
+        expenseDescription.setText("desc");
+        expenseDate.setText("11-11-1111");
+        expenseValue.setText("10.00");
+        expenseMake.setText("make");
+        expenseMake.setText("model");
 
         // To disable the button
         addEditCheckButton.setEnabled(false);
@@ -359,11 +392,24 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
 
+        // set up click listener for add tag button
+        addTagButton.setOnClickListener(view -> {
+            // Check if the button is enabled before performing actions
+            if (addTagButton.isEnabled()) {
+                TagList existingTags = new TagList();
+                TagList selectedTags = new TagList();
+                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existingTags, selectedTags);
+                tagDialog.show();
+            }
+        });
+
+
         addEditCheckButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
                 Item createdItem = createItemFromFields();
                 if (imageUris != null){
+                    uploadImagesAndUpdateItem(createdItem, imageUris);
                     for (Uri imageUri : imageUris){
                         createdItem.setDisplayImage(imageUri.toString());
                     }
@@ -440,5 +486,34 @@ public class AddEditActivity extends AppCompatActivity {
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    // Method to upload images and update item
+    public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
+        for (Uri imageUri : imageUris) {
+            uploadImageToFirebaseStorage(item, imageUri);
+        }
+    }
+
+    private void uploadImageToFirebaseStorage(Item item, Uri imageUri) {
+        StorageReference storageRef = storage.getReference();
+        StorageReference imageRef = storageRef.child("items/" + item.getID() + "/" + imageUri.getLastPathSegment());
+
+        imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
+            imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                item.setDisplayImage(downloadUrl.toString());
+                updateItemInFirestore(item);
+            });
+        }).addOnFailureListener(e -> {
+            // Handle unsuccessful uploads
+            Toast.makeText(AddEditActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void updateItemInFirestore(Item item) {
+        // Update item in Firestore
+        db.collection("items").document(item.getID()).set(item)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully updated!"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error updating document", e));
     }
 }

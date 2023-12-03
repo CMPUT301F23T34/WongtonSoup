@@ -22,6 +22,7 @@ public class ItemList extends ArrayAdapter<Item> {
     private Context mContext;
     private List<Item> itemList; // The adapter's own list for display
     private static ItemListListener listener; // Listener for adapter changes
+    private int visible; // Variable for determining if checkBox is visible
 
 
     // Interface for a class that wants to implement a listener on this class
@@ -66,6 +67,7 @@ public class ItemList extends ArrayAdapter<Item> {
         if (currentItem.getDisplayImage() != null){
             String fileName = currentItem.getDisplayImage();
             Uri uri = Uri.parse(fileName);
+            Log.d("ItemList URI", "getView: " + uri.toString());
 
             imageView.setImageURI(uri);
         }
@@ -79,6 +81,13 @@ public class ItemList extends ArrayAdapter<Item> {
 
 
         });
+        View listItemView = convertView;
+        if (visible == 1) {
+            checkBox.setVisibility(View.VISIBLE);
+        }
+        else {
+            checkBox.setVisibility(View.GONE);
+        }
 
 
         // Return the completed view to render on screen
@@ -178,7 +187,10 @@ public class ItemList extends ArrayAdapter<Item> {
             item.setSelected(false);
         }
     }
-   
+
+    void setVisible(int i) {
+        visible = i;
+    }
 
 }
 

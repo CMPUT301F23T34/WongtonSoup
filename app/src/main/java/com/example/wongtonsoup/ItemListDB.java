@@ -39,6 +39,7 @@ public class ItemListDB extends ArrayAdapter<Item> {
         itemData.put("model", item.getModel());
         itemData.put("comment", item.getComment());
         itemData.put("owner", item.getOwner());
+        itemData.put()
 
         String id = item.getID();
 
@@ -80,6 +81,5 @@ public class ItemListDB extends ArrayAdapter<Item> {
                 .addOnSuccessListener(aVoid -> Log.d("Item", "DocumentSnapshot successfully updated!"))
                 .addOnFailureListener(e -> Log.w("ItemList", "Error updating document", e));
     }
-
 
 }

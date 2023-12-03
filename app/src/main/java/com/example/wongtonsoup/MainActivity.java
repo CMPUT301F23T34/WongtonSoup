@@ -16,6 +16,8 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SearchView;
 
@@ -54,6 +56,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import java.util.Map;
 import java.util.Queue;
 
 import android.provider.Settings;
@@ -79,7 +83,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     Boolean expanded = false;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
-    private CollectionReference tagsRef;
+    //private CollectionReference tagsRef; this happens in TagList
+    private TagList tags;
     private CollectionReference usersRef;
     //delete button
     private FloatingActionButton fabDelete;
@@ -92,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     FirebaseVision dbvision;
     ArrayList<Item> ItemDataList;
     com.example.wongtonsoup.ItemList itemList;
+    private boolean isEditVisible = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
+
+        tags = new TagList();
 
         db = FirebaseFirestore.getInstance();
 
@@ -120,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         itemListDB = new ItemListDB(this, new ArrayList<Item>());
 
         itemsRef = db.collection("items");
-        tagsRef = db.collection("tags");
         usersRef = db.collection("users");
 
         usersRef.document(device_id).get().addOnCompleteListener(task -> {
@@ -200,6 +207,30 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             public void onClick(View v) {
                 // delete all selected items
                 deleteSelectedItems();
+            }
+        });
+
+        Button top_back_button = findViewById(R.id.top_back_button);
+        top_back_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                itemList.setVisible(0);
+                itemList.notifyDataSetChanged();
+
+                View edit_bar = findViewById(R.id.edit_list);
+                edit_bar.setVisibility(View.GONE);
+
+                FloatingActionButton add = findViewById(R.id.fab);
+                add.setVisibility(View.VISIBLE);
+
+                isEditVisible = !isEditVisible;
+                invalidateOptionsMenu();
+
+                View top = findViewById(R.id.top);
+                top.setVisibility(View.VISIBLE);
+
+                View top_back = findViewById(R.id.top_back);
+                top_back.setVisibility(View.GONE);
             }
         });
 
@@ -458,7 +489,38 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         else if (id == R.id.sign_out) {
             return true;
         }
+        else if (id == R.id.edit) {
+            // Edit the list of items. Show check boxes and delete buttons. Have back button and tags
+            if (ItemDataList.size() > 0){
+                itemList.setVisible(1);
+                itemList.notifyDataSetChanged();
+
+                View edit_bar = findViewById(R.id.edit_list);
+                edit_bar.setVisibility(View.VISIBLE);
+
+                FloatingActionButton add = findViewById(R.id.fab);
+                add.setVisibility(View.GONE);
+
+                isEditVisible = !isEditVisible;
+                invalidateOptionsMenu();
+
+                View top = findViewById(R.id.top);
+                top.setVisibility(View.GONE);
+
+                View top_back = findViewById(R.id.top_back);
+                top_back.setVisibility(View.VISIBLE);
+            }
+            else {
+                Toast.makeText(this, "No Items to Edit", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.edit).setVisible(isEditVisible);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     private void onScanning() {
@@ -515,7 +577,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 ItemDataList.add(resultItem);
 
                 // use new ItemListDB here
-                itemListDB.addItem(resultItem);
+                //itemListDB.addItem(resultItem);
                 itemList.updateData(ItemDataList);
                 itemList.notifyDataSetChanged();
 
@@ -668,7 +730,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                 String owner = document.getString("owner");
 
                                 // Create an Item object
-                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner);
+                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
                                 ItemDataList.add(item);
 
                             } catch (Exception e) {
@@ -776,6 +838,4 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }).show();
         }
     });
-
-
 }

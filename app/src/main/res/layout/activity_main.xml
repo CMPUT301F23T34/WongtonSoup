@@ -25,7 +25,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="10dp">
 
 <!--            <EditText-->
 <!--                android:id="@+id/search_view"-->
@@ -44,9 +45,12 @@
                     android:layout_weight="1"
                     android:queryHint="@string/search_by_description"
                     android:iconifiedByDefault="false"
-                    android:background="@color/white"
                     android:layout_gravity="center_vertical"
-                    android:padding="5dp" />
+
+                    android:padding="5dp"
+                    app:queryBackground="@drawable/bg_white_rounded"
+                    app:submitBackground="@drawable/bg_white_rounded"
+                    android:background="@drawable/bg_white_rounded"/>/>
 
             <Button
                 android:id="@id/expand_search_button"
@@ -72,58 +76,78 @@
                     android:id="@+id/sort_by"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/sort_by">
+                    android:text="@string/sort_by"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                android:paddingBottom="5dp">
             </TextView>
             <LinearLayout
+                    android:id="@+id/sort_buttons"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/sort_by"
                     android:orientation="horizontal">
-                
-                <androidx.appcompat.widget.AppCompatButton
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingEnd="10dp">
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_date"
                         android:textSize="12sp"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/Date"
                         style="@style/BubbleButtonStyle"/>
-                
+                </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="10dp">
                 <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/sort_description"
-                        android:textSize="12sp"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/description"
-                        style="@style/BubbleButtonStyle"/>
-                
-                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/sort_description"
+                    android:textSize="11sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/description"
+                    style="@style/BubbleButtonStyle"/>
+            </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingEnd="10dp">
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_make"
                         android:textSize="12sp"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/Make"
                         style="@style/BubbleButtonStyle"/>
+                </LinearLayout>
                 
                 <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_value"
                         android:textSize="12sp"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/value"
-                        style="@style/BubbleButtonStyle"/>
+                        style="@style/BubbleButtonStyle"
+                        android:includeFontPadding="true"/>
             </LinearLayout>
+
             <TextView
-                    android:id="@+id/filter_by"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sort_by"
-                    android:layout_marginTop="45dp"
-                    android:text="@string/filter_by">
-            </TextView>
+                android:id="@+id/filter_by"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sort_buttons"
+                android:text="@string/filter_by"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:paddingTop="20dp"/>
             
             <LinearLayout
                     android:layout_width="match_parent"
@@ -142,7 +166,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@color/white"
+                        app:queryBackground="@drawable/bg_white_rounded"
+                        app:submitBackground="@drawable/bg_white_rounded"
+                        android:background="@drawable/bg_white_rounded"
                         android:padding="5dp"
                         android:inputType="date|datetime"
                         android:autofillHints="dd-mm-yyyy"/>
@@ -160,10 +186,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@color/white"
                         android:padding="5dp"
                         android:autofillHints="dd-mm-yyyy"
-                        android:inputType="date|datetime"/>
+                        android:inputType="date|datetime"
+                        app:queryBackground="@drawable/bg_white_rounded"
+                        app:submitBackground="@drawable/bg_white_rounded"
+                        android:background="@drawable/bg_white_rounded"/>
             </LinearLayout>
             <SearchView
                     android:id="@+id/search_view_make"
@@ -174,10 +202,30 @@
                     android:layout_centerHorizontal="true"
                     android:queryHint="Search by make"
                     android:iconifiedByDefault="false"
-                    android:background="@color/white"
+                    app:queryBackground="@drawable/bg_white_rounded"
+                    app:submitBackground="@drawable/bg_white_rounded"
+                    android:background="@drawable/bg_white_rounded"
                     android:padding="5dp"/>
         </RelativeLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
+    <RelativeLayout
+        android:id="@+id/top_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/light_gray"
+        android:padding="10dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/top_back_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/homeAsUpIndicator"
+            android:backgroundTint="#FFFFFF">
+
+        </Button>
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/listView"
@@ -192,7 +240,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="#A5CFB5"
-        android:layout_gravity="bottom">
+        android:layout_gravity="bottom"
+        android:visibility="visible">
         <TextView
             android:id="@+id/ev"
             android:layout_width="wrap_content"
@@ -236,6 +285,56 @@
                 android:padding="15dp"
             android:visibility="visible"
             android:contentDescription="@string/add_item"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#2D7038"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:padding="10dp"
+        android:id="@+id/edit_list">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_white_rounded"
+            app:queryBackground="@drawable/bg_white_rounded"
+            app:submitBackground="@drawable/bg_white_rounded">
+
+            <TextView
+                android:id="@+id/add_tags_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="6dp"
+                android:text="Add Tags: "
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/add_tags_button"
+                style="@style/Widget.Material3.Button.TextButton.Icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_below="@+id/add_tags_text"
+                android:background="@drawable/add_box"
+                android:drawableTop="@drawable/add_box"
+                app:iconPadding="0dp"
+                app:iconSize="0dp" />
+
+            <ListView
+                android:layout_width="227dp"
+                android:layout_height="58dp"
+
+                android:layout_toEndOf="@+id/add_tags_text"></ListView>
+        </RelativeLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_delete"
@@ -247,20 +346,16 @@
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
-            android:layout_marginEnd="75dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginRight="0dp"
-            android:layout_marginBottom="0dp"
+            android:layout_marginBottom="16dp"
             android:contentDescription="@string/delete_item"
             android:padding="15dp"
             android:tint="@color/black"
-            android:visibility="visible"
-            app:backgroundTint="#2D7038"
-            app:layout_anchor="@id/fab"
+            app:backgroundTint="@color/light_gray"
             app:layout_anchorGravity="top"
             app:rippleColor="#A5CFB5"
-            app:srcCompat="@android:drawable/ic_menu_delete" />
-
-
+            app:srcCompat="@android:drawable/ic_menu_delete"/>
     </RelativeLayout>
 
 
