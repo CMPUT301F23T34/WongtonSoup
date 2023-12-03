@@ -30,6 +30,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -91,6 +95,8 @@ public class AddEditActivity extends AppCompatActivity {
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
+        TagList existingTags = new TagList();
+        TagList selectedTags = new TagList();
 
         // Get device ID
         @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -108,7 +114,8 @@ public class AddEditActivity extends AppCompatActivity {
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(id, date, description, make, model, value, comment, serialNumber, owner);
+        return new Item(id, date, description, make, model, value, comment, serialNumber, owner, selectedTags);
+
     }
 
     /**
@@ -254,6 +261,11 @@ public class AddEditActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Passes the created Item back to MainActivity and finishes the AddEditActivity.
+     * @param item
+     */
+
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("resultItem", item);
@@ -336,6 +348,9 @@ public class AddEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
+
+        Button addTagButton = findViewById(R.id.add_tag_button);
+
         Button addEditCameraButton = findViewById(R.id.add_edit_camera_button);
         Button addEditGalleryButton = findViewById(R.id.add_edit_gallery_button);
 
@@ -368,6 +383,18 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseSerialNumber, addEditCheckButton);
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
+
+        // set up click listener for add tag button
+        addTagButton.setOnClickListener(view -> {
+            // Check if the button is enabled before performing actions
+            if (addTagButton.isEnabled()) {
+                TagList existingTags = new TagList();
+                TagList selectedTags = new TagList();
+                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existingTags, selectedTags);
+                tagDialog.show();
+            }
+        });
+
 
         addEditCheckButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
