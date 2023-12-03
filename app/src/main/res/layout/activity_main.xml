@@ -54,8 +54,8 @@
             <Button
                 android:id="@id/expand_search_button"
                 style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="33dp"
-                android:layout_height="match_parent"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_gravity="end"
                 android:background="@android:drawable/ic_menu_more"
                 android:backgroundTint="#000000"
@@ -69,73 +69,92 @@
                 app:layout_anchor="@id/top"
                 app:layout_anchorGravity="bottom"
                 android:layout_gravity="bottom"
-                android:padding="10dp"
+                android:padding="5dp"
                 android:visibility="gone">
-            <TextView
+            <SearchView
+                android:id="@+id/search_view_make"
+                android:layout_width="275dp"
+                android:layout_height="35dp"
+                android:layout_centerHorizontal="true"
+                android:queryHint="Search by make"
+                android:iconifiedByDefault="false"
+                app:queryBackground="@drawable/bg_white_rounded"
+                app:submitBackground="@drawable/bg_white_rounded"
+                android:background="@drawable/bg_white_rounded"
+                android:padding="5dp"/>
+            <LinearLayout
+                    android:id="@+id/sort_buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="15dp"
+                    android:layout_below="@+id/search_view_make">
+                <TextView
                     android:id="@+id/sort_by"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/sort_by"
                     android:textSize="15sp"
                     android:textStyle="bold"
-                android:paddingBottom="5dp">
-            </TextView>
-            <LinearLayout
-                    android:id="@+id/sort_buttons"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sort_by"
-                    android:orientation="horizontal">
+                    android:paddingBottom="5dp"
+                    android:paddingEnd="5dp">
+                </TextView>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingEnd="10dp">
+                    android:paddingEnd="5dp">
+
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_date"
-                        android:textSize="12sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:background="@drawable/bg_white_rounded"
+                        android:layout_width="80dp"
+                        android:layout_height="40dp"
                         android:layout_weight="1"
                         android:text="@string/Date"
-                        style="@style/BubbleButtonStyle"/>
+                        android:textSize="12sp" />
                 </LinearLayout>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingEnd="10dp">
+                android:paddingEnd="5dp">
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/sort_description"
-                    android:textSize="11sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:textSize="10sp"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:background="@drawable/bg_white_rounded"
+                    android:layout_width="80dp"
+                    android:layout_height="40dp"
                     android:layout_weight="1"
-                    android:text="@string/description"
-                    style="@style/BubbleButtonStyle"/>
+                    android:text="@string/description" />
             </LinearLayout>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingEnd="10dp">
+                    android:paddingEnd="5dp"
+                    tools:ignore="RtlSymmetry">
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_make"
                         android:textSize="12sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:background="@drawable/bg_white_rounded"
+                        android:layout_width="80dp"
+                        android:layout_height="40dp"
                         android:layout_weight="1"
-                        android:text="@string/Make"
-                        style="@style/BubbleButtonStyle"/>
+                        android:text="@string/Make"/>
                 </LinearLayout>
                 
                 <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/sort_value"
                         android:textSize="12sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:background="@drawable/bg_white_rounded"
+                        android:layout_width="80dp"
+                        android:layout_height="40dp"
                         android:layout_weight="1"
                         android:text="@string/value"
-                        style="@style/BubbleButtonStyle"
-                        android:includeFontPadding="true"/>
+                    />
             </LinearLayout>
 
             <TextView
@@ -146,13 +165,14 @@
                 android:text="@string/filter_by"
                 android:textStyle="bold"
                 android:textSize="15sp"
-                android:paddingTop="20dp"/>
+                android:paddingTop="15dp"/>
             
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/filter_by"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:id="@+id/dates">
                 
                 <TextView
                         android:layout_width="wrap_content"
@@ -192,19 +212,25 @@
                         app:submitBackground="@drawable/bg_white_rounded"
                         android:background="@drawable/bg_white_rounded"/>
             </LinearLayout>
-            <SearchView
-                    android:id="@+id/search_view_make"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_below="@+id/dates">
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/filter_by"
-                    android:layout_marginTop="45dp"
-                    android:layout_centerHorizontal="true"
-                    android:queryHint="Search by make"
-                    android:iconifiedByDefault="false"
-                    app:queryBackground="@drawable/bg_white_rounded"
-                    app:submitBackground="@drawable/bg_white_rounded"
-                    android:background="@drawable/bg_white_rounded"
-                    android:padding="5dp"/>
+                    android:text="Tags: "
+                    android:layout_gravity="center_vertical" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:padding="10dp"
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/content_tags"
+                    />
+            </LinearLayout>
         </RelativeLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
