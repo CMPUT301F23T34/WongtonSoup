@@ -362,6 +362,8 @@ public class AddEditActivity extends AppCompatActivity {
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
 
+
+
         // Fill out fields if editing
         Intent intent = getIntent();
         expenseDescription.setText(intent.getStringExtra("Description"));
@@ -371,6 +373,12 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber.setText(intent.getStringExtra("Serial"));
         expenseMake.setText(intent.getStringExtra("Make"));
         expenseModel.setText(intent.getStringExtra("Model"));
+
+        expenseDescription.setText("desc");
+        expenseDate.setText("11-11-1111");
+        expenseValue.setText("10.00");
+        expenseMake.setText("make");
+        expenseMake.setText("model");
 
         // To disable the button
         addEditCheckButton.setEnabled(false);
