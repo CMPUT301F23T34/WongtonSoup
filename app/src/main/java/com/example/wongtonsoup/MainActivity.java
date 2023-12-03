@@ -1,20 +1,35 @@
 package com.example.wongtonsoup;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.SearchView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.navigation.ui.AppBarConfiguration;
 
 import com.example.wongtonsoup.databinding.ActivityMainBinding;
@@ -25,10 +40,16 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
@@ -36,10 +57,21 @@ import java.util.Date;
 import java.util.Queue;
 
 import android.provider.Settings;
+import android.widget.Toast;
+
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
+    public static final int CAMERA_PERMISSION_CODE = 301;
     private static final int ADD_EDIT_REQUEST_CODE = 1;
+    private static final int OPEN_CAMERA_REQUEST = 102;
     private static final int VIEW_REQUEST_CODE = 2;
     private int itemSelected;
     private AppBarConfiguration appBarConfiguration;
@@ -55,6 +87,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private ItemListDB itemListDB;
 //
     ListView ItemList;
+    private Uri currentPhotoUri;
+    int TotalPhotoCounter = 0;
+    FirebaseVision dbvision;
     ArrayList<Item> ItemDataList;
     com.example.wongtonsoup.ItemList itemList;
 
@@ -72,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         Log.d("MainActivity", "Device ID: " + device_id);
 
         db = FirebaseFirestore.getInstance();
+
 
         itemListDB = new ItemListDB(this, new ArrayList<Item>());
         ItemDataList = new ArrayList<>();
@@ -417,13 +453,56 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             return true;
         }
         else if (id == R.id.scan) {
-            return true;
+            scanCode();
         }
         else if (id == R.id.sign_out) {
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void onScanning() {
+        askCameraPermissions();
+        String photoUri = currentPhotoUri.toString();
+        FirebaseVisionImage image = null;
+        try {
+            image = FirebaseVisionImage.fromFilePath(MainActivity.this, Uri.fromFile(new File(photoUri)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector();
+        Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
+                .addOnSuccessListener(barcodes -> {
+                    for (FirebaseVisionBarcode barcode : barcodes) {
+                        String rawValue = barcode.getRawValue();
+                        Item resultItem;
+                        db.collection("items")
+                                .whereEqualTo("barcodes", rawValue)
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            try {
+                                                String description = document.getString("description");
+                                                String make = document.getString("make");
+                                                String model = document.getString("model");
+                                                Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                                startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+
+                                            } catch (Exception e) {
+                                                Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                            }
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    throw new IllegalArgumentException();
+                                });
+                    }
+                });
+    }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -611,7 +690,92 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemList.setAdapter(itemListDB);
     }
 
+    private void askCameraPermissions() {
+        Uri uri = null;
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            // request permissions from user
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+        else {
+            // already have permissions
+            openCamera();
+        }
+    }
 
+    private void openCamera() {
+
+        // create a file
+        String fileName = "image" + TotalPhotoCounter;
+        ++TotalPhotoCounter;
+        File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Uri imageUri = null;
+
+        try {
+            File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
+            String currentPhotoPath = imageFile.getAbsolutePath();
+
+            imageUri = FileProvider.getUriForFile(MainActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            currentPhotoUri = imageUri;
+
+            // start an image capture intent
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intent, OPEN_CAMERA_REQUEST);
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void scanCode(){
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Volume up to flash on");
+        options.setBeepEnabled(true);
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureAct.class);
+        barLauncher.launch(options);
+
+    }
+
+    ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
+    {
+        if (result.getContents() != null){
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("result");
+            builder.setMessage(result.getContents());
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //db.collection("barcodes")
+                    //.whereEqualTo("barcodes", result.getContents())
+                    db.collection("barcodes").document(result.getContents())
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                        try {
+                                            String description = task.getResult().getString("description");
+                                            String make = task.getResult().getString("make");
+                                            String model = task.getResult().getString("model");
+                                            Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                            Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
+                                            intent.putExtra("Description", description);
+                                            intent.putExtra("Make", make);
+                                            intent.putExtra("Model", model);
+                                            startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+
+                                        } catch (Exception e) {
+                                            Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                        }
+                                    }
+                                }
+                            )
+                            .addOnFailureListener(e -> {
+                                throw new IllegalArgumentException();
+                            });
+                }
+            }).show();
+        }
+    });
 
 
 }

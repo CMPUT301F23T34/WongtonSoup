@@ -393,6 +393,7 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void askCameraPermissions() {
+        Uri uri = null;
         if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
             // request permissions from user
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
@@ -418,16 +419,17 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
+
         // create a file
         String fileName = "photo" + totalPhotoCounter;
         File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
+        Uri imageUri = null;
 
         try {
             File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
             String currentPhotoPath = imageFile.getAbsolutePath();
 
-            Uri imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
             currentPhotoUri = imageUri;
 
             // start an image capture intent
