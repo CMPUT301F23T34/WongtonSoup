@@ -1,9 +1,9 @@
 package com.example.wongtonsoup;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Intent;
-import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,16 +19,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.io.File;
@@ -243,7 +242,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     /**
      * Passes the created Item back to MainActivity and finishes the AddEditActivity.
-     * @param item
+     * @param item item to pass
      */
 
     private void finishAndPassItem(Item item) {
@@ -435,16 +434,17 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
+
         // create a file
         String fileName = "photo" + totalPhotoCounter;
         File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
+        Uri imageUri = null;
 
         try {
             File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
             String currentPhotoPath = imageFile.getAbsolutePath();
 
-            Uri imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
             currentPhotoUri = imageUri;
 
             // start an image capture intent
@@ -459,8 +459,12 @@ public class AddEditActivity extends AppCompatActivity {
 
     // Method to upload images and update item
     public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
-        for (Uri imageUri : imageUris) {
-            uploadImageToFirebaseStorage(item, imageUri);
+        if (imageUris != null && !imageUris.isEmpty()) {
+            for (Uri imageUri : imageUris) {
+                uploadImageToFirebaseStorage(item, imageUri);
+            }
+        } else {
+            updateItemInFirestore(item);
         }
     }
 
@@ -468,12 +472,10 @@ public class AddEditActivity extends AppCompatActivity {
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child("items/" + item.getID() + "/" + imageUri.getLastPathSegment());
 
-        imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
-            imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                item.setDisplayImage(downloadUrl.toString());
-                updateItemInFirestore(item);
-            });
-        }).addOnFailureListener(e -> {
+        imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+            item.setDisplayImage(downloadUrl.toString());
+            updateItemInFirestore(item);
+        })).addOnFailureListener(e -> {
             // Handle unsuccessful uploads
             Toast.makeText(AddEditActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
