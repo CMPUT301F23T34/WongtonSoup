@@ -81,5 +81,4 @@ public class ItemListDB extends ArrayAdapter<Item> {
                 .addOnFailureListener(e -> Log.w("ItemList", "Error updating document", e));
     }
 
-
 }

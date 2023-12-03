@@ -670,7 +670,4 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemList.setAdapter(itemListDB);
     }
 
-
-
-
 }
