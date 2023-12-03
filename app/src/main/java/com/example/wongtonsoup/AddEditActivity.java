@@ -30,13 +30,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class AddEditActivity extends AppCompatActivity {
@@ -50,7 +46,6 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseSerialNumber;
     private EditText expenseMake;
     private EditText expenseModel;
-
     private Uri currentPhotoUri;
     private final List<Uri> imageUris = new ArrayList<>();
 
@@ -62,32 +57,12 @@ public class AddEditActivity extends AppCompatActivity {
 
     private FirebaseStorage storage;
     private FirebaseFirestore db;
+    private Item current_item = new Item();
 
-    //List<Tag> tags = item.getTags();
-
-    // Find the ChipGroup view in layout
-//    ChipGroup chipGroup = findViewById(R.id.add_edit_chip_group);
-    //    //Iterate through tags and add a chip for each one
-//    for (Tag tag : tags) {
-//        Chip chip = new Chip(this);
-//        chip.setText(tag.getName());
-//        chip.setCloseIconVisible(true);
-//    //Add a click listener to handle interactions with the tag
-//    chip.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onLongClick(View view) {
-//            // Handle tag click, e.g., remove the tag from the item
-//        }
-//    });
-//
-//    // Add the Chip to the ChipGroup
-//    chipGroup.addView(chip);
     /**
      * Creates an Item object with data from EditText fields and performs actions when the button is enabled.
-     *
-     * @return The Item object created from EditText fields.
      */
-    private Item createItemFromFields() {
+    private void popuateItemFields() {
         String description = expenseDescription.getText().toString();
         String date = expenseDate.getText().toString();
         String str_value = expenseValue.getText().toString();
@@ -95,8 +70,6 @@ public class AddEditActivity extends AppCompatActivity {
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
-        TagList existingTags = new TagList();
-        TagList selectedTags = new TagList();
 
         // Get device ID
         @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -114,8 +87,15 @@ public class AddEditActivity extends AppCompatActivity {
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(id, date, description, make, model, value, comment, serialNumber, owner, selectedTags);
-
+        current_item.setID(id);
+        current_item.setDescription(description);
+        current_item.setPurchaseDate(date);
+        current_item.setMake(make);
+        current_item.setModel(model);
+        current_item.setValue(value);
+        current_item.setComment(comment);
+        current_item.setSerialNumber(serialNumber);
+        current_item.setOwner(owner);
     }
 
     /**
@@ -362,8 +342,6 @@ public class AddEditActivity extends AppCompatActivity {
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
 
-
-
         // Fill out fields if editing
         Intent intent = getIntent();
         expenseDescription.setText(intent.getStringExtra("Description"));
@@ -373,12 +351,6 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber.setText(intent.getStringExtra("Serial"));
         expenseMake.setText(intent.getStringExtra("Make"));
         expenseModel.setText(intent.getStringExtra("Model"));
-
-        expenseDescription.setText("desc");
-        expenseDate.setText("11-11-1111");
-        expenseValue.setText("10.00");
-        expenseMake.setText("make");
-        expenseMake.setText("model");
 
         // To disable the button
         addEditCheckButton.setEnabled(false);
@@ -398,24 +370,23 @@ public class AddEditActivity extends AppCompatActivity {
             if (addTagButton.isEnabled()) {
                 TagList existingTags = new TagList();
                 TagList selectedTags = new TagList();
-                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existingTags, selectedTags);
+                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existingTags, selectedTags, current_item);
                 tagDialog.show();
             }
         });
 
-
         addEditCheckButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
-                Item createdItem = createItemFromFields();
+                popuateItemFields();
                 if (imageUris != null){
-                    uploadImagesAndUpdateItem(createdItem, imageUris);
+                    uploadImagesAndUpdateItem(current_item, imageUris);
                     for (Uri imageUri : imageUris){
-                        createdItem.setDisplayImage(imageUri.toString());
+                        current_item.setDisplayImage(imageUri.toString());
                     }
                 }
                 // Pass the createdItem back to MainActivity
-                finishAndPassItem(createdItem);
+                finishAndPassItem(current_item);
             }
         });
 
