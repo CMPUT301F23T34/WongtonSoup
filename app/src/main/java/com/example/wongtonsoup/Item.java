@@ -171,13 +171,9 @@ public class Item implements Serializable {
      * @since 10/25/2023
      */
     public String getSerialNumber() {
-        if (serialNumber == null) {
-            throw new IllegalArgumentException();
-        }
-        else{
-            return serialNumber;
-        }
+        return serialNumber != null ? serialNumber : ""; // Return an empty string if serialNumber is null
     }
+
     /**
      * Sets serial number
      * @param serialNumber
