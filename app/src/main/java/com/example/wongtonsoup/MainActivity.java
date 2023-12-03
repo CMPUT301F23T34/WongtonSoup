@@ -652,7 +652,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                 String owner = document.getString("owner");
 
                                 // Create an Item object
-                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner);
+                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
                                 ItemDataList.add(item);
 
                             } catch (Exception e) {
