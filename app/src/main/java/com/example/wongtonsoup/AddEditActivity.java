@@ -26,6 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +38,7 @@ import java.util.List;
 public class AddEditActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 301;
     // Assume we have item with associated tags lise
-//    private Item item;
+    // private Item item;
     private EditText expenseDescription;
     private EditText expenseDate;
     private EditText expenseValue;
@@ -52,6 +55,9 @@ public class AddEditActivity extends AppCompatActivity {
     private static final int OPEN_CAMERA_REQUEST = 102;
     private static final int MAX_TOTAL_PHOTOS = 3;
     private int totalPhotoCounter = 0;
+
+    private FirebaseStorage storage;
+    private FirebaseFirestore db;
 
     //List<Tag> tags = item.getTags();
 
@@ -323,6 +329,10 @@ public class AddEditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        storage = FirebaseStorage.getInstance();
+        db = FirebaseFirestore.getInstance();
+
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
@@ -364,6 +374,7 @@ public class AddEditActivity extends AppCompatActivity {
             if (addEditCheckButton.isEnabled()) {
                 Item createdItem = createItemFromFields();
                 if (imageUris != null){
+                    uploadImagesAndUpdateItem(createdItem, imageUris);
                     for (Uri imageUri : imageUris){
                         createdItem.setDisplayImage(imageUri.toString());
                     }
@@ -438,5 +449,34 @@ public class AddEditActivity extends AppCompatActivity {
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    // Method to upload images and update item
+    public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
+        for (Uri imageUri : imageUris) {
+            uploadImageToFirebaseStorage(item, imageUri);
+        }
+    }
+
+    private void uploadImageToFirebaseStorage(Item item, Uri imageUri) {
+        StorageReference storageRef = storage.getReference();
+        StorageReference imageRef = storageRef.child("items/" + item.getID() + "/" + imageUri.getLastPathSegment());
+
+        imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
+            imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                item.setDisplayImage(downloadUrl.toString());
+                updateItemInFirestore(item);
+            });
+        }).addOnFailureListener(e -> {
+            // Handle unsuccessful uploads
+            Toast.makeText(AddEditActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void updateItemInFirestore(Item item) {
+        // Update item in Firestore
+        db.collection("items").document(item.getID()).set(item)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully updated!"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error updating document", e));
     }
 }
