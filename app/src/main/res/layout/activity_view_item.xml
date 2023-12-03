@@ -206,9 +206,17 @@
             android:longClickable="true">
 
         </com.google.android.material.chip.ChipGroup>
-
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:padding="20dp"
+            android:layout_below="@+id/tags"
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/content_tags"/>
     </RelativeLayout>
+
 
 
 </LinearLayout>

@@ -25,6 +25,7 @@ public class Item implements Serializable {
     private Float value;
     private String comment;
     private TagList tags;
+
     private String owner;
     // for selecting to add tags or delete items
 
@@ -98,6 +99,12 @@ public class Item implements Serializable {
             throw new IllegalArgumentException();
         }
     }
+
+    /**
+     * Constructs a null item.
+     */
+    public Item(){ }
+
 
     /**
      * Return ID
@@ -353,6 +360,14 @@ public class Item implements Serializable {
      */
     public String getOwner() {
         return this.owner;
+    }
+
+    /**
+     * set owner
+     * @param owner
+     */
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     /**
