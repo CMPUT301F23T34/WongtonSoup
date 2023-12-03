@@ -1,13 +1,16 @@
 package com.example.wongtonsoup;
 
 // tags can be compared by their names
+
+import java.io.Serializable;
+
 /**
  * Class for a tag.
  * @author liamhouston
  * @version 1.0
  * @since 10/30/2023
  */
-public class Tag implements Comparable<Tag> {
+public class Tag implements Comparable<Tag>, Serializable {
     private String name;
 
     public Tag(String name) {

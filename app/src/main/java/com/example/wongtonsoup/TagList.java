@@ -16,15 +16,11 @@ import java.util.Map;
  * @version 1.0
  * @since 11/01/2023
  */
-public class TagList implements Iterable<Tag> {
+public class TagList implements Iterable<Tag>, Serializable {
     private ArrayList<Tag> current_tags;
-    private FirebaseFirestore db;
-    private CollectionReference tagsRef;
 
     public TagList(Tag current_tag) {
         this.current_tags = new ArrayList<Tag>();
-        db = FirebaseFirestore.getInstance();
-        tagsRef = db.collection("tags");
     }
 
     public TagList() {
@@ -155,6 +151,8 @@ public class TagList implements Iterable<Tag> {
      * @since 10/25/2023
      */
     public void addTagDB(String tagName) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference tagsRef = db.collection("tags");
         tagsRef.whereEqualTo("name", tagName).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().isEmpty()) {
@@ -171,6 +169,7 @@ public class TagList implements Iterable<Tag> {
      * @since 10/25/2023
      */
     public void updateTagsInItem(Item item, TagList tags) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items")
                 .document(item.getSerialNumberAsString())
                 .update("tags", tags.getTags())
@@ -183,6 +182,7 @@ public class TagList implements Iterable<Tag> {
      * @since 10/25/2023
      */
     public void deleteTagFromItem(Item item, Tag tag) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items")
                 .document(item.getSerialNumberAsString())
                 .update("tags", tag)
@@ -196,6 +196,8 @@ public class TagList implements Iterable<Tag> {
      * @since 10/25/2023
      */
     public void deleteTagDB(String tagName) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference tagsRef = db.collection("tags");
         tagsRef.whereEqualTo("name", tagName).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (!task.getResult().isEmpty()) {
