@@ -182,8 +182,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 itemList.setVisible(0);
                 itemList.notifyDataSetChanged();
 
-                FloatingActionButton delete = findViewById(R.id.fab_delete);
-                delete.setVisibility(View.GONE);
+                View edit_bar = findViewById(R.id.edit_list);
+                edit_bar.setVisibility(View.GONE);
 
                 FloatingActionButton add = findViewById(R.id.fab);
                 add.setVisibility(View.VISIBLE);
@@ -460,8 +460,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 itemList.setVisible(1);
                 itemList.notifyDataSetChanged();
 
-                FloatingActionButton delete = findViewById(R.id.fab_delete);
-                delete.setVisibility(View.VISIBLE);
+                View edit_bar = findViewById(R.id.edit_list);
+                edit_bar.setVisibility(View.VISIBLE);
 
                 FloatingActionButton add = findViewById(R.id.fab);
                 add.setVisibility(View.GONE);
@@ -499,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 ItemDataList.add(resultItem);
 
                 // use new ItemListDB here
-                itemListDB.addItem(resultItem);
+                //itemListDB.addItem(resultItem);
                 itemList.updateData(ItemDataList);
                 itemList.notifyDataSetChanged();
 
