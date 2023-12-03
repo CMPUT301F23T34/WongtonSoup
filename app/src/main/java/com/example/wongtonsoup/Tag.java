@@ -35,4 +35,5 @@ public class Tag implements Comparable<Tag> {
         // -- tag2.compareTo(tag1) will return negative
         return this.name.toLowerCase().compareTo(t.name.toLowerCase());
     }
+
 }
