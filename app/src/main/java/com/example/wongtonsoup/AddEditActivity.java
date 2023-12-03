@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddEditActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -263,7 +264,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("resultItem", item);
+//        resultIntent.putExtra("resultItem", item);
         resultIntent.putExtra("itemID", item.getID()); // Pass the ID back
         String itemID = item.getID();
         Log.d("ViewItemActivity PASS", "PASS Item ID: " + itemID); // Log to confirm ID is received
@@ -406,7 +407,7 @@ public class AddEditActivity extends AppCompatActivity {
                 uploadImagesAndUpdateItem(createdItem, imageUris);
 
                 // Pass the createdItem back to MainActivity
-                finishAndPassItem(createdItem);
+//                finishAndPassItem(createdItem);
             }
         });
 
@@ -481,21 +482,30 @@ public class AddEditActivity extends AppCompatActivity {
     // Method to upload images and update item
     public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
         if (imageUris != null && !imageUris.isEmpty()) {
+            int totalImages = imageUris.size();
+            AtomicInteger uploadedImages = new AtomicInteger(0);
+
             for (Uri imageUri : imageUris) {
-                uploadImageToFirebaseStorage(item, imageUri);
+                uploadImageToFirebaseStorage(item, imageUri, totalImages, uploadedImages);
             }
         } else {
+            // No images to upload, directly update item in Firestore
             updateItemInFirestore(item);
         }
     }
 
-    private void uploadImageToFirebaseStorage(Item item, Uri imageUri) {
+    private void uploadImageToFirebaseStorage(Item item, Uri imageUri, int totalImages, AtomicInteger uploadedImages) {
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child("items/" + item.getID() + "/" + imageUri.getLastPathSegment());
 
         imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
             item.setDisplayImage(downloadUrl.toString());
-            updateItemInFirestore(item);
+
+            int currentUploadedImages = uploadedImages.incrementAndGet();
+            if (currentUploadedImages == totalImages) {
+                // All images uploaded, update item in Firestore
+                updateItemInFirestore(item);
+            }
         })).addOnFailureListener(e -> {
             // Handle unsuccessful uploads
             Toast.makeText(AddEditActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -505,7 +515,14 @@ public class AddEditActivity extends AppCompatActivity {
     private void updateItemInFirestore(Item item) {
         // Update item in Firestore
         db.collection("items").document(item.getID()).set(item)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully updated!"))
-                .addOnFailureListener(e -> Log.w("Firestore", "Error updating document", e));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "DocumentSnapshot successfully updated!");
+                    // Call finishAndPassItem here as the update is successful
+                    finishAndPassItem(item);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error updating document", e);
+                    // Handle the failure if needed
+                });
     }
 }
