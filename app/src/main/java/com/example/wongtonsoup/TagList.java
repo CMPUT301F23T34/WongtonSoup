@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Class for the current list of valid tags.
@@ -153,11 +154,16 @@ public class TagList implements Iterable<Tag>, Serializable {
     public void addTagDB(String tagName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference tagsRef = db.collection("tags");
+
+        UUID uuid = UUID.randomUUID();
+        String id = uuid.toString();
+
         tagsRef.whereEqualTo("name", tagName).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().isEmpty()) {
                     Map<String, Object> tag = new HashMap<>();
                     tag.put("name", tagName);
+                    tag.put("id", id);
                     tagsRef.add(tag);
                 }
             }
@@ -168,11 +174,11 @@ public class TagList implements Iterable<Tag>, Serializable {
      * @param item, tags
      * @since 10/25/2023
      */
-    public void updateTagsInItem(Item item, TagList tags) {
+    public void updateTagsInItem(Item item, TagList new_selected_tags) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items")
                 .document(item.getSerialNumberAsString())
-                .update("tags", tags.getTags())
+                .update("tags", new_selected_tags)
                 .addOnSuccessListener(aVoid -> Log.d("Item", "Item successfully updated!"))
                 .addOnFailureListener(e -> Log.w("Item", "Error updating item", e));
     }

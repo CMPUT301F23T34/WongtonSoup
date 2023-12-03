@@ -20,6 +20,7 @@ import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TagDialog extends Dialog {
 
@@ -28,13 +29,15 @@ public class TagDialog extends Dialog {
     private ChipGroup chipGroup;
     private EditText tagInput;
     private TagList selectedTags;
+    private Item current_item;
 
 
-    public TagDialog(Context context, TagList existingTags, TagList selectedTags) {
+    public TagDialog(Context context, TagList existingTags, TagList selectedTags, Item current_item) {
         super(context);
         this.context = context;
         this.existingTags = existingTags;
         this.selectedTags = selectedTags;
+        this.current_item = current_item;
     }
 
 
@@ -78,9 +81,11 @@ public class TagDialog extends Dialog {
                 for (int i = 0; i < chipGroup.getChildCount(); i++) {
                     Chip chip = (Chip) chipGroup.getChildAt(i);
                     if (chip.isChecked()) {
-                        selectedTags.addTag(chip.getText().toString());
+                        selectedTags.addTagDB(chip.getText().toString());
                     }
                 }
+                current_item.setTags(selectedTags);
+
                 Toast.makeText(context, "tags: " + existingTags.toString(), Toast.LENGTH_SHORT).show();
                 dismiss();
             }
@@ -105,10 +110,12 @@ public class TagDialog extends Dialog {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    // db version: updateTagsInItem(item, selectedTags);
-                    selectedTags.addTag(chip.getText().toString());
+                    Tag new_tag = new Tag(chip.getText().toString());
+                    UUID uuid = java.util.UUID.randomUUID();
+                    new_tag.setUuid(uuid);
+                    selectedTags.addTag(new_tag);
+
                 } else {
-                    // db version: updateTagsInItem(item, selectedTags);
                     selectedTags.removeTag(chip.getText().toString());
                 }
             }
@@ -118,8 +125,6 @@ public class TagDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 chipGroup.removeView(chip);
-                //db version: deleteTagDb(tag);
-                //db version: deleteTagFromItem(item, tag);
                 existingTags.removeTag(tag);
             }
         });
