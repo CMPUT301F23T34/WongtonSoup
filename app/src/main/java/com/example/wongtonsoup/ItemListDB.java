@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,14 @@ public class ItemListDB extends ArrayAdapter<Item> {
         itemData.put("model", item.getModel());
         itemData.put("comment", item.getComment());
         itemData.put("owner", item.getOwner());
-        itemData.put()
+
+        ArrayList<String> tags_ref = new ArrayList<String>();
+        if (item.getTags() != null && item.getTags().getTags() != null) {
+            for (int tag_index = 0; tag_index < item.getTags().getTags().size(); tag_index++) {
+                tags_ref.add(item.getTags().getTags().get(tag_index).getUuid().toString());
+            }
+        }
+        itemData.put("tags", tags_ref);
 
         String id = item.getID();
 
