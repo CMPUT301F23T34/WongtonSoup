@@ -343,12 +343,12 @@ public class Item implements Serializable {
      * @since 10/25/2023
      */
     public void setTags(TagList tags) {
-        if (tags == null){
+        if (tags == null) {
             throw new IllegalArgumentException();
-        }
-        else {
+        } else {
             this.tags = tags;
         }
+    }
 
     /**
      * return owner
