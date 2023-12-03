@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -26,6 +27,7 @@ public class Item implements Serializable {
     private TagList tags;
     private String owner;
     // for selecting to add tags or delete items
+
     private boolean selected;
 
     private Queue<String> imagePaths;
@@ -40,12 +42,16 @@ public class Item implements Serializable {
      * @param serialNumber
      * @param value
      * @param comment
+     * @param selectedTags
+     * @throws IllegalArgumentException
+     * @since 10/25/2023
      * @param owner
      * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(String id, String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, String owner) {
+    public Item(String id, String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, String owner, TagList selectedTags) {
         this.id = id;
+
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -70,11 +76,14 @@ public class Item implements Serializable {
      * @param model
      * @param value
      * @param comment
+     * @param selectedTags
+     * @throws IllegalArgumentException
+     * @since 10/25/2023
      * @param owner
      * @throws IllegalArgumentException
      * @since 10/25/2023
      */
-    public Item(String id, String purchaseDate, String description, String make, String model, Float value, String comment, String owner) {
+    public Item(String id, String purchaseDate, String description, String make, String model, Float value, String comment, String owner, TagList selectedTags) {
         this.id = id;
         this.purchaseDate = purchaseDate;
         this.description = description;
@@ -328,6 +337,20 @@ public class Item implements Serializable {
     }
 
     /**
+     * Sets tags
+     * @param tags
+     * @throws IllegalArgumentException
+     * @since 10/25/2023
+     */
+    public void setTags(TagList tags) {
+        if (tags == null){
+            throw new IllegalArgumentException();
+        }
+        else {
+            this.tags = tags;
+        }
+
+    /**
      * return owner
      * @return owner
      * @since 11/29/2023
@@ -426,4 +449,23 @@ public class Item implements Serializable {
            return o1.getValue().compareTo(o2.getValue());
         }
     };
+
+    /**
+     * get serial number
+     * @return serial number
+     * @since 10/25/2023
+     */
+    public String getSerialNumberAsString() {
+        return this.serialNumber;
+    }
+
+    /**
+     * Update selected tags
+     * @param selectedTags
+     * @since 10/25/2023
+     */
+    public void updateSelectedTags(TagList selectedTags) {
+        // should be this.serialNumber but no db yet
+        tags.updateTagsInItem(this, selectedTags);
+    }
 }

@@ -183,6 +183,38 @@ public class MainActivityTest {
         onView(withId(R.id.view_make)).check(matches(withText("Dell")));
         onView(withId(R.id.item_view_price)).check(matches(withText("1450.45")));
     }
+    @Test
+    public void testDeleteItem(){
+        // add item
+        onView(withId(R.id.fab)).perform(click());
+        onView(withId(R.id.add_edit_description)).perform(ViewActions.typeText("Laptop"));
+        closeSoftKeyboard();
+        onView(withId(R.id.add_edit_make)).perform(ViewActions.typeText("Dell"));
+        closeSoftKeyboard();
+        onView(withId(R.id.add_edit_model)).perform(ViewActions.typeText("XPS 15"));
+        closeSoftKeyboard();
+        onView(withId(R.id.add_edit_comment)).perform(ViewActions.typeText("Work laptop with touch screen"));
+        closeSoftKeyboard();
+        onView(withId(R.id.add_edit_date)).perform(ViewActions.typeText("09-11-2023"));
+        closeSoftKeyboard();
+        onView(withId(R.id.add_edit_serial)).perform(ViewActions.typeText("1234567"));
+        closeSoftKeyboard();
+        onView(withId(R.id.add_edit_price)).perform(ViewActions.typeText("1200"));
+        closeSoftKeyboard();
+        onView(withId(R.id.add_edit_check)).perform(click());
+        // ensure correct view
+        onView(withId(R.id.activity_view_item)).check(matches(isDisplayed()));
+        // select item
+        onView(withId(R.id.select)).perform(click());
+        // delete item
+        onView(withId(R.id.fab_delete)).perform(click());
+        // ensure correct view
+        onView(withId(R.id.activity_main)).check(matches(isDisplayed()));
+        // ensure item is deleted
+        onView(withId(R.id.content_description)).check(matches(withText("")));
+        onView(withId(R.id.content_make)).check(matches(withText("")));
+        onView(withId(R.id.content_date)).check(matches(withText("")));
+    }
 
     // TODO test search by Desc
     // TODO test sort by Date
