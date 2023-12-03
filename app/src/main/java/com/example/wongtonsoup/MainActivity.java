@@ -12,10 +12,16 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.TransitionInflater;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
@@ -40,6 +46,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import android.animation.ObjectAnimator;
+import android.transition.TransitionManager;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -67,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     ArrayList<Item> ItemDataList;
     com.example.wongtonsoup.ItemList itemList;
     private boolean isEditVisible = true;
+    private Button expand;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,14 +161,16 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         });
 
         // Expand Search
-        Button expand = findViewById(R.id.expand_search_button);
+        expand = findViewById(R.id.expand_search_button);
         View expandedSearch = findViewById(R.id.expanded);
         expand.setOnClickListener(v -> {
             if (expanded){
+                flipArrow();
                 expandedSearch.setVisibility(View.GONE);
                 expanded = false;
             }
             else {
+                flipArrow();
                 expandedSearch.setVisibility(View.VISIBLE);
                 expanded = true;
             }
@@ -179,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
             View edit_bar = findViewById(R.id.edit_list);
             edit_bar.setVisibility(View.GONE);
+
 
             FloatingActionButton add = findViewById(R.id.fab);
             add.setVisibility(View.VISIBLE);
@@ -719,6 +731,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
                                 // Create an Item object
                                 Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
+
                                 if (rawImageUrls != null) {
                                     for (Object rawImageUrl : rawImageUrls) {
                                         if (rawImageUrl instanceof String) {
@@ -833,4 +846,11 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }).show();
         }
     });
+    private void flipArrow() {
+        TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
+        ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() + 180);
+        rotateAnimator.setDuration(500);
+        rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        rotateAnimator.start();
+    }
 }
