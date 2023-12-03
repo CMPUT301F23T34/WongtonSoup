@@ -257,6 +257,7 @@
                 android:layout_marginStart="47dp"
                 android:layout_marginTop="-7dp"
                 android:background="@android:color/transparent"
+                android:text="@string/select_image"
                 android:drawableTop="@drawable/add_box"/>
         <HorizontalScrollView
             android:layout_width="match_parent"

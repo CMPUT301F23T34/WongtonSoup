@@ -1,10 +1,13 @@
 package com.example.wongtonsoup;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Class for an item object
@@ -13,6 +16,7 @@ import java.util.Comparator;
  * @since 10/25/2023
  */
 public class Item implements Serializable {
+    private String id;
     private String purchaseDate; // must be in format dd-mm-yyyy ( 11-9-2023 is invalid, should be 11-09-2023 )
     private String description;
     private String make;
@@ -21,10 +25,16 @@ public class Item implements Serializable {
     private Float value;
     private String comment;
     private TagList tags;
+    private String owner;
+    // for selecting to add tags or delete items
+
     private boolean selected;
+
+    private Queue<String> imagePaths;
 
     /**
      * Constructs an item containing a serial number
+     * @param id
      * @param purchaseDate
      * @param description
      * @param make
@@ -35,8 +45,13 @@ public class Item implements Serializable {
      * @param selectedTags
      * @throws IllegalArgumentException
      * @since 10/25/2023
+     * @param owner
+     * @throws IllegalArgumentException
+     * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, TagList selectedTags) {
+    public Item(String id, String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, String owner, TagList selectedTags) {
+        this.id = id;
+
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -45,6 +60,7 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
+        this.owner = owner;
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
@@ -53,6 +69,7 @@ public class Item implements Serializable {
 
     /**
      * Constructs an item without a serial number
+     * @param id
      * @param purchaseDate
      * @param description
      * @param make
@@ -62,8 +79,12 @@ public class Item implements Serializable {
      * @param selectedTags
      * @throws IllegalArgumentException
      * @since 10/25/2023
+     * @param owner
+     * @throws IllegalArgumentException
+     * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, TagList selectedTags) {
+    public Item(String id, String purchaseDate, String description, String make, String model, Float value, String comment, String owner, TagList selectedTags) {
+        this.id = id;
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -71,10 +92,29 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
+        this.owner = owner;
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
+    }
+
+    /**
+     * Return ID
+     * @return id
+     * @since 11/29/2023
+     */
+    public String getID() {
+        return this.id;
+    }
+
+    /**
+     * Sets ID
+     * @param id
+     * @since 12/01/2023
+     */
+    public void setID(String id) {
+        this.id = id;
     }
 
     /**
@@ -100,6 +140,7 @@ public class Item implements Serializable {
             this.comment = comment;
         }
     }
+
     /**
      * Return value
      * @return value
@@ -243,6 +284,49 @@ public class Item implements Serializable {
             throw new IllegalArgumentException();
         }
     }
+
+    /**
+     * Get the URI for the display image
+     * @return URI for the display image
+     */
+    public String getDisplayImage() {
+        // Return the first image path in the queue
+        if (imagePaths != null && !imagePaths.isEmpty()) {
+            return imagePaths.peek();
+        }
+        return null;
+    }
+
+    /**
+     * Set the URI for the display image
+     * @param imagePath the new image path to set
+     */
+    public void setDisplayImage(String imagePath) {
+        // Initialize the queue if it's null
+        if (imagePaths == null) {
+            imagePaths = new LinkedList<>();
+        }
+
+        // Add the new image path to the queue
+        imagePaths.offer(imagePath);
+
+        // If the queue exceeds length 3, remove the oldest image path
+        while (imagePaths.size() > 3) {
+            imagePaths.poll();
+        }
+    }
+
+    /**
+     * Get a copy of the imagePaths queue
+     * @return Copy of the imagePaths queue
+     */
+    public Queue<String> getImagePathsCopy() {
+        if (imagePaths != null) {
+            return new LinkedList<>(imagePaths);
+        }
+        return null;
+    }
+
     /**
      * Return tags
      * @return tags
@@ -251,7 +335,8 @@ public class Item implements Serializable {
     public TagList getTags() {
         return tags;
     }
-/**
+
+    /**
      * Sets tags
      * @param tags
      * @throws IllegalArgumentException
@@ -264,6 +349,14 @@ public class Item implements Serializable {
         else {
             this.tags = tags;
         }
+
+    /**
+     * return owner
+     * @return owner
+     * @since 11/29/2023
+     */
+    public String getOwner() {
+        return this.owner;
     }
 
     /**

@@ -23,7 +23,7 @@ public class ItemTest {
     @Test
     public void testAdd(){
         Float f = new Float(10);
-        i = new Item("01-01-2000", "This is a car", "Honda", "2016 CRV", f, "I like this car", "1234567890", new TagList());
+        i = new Item("xoxoxo", "01-01-2000", "This is a car", "Honda", "2016 CRV", f, "I like this car", "test_owner",  new TagList());
         assertThrows(IllegalArgumentException.class, () -> {
             i.getSerialNumber();
         });
