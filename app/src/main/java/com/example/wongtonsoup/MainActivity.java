@@ -2,75 +2,46 @@ package com.example.wongtonsoup;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
-
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.widget.AdapterView;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.SearchView;
-
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.navigation.ui.AppBarConfiguration;
-
 import com.example.wongtonsoup.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import java.util.Map;
-import java.util.Queue;
-
-import android.provider.Settings;
-import android.widget.Toast;
-
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
-import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -115,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         tags = new TagList();
 
         db = FirebaseFirestore.getInstance();
-
 
         itemListDB = new ItemListDB(this, new ArrayList<Item>());
         ItemDataList = new ArrayList<>();
@@ -186,52 +156,43 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         // Expand Search
         Button expand = findViewById(R.id.expand_search_button);
         View expandedSearch = findViewById(R.id.expanded);
-        expand.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (expanded){
-                    expandedSearch.setVisibility(View.GONE);
-                    expanded = false;
-                }
-                else {
-                    expandedSearch.setVisibility(View.VISIBLE);
-                    expanded = true;
-                }
+        expand.setOnClickListener(v -> {
+            if (expanded){
+                expandedSearch.setVisibility(View.GONE);
+                expanded = false;
+            }
+            else {
+                expandedSearch.setVisibility(View.VISIBLE);
+                expanded = true;
             }
         });
         initSearchWidgets();
         initSortWidgets();
         fabDelete = findViewById(R.id.fab_delete);
-        fabDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // delete all selected items
-                deleteSelectedItems();
-            }
+        fabDelete.setOnClickListener(v -> {
+            // delete all selected items
+            deleteSelectedItems();
         });
 
         Button top_back_button = findViewById(R.id.top_back_button);
-        top_back_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                itemList.setVisible(0);
-                itemList.notifyDataSetChanged();
+        top_back_button.setOnClickListener(v -> {
+            itemList.setVisible(0);
+            itemList.notifyDataSetChanged();
 
-                View edit_bar = findViewById(R.id.edit_list);
-                edit_bar.setVisibility(View.GONE);
+            View edit_bar = findViewById(R.id.edit_list);
+            edit_bar.setVisibility(View.GONE);
 
-                FloatingActionButton add = findViewById(R.id.fab);
-                add.setVisibility(View.VISIBLE);
+            FloatingActionButton add = findViewById(R.id.fab);
+            add.setVisibility(View.VISIBLE);
 
-                isEditVisible = !isEditVisible;
-                invalidateOptionsMenu();
+            isEditVisible = !isEditVisible;
+            invalidateOptionsMenu();
 
-                View top = findViewById(R.id.top);
-                top.setVisibility(View.VISIBLE);
+            View top = findViewById(R.id.top);
+            top.setVisibility(View.VISIBLE);
 
-                View top_back = findViewById(R.id.top_back);
-                top_back.setVisibility(View.GONE);
-            }
+            View top_back = findViewById(R.id.top_back);
+            top_back.setVisibility(View.GONE);
         });
 
     }
@@ -258,39 +219,27 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      */
     private void initSortWidgets(){
         AppCompatButton dateSortButton = findViewById(R.id.sort_date);
-        dateSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByDate());
-                itemList.updateData(sorted_list);
-            }
+        dateSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByDate());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton descSortButton = findViewById(R.id.sort_description);
-        descSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByDescription());
-                itemList.updateData(sorted_list);
-            }
+        descSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByDescription());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton makeSortButton = findViewById(R.id.sort_make);
-        makeSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByMake());
-                itemList.updateData(sorted_list);
-            }
+        makeSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByMake());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton valueSortButton = findViewById(R.id.sort_value);
-        valueSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByValue());
-                itemList.updateData(sorted_list);
-            }
+        valueSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByValue());
+            itemList.updateData(sorted_list);
         });
     }
 
@@ -720,17 +669,26 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
                                 String id = document.getId();
-                                String purchaseDate = document.getString("DOP");
+                                String purchaseDate = document.getString("purchaseDate");
                                 String description = document.getString("description");
                                 String make = document.getString("make");
                                 String model = document.getString("model");
-                                Float value = document.getDouble("value").floatValue();
+                                Float value = Objects.requireNonNull(document.getDouble("value")).floatValue();
                                 String comment = document.getString("comment");
                                 String serialNumber = document.getString("serial");
                                 String owner = document.getString("owner");
 
+                                List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
+
                                 // Create an Item object
                                 Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
+                                if (rawImageUrls != null) {
+                                    for (Object rawImageUrl : rawImageUrls) {
+                                        if (rawImageUrl instanceof String) {
+                                            item.setDisplayImage((String) rawImageUrl);
+                                        }
+                                    }
+                                }
                                 ItemDataList.add(item);
 
                             } catch (Exception e) {

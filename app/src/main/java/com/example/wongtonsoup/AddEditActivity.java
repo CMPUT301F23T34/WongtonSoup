@@ -1,9 +1,9 @@
 package com.example.wongtonsoup;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Intent;
-import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,21 +19,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -263,7 +258,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     /**
      * Passes the created Item back to MainActivity and finishes the AddEditActivity.
-     * @param item
+     * @param item item to pass
      */
 
     private void finishAndPassItem(Item item) {
@@ -374,11 +369,11 @@ public class AddEditActivity extends AppCompatActivity {
         expenseMake.setText(intent.getStringExtra("Make"));
         expenseModel.setText(intent.getStringExtra("Model"));
 
-        expenseDescription.setText("desc");
-        expenseDate.setText("11-11-1111");
-        expenseValue.setText("10.00");
-        expenseMake.setText("make");
-        expenseMake.setText("model");
+//        expenseDescription.setText("desc");
+//        expenseDate.setText("11-11-1111");
+//        expenseValue.setText("10.00");
+//        expenseMake.setText("make");
+//        expenseMake.setText("model");
 
         // To disable the button
         addEditCheckButton.setEnabled(false);
@@ -408,12 +403,8 @@ public class AddEditActivity extends AppCompatActivity {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
                 Item createdItem = createItemFromFields();
-                if (imageUris != null){
-                    uploadImagesAndUpdateItem(createdItem, imageUris);
-                    for (Uri imageUri : imageUris){
-                        createdItem.setDisplayImage(imageUri.toString());
-                    }
-                }
+                uploadImagesAndUpdateItem(createdItem, imageUris);
+
                 // Pass the createdItem back to MainActivity
                 finishAndPassItem(createdItem);
             }
@@ -439,7 +430,6 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void askCameraPermissions() {
-        Uri uri = null;
         if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
             // request permissions from user
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
@@ -490,8 +480,12 @@ public class AddEditActivity extends AppCompatActivity {
 
     // Method to upload images and update item
     public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
-        for (Uri imageUri : imageUris) {
-            uploadImageToFirebaseStorage(item, imageUri);
+        if (imageUris != null && !imageUris.isEmpty()) {
+            for (Uri imageUri : imageUris) {
+                uploadImageToFirebaseStorage(item, imageUri);
+            }
+        } else {
+            updateItemInFirestore(item);
         }
     }
 
@@ -499,12 +493,10 @@ public class AddEditActivity extends AppCompatActivity {
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child("items/" + item.getID() + "/" + imageUri.getLastPathSegment());
 
-        imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
-            imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                item.setDisplayImage(downloadUrl.toString());
-                updateItemInFirestore(item);
-            });
-        }).addOnFailureListener(e -> {
+        imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+            item.setDisplayImage(downloadUrl.toString());
+            updateItemInFirestore(item);
+        })).addOnFailureListener(e -> {
             // Handle unsuccessful uploads
             Toast.makeText(AddEditActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
