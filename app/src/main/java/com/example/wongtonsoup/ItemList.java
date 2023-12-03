@@ -67,6 +67,7 @@ public class ItemList extends ArrayAdapter<Item> {
         if (currentItem.getDisplayImage() != null){
             String fileName = currentItem.getDisplayImage();
             Uri uri = Uri.parse(fileName);
+            Log.d("ItemList URI", "getView: " + uri.toString());
 
             imageView.setImageURI(uri);
         }
