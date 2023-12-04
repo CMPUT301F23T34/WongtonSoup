@@ -176,16 +176,15 @@ public class AddEditActivity extends AppCompatActivity {
      */
     private void updateAddEditCheckButtonState(Button addEditCheckButton) {
         boolean isExpenseDescriptionEmpty = TextUtils.isEmpty(expenseDescription.getText().toString());
-        boolean isExpenseDescriptionInvalid = !(expenseDescription.getText().length() <= 15);
-
-        // clear error message if neither error bool is true.
-        if (!isExpenseDescriptionEmpty && isExpenseDescriptionInvalid) {
-            expenseDescription.setError(null); // clear error
+        boolean isExpenseDescriptionInvalid = expenseDescription.getText().length() > 15;
+        if (isExpenseDescriptionEmpty) {
+            expenseDescription.setError("Expense name cannot be empty");
         } else if (isExpenseDescriptionInvalid) {
             expenseDescription.setError("Name cannot exceed 15 characters");
-        } else if (isExpenseDescriptionEmpty) {
-            expenseDescription.setError("Expense name cannot be empty");
+        } else {
+            expenseDescription.setError(null); // clear error
         }
+
 
         boolean isExpenseValueInvalid = !isValidValue(expenseValue.getText().toString());
         boolean isExpenseValueEmpty = TextUtils.isEmpty(expenseValue.getText().toString());
@@ -433,6 +432,7 @@ public class AddEditActivity extends AppCompatActivity {
 
         // Fill out fields if editing
         Intent intent = getIntent();
+        Log.d("AddEditActivity", "onCreate desc: " + intent.getStringExtra("Description"));
         expenseDescription.setText(intent.getStringExtra("Description"));
         expenseDate.setText(intent.getStringExtra("Date"));
         expenseValue.setText(intent.getStringExtra("Price"));
@@ -458,6 +458,9 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseSerialNumber, addEditCheckButton);
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
+
+        expenseDate.addTextChangedListener(new DateInputWatcher());
+
 
         // Display tags
         TagList tags = new TagList(); //Replace with db tags
@@ -585,6 +588,50 @@ public class AddEditActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    /* TextWatcher for date input field
+    *   Automatically adds hyphens to the date input field
+    * */
+    private class DateInputWatcher implements TextWatcher {
+
+        private boolean isUpdating = false;
+        private String oldText = "";
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            // ...
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            // ...
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            String newText = s.toString();
+            if (isUpdating) {
+                oldText = newText;
+                isUpdating = false;
+                return;
+            }
+
+            String strippedText = newText.replace("-", "");
+
+            String formattedText;
+            if (strippedText.length() <= 2) {
+                formattedText = strippedText;
+            } else if (strippedText.length() <= 4) {
+                formattedText = strippedText.substring(0, 2) + "-" + strippedText.substring(2);
+            } else {
+                formattedText = strippedText.substring(0, 2) + "-" + strippedText.substring(2, 4) + "-" + strippedText.substring(4, Math.min(8, strippedText.length()));
+            }
+
+            isUpdating = true;
+            s.replace(0, s.length(), formattedText);
+        }
+    }
+
 
     // Method to upload images and update item
     public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
