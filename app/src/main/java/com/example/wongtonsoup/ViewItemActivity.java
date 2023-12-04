@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -110,6 +112,13 @@ public class ViewItemActivity extends AppCompatActivity {
                 });
 
 
+        // Display tags
+        TagList tags = new TagList(); //Replace with db tags
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewViewItem);
+        recyclerViewAdd.setLayoutManager(layoutManagerItem);
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+        recyclerViewAdd.setAdapter(tagAdapter);
 
         // Go to edit
         Button edit = findViewById(R.id.edit_button);

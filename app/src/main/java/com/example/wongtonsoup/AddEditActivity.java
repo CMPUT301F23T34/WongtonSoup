@@ -26,9 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -70,7 +70,6 @@ public class AddEditActivity extends AppCompatActivity {
 
     private FirebaseStorage storage;
     private FirebaseFirestore db;
-    TextRecognizer recognizer;
 
     //List<Tag> tags = item.getTags();
 
@@ -426,6 +425,7 @@ public class AddEditActivity extends AppCompatActivity {
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
 
+
         // Fill out fields if editing
         Intent intent = getIntent();
         expenseDescription.setText(intent.getStringExtra("Description"));
@@ -453,6 +453,14 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseSerialNumber, addEditCheckButton);
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
+
+        // Display tags
+        TagList tags = new TagList(); //Replace with db tags
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewEdit = findViewById(R.id.recyclerViewEdit);
+        recyclerViewEdit.setLayoutManager(layoutManagerItem);
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+        recyclerViewEdit.setAdapter(tagAdapter);
 
         // set up click listener for add tag button
         addTagButton.setOnClickListener(view -> {
