@@ -836,10 +836,19 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         }
     });
     private void flipArrow() {
-        TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
-        ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() + 180);
-        rotateAnimator.setDuration(200);
-        rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        rotateAnimator.start();
+        if (expand.getRotation() == 0) {  // if arrow is pointing down -> rotate up
+            TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() + 180);
+            rotateAnimator.setDuration(200);
+            rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            rotateAnimator.start();
+        }
+        else {  // if arrow is pointing up -> rotate back down
+            TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() - 180);
+            rotateAnimator.setDuration(200);
+            rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            rotateAnimator.start();
+        }
     }
 }
