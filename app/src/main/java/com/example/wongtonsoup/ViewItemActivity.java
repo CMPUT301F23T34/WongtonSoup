@@ -69,9 +69,9 @@ public class ViewItemActivity extends AppCompatActivity {
                                 descriptionText = document.getString("description");
                                 makeText = document.getString("make");
                                 modelText = document.getString("model");
-                                priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
+                                priceText = String.format("%.2f", Objects.requireNonNull(document.getDouble("value")));
                                 commentText = document.getString("comment");
-                                serialText = document.getString("serial");
+                                serialText = document.getString("serialNumber");
                                 displayImage = document.getString("displayImage");
 
                                 // tags are stored kinda weird, here's how we access
@@ -88,6 +88,9 @@ public class ViewItemActivity extends AppCompatActivity {
                                     new_tag.setOwner(tag_owner);
                                     new_tag.setUuid(tag_id);
                                     tags.addTag(new_tag);
+                                    Log.d("ViewItemActivity", "Tag: " + name);
+                                    Tag another_tag = new Tag("testing!");
+                                    tags.addTag(another_tag);
                                 }
 
                                 List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
