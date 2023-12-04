@@ -35,6 +35,7 @@ import com.example.wongtonsoup.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.ml.vision.FirebaseVision;
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private FloatingActionButton fabDelete;
     private String defaultUserPfp;
     private ItemListDB itemListDB;
-//
+    //
     ListView ItemList;
     private Uri currentPhotoUri;
     int TotalPhotoCounter = 0;
@@ -416,9 +417,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 size--;
             }
             else if (isValidDate(current_start_date) && (current_item_year < startdate_year || (current_item_year == startdate_year && current_item_month < startdate_month) || (current_item_year == startdate_year && current_item_month == startdate_month && current_item_day < startdate_day))){
-               // the current item should not appear because it's date is before the specified start date
-               filteredItems.remove(index);
-               size--;
+                // the current item should not appear because it's date is before the specified start date
+                filteredItems.remove(index);
+                size--;
             }
             else if (isValidDate(current_end_date) && (current_item_year > enddate_year || (current_item_year == enddate_year && current_item_month > enddate_month) || (current_item_year == enddate_year && current_item_month == enddate_month && current_item_day > enddate_day))){
                 // the current item should not appear because it's date is after the specified end date
@@ -806,48 +807,67 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
     ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
     {
-        if (result.getContents() != null){
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("result");
-            builder.setMessage(result.getContents());
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    //db.collection("barcodes")
-                    //.whereEqualTo("barcodes", result.getContents())
-                    db.collection("barcodes").document(result.getContents())
-                            .get()
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                        try {
-                                            String description = task.getResult().getString("description");
-                                            String make = task.getResult().getString("make");
-                                            String model = task.getResult().getString("model");
-                                            Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-                                            Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
-                                            intent.putExtra("Description", description);
-                                            intent.putExtra("Make", make);
-                                            intent.putExtra("Model", model);
-                                            startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+        db.collection("barcodes").document(result.getContents())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {
+                            // Document exists
+                            Toast.makeText(this, "Item found", Toast.LENGTH_SHORT).show();
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("Scanned Content");
+                            builder.setMessage("Barcode: " + result.getContents());
+                            builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    try {
+                                        String description = document.getString("description");
+                                        String make = document.getString("make");
+                                        String model = document.getString("model");
+                                        Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                        Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
+                                        intent.putExtra("Description", description);
+                                        intent.putExtra("Make", make);
+                                        intent.putExtra("Model", model);
+                                        startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
 
-                                        } catch (Exception e) {
-                                            Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
-                                        }
+                                    } catch (Exception e) {
+                                        Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
                                     }
                                 }
-                            )
-                            .addOnFailureListener(e -> {
-                                throw new IllegalArgumentException();
+
                             });
-                }
-            }).show();
-        }
+                            builder.show();
+                        } else {
+                            // Document does not exist
+                            Toast.makeText(this, "No item found", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Handle the failure here
+                        Log.e("MainActivity", "Error getting documents: ", task.getException());
+                    }
+                });
+
     });
     private void flipArrow() {
-        TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
-        ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() + 180);
-        rotateAnimator.setDuration(200);
-        rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        rotateAnimator.start();
+        if (expand.getRotation() == 0) {  // if arrow is pointing down -> rotate up
+            TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() + 180);
+            rotateAnimator.setDuration(200);
+            rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            rotateAnimator.start();
+        }
+        else if (expand.getRotation() == 180) {  // if arrow is pointing up -> rotate back down
+            TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() - 180);
+            rotateAnimator.setDuration(200);
+            rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            rotateAnimator.start();
+        }
+        else {
+            // do nothing
+            Log.d("MainActivity", "flipArrow: rotation is not 0 or 180. Doing nothing.");
+        }
     }
 }
