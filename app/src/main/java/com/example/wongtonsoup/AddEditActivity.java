@@ -9,9 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +27,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,12 +89,27 @@ public class AddEditActivity extends AppCompatActivity {
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
+        TagList existingTags = new TagList();
+        TagList selectedTags = new TagList();
 
+        // Get device ID
+        @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        // generate random hex address
+        String id = java.util.UUID.randomUUID().toString();
+
+        if (getIntent().hasExtra("ID")) {  // if editing preserve item id
+            Log.d("AddEditActivity INSIDE", "createItemFromFields: " + id);
+            id = getIntent().getStringExtra("ID");
+            Log.d("AddEditActivity INSIDE AFTER", "createItemFromFields: " + id);
+        }
+        Log.d("AddEditActivity", "createItemFromFields: " + id);
         // convert charge to a float object
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(date, description, make, model, value, comment, serialNumber);
+        return new Item(id, date, description, make, model, value, comment, serialNumber, owner, selectedTags);
+
     }
 
     /**
@@ -234,12 +255,21 @@ public class AddEditActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Passes the created Item back to MainActivity and finishes the AddEditActivity.
+     * @param item
+     */
+
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("resultItem", item);
+        resultIntent.putExtra("itemID", item.getID()); // Pass the ID back
+        String itemID = item.getID();
+        Log.d("ViewItemActivity PASS", "PASS Item ID: " + itemID); // Log to confirm ID is received
         setResult(RESULT_OK, resultIntent);
         finish();
     }
+
 
     @SuppressLint("IntentReset")
     private void openGallery() {
@@ -308,6 +338,9 @@ public class AddEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
         Button back = findViewById(R.id.add_edit_back_button);
+
+        Button addTagButton = findViewById(R.id.add_tag_button);
+
         Button addEditCameraButton = findViewById(R.id.add_edit_camera_button);
         Button addEditGalleryButton = findViewById(R.id.add_edit_gallery_button);
 
@@ -340,6 +373,18 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseSerialNumber, addEditCheckButton);
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
+
+        // set up click listener for add tag button
+        addTagButton.setOnClickListener(view -> {
+            // Check if the button is enabled before performing actions
+            if (addTagButton.isEnabled()) {
+                TagList existingTags = new TagList();
+                TagList selectedTags = new TagList();
+                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existingTags, selectedTags);
+                tagDialog.show();
+            }
+        });
+
 
         addEditCheckButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions

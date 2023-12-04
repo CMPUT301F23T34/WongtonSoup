@@ -16,6 +16,7 @@ import java.util.Queue;
  * @since 10/25/2023
  */
 public class Item implements Serializable {
+    private String id;
     private String purchaseDate; // must be in format dd-mm-yyyy ( 11-9-2023 is invalid, should be 11-09-2023 )
     private String description;
     private String make;
@@ -24,12 +25,16 @@ public class Item implements Serializable {
     private Float value;
     private String comment;
     private TagList tags;
+    private String owner;
+    // for selecting to add tags or delete items
+
     private boolean selected;
 
     private Queue<String> imagePaths;
 
     /**
      * Constructs an item containing a serial number
+     * @param id
      * @param purchaseDate
      * @param description
      * @param make
@@ -40,8 +45,13 @@ public class Item implements Serializable {
      * @param selectedTags
      * @throws IllegalArgumentException
      * @since 10/25/2023
+     * @param owner
+     * @throws IllegalArgumentException
+     * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, TagList selectedTags) {
+    public Item(String id, String purchaseDate, String description, String make, String model, Float value, String comment, String serialNumber, String owner, TagList selectedTags) {
+        this.id = id;
+
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -50,6 +60,7 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
+        this.owner = owner;
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
@@ -58,6 +69,7 @@ public class Item implements Serializable {
 
     /**
      * Constructs an item without a serial number
+     * @param id
      * @param purchaseDate
      * @param description
      * @param make
@@ -67,8 +79,12 @@ public class Item implements Serializable {
      * @param selectedTags
      * @throws IllegalArgumentException
      * @since 10/25/2023
+     * @param owner
+     * @throws IllegalArgumentException
+     * @since 10/25/2023
      */
-    public Item(String purchaseDate, String description, String make, String model, Float value, String comment, TagList selectedTags) {
+    public Item(String id, String purchaseDate, String description, String make, String model, Float value, String comment, String owner, TagList selectedTags) {
+        this.id = id;
         this.purchaseDate = purchaseDate;
         this.description = description;
         this.make = make;
@@ -76,10 +92,29 @@ public class Item implements Serializable {
         this.value = value;
         this.comment = comment;
         this.tags = new TagList();
+        this.owner = owner;
         this.selected = false;
         if (value < 0){
             throw new IllegalArgumentException();
         }
+    }
+
+    /**
+     * Return ID
+     * @return id
+     * @since 11/29/2023
+     */
+    public String getID() {
+        return this.id;
+    }
+
+    /**
+     * Sets ID
+     * @param id
+     * @since 12/01/2023
+     */
+    public void setID(String id) {
+        this.id = id;
     }
 
     /**
@@ -105,6 +140,7 @@ public class Item implements Serializable {
             this.comment = comment;
         }
     }
+
     /**
      * Return value
      * @return value
@@ -299,7 +335,8 @@ public class Item implements Serializable {
     public TagList getTags() {
         return tags;
     }
-/**
+
+    /**
      * Sets tags
      * @param tags
      * @throws IllegalArgumentException
@@ -312,6 +349,14 @@ public class Item implements Serializable {
         else {
             this.tags = tags;
         }
+
+    /**
+     * return owner
+     * @return owner
+     * @since 11/29/2023
+     */
+    public String getOwner() {
+        return this.owner;
     }
 
     /**
