@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddEditActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -77,6 +78,7 @@ public class AddEditActivity extends AppCompatActivity {
 //
 //    // Add the Chip to the ChipGroup
 //    chipGroup.addView(chip);
+
     /**
      * Creates an Item object with data from EditText fields and performs actions when the button is enabled.
      *
@@ -139,12 +141,13 @@ public class AddEditActivity extends AppCompatActivity {
 
     /**
      * Validates a value string is a valid currency.
+     *
      * @param str_value string to be validated
      * @return true if value is valid, false otherwise.
      */
     private boolean isValidValue(String str_value) {
         // Define expression for any number of int digits and an optional one or two digits after decimal
-        String valuePattern ="^\\d+(\\.\\d{1,2})?$";
+        String valuePattern = "^\\d+(\\.\\d{1,2})?$";
         return str_value.matches(valuePattern);
     }
 
@@ -158,74 +161,65 @@ public class AddEditActivity extends AppCompatActivity {
         boolean isExpenseDescriptionInvalid = !(expenseDescription.getText().length() <= 15);
 
         // clear error message if neither error bool is true.
-        if (!isExpenseDescriptionEmpty && isExpenseDescriptionInvalid){
+        if (!isExpenseDescriptionEmpty && isExpenseDescriptionInvalid) {
             expenseDescription.setError(null); // clear error
-        } else if(isExpenseDescriptionInvalid){
+        } else if (isExpenseDescriptionInvalid) {
             expenseDescription.setError("Name cannot exceed 15 characters");
-        } else if (isExpenseDescriptionEmpty){
+        } else if (isExpenseDescriptionEmpty) {
             expenseDescription.setError("Expense name cannot be empty");
         }
 
         boolean isExpenseValueInvalid = !isValidValue(expenseValue.getText().toString());
         boolean isExpenseValueEmpty = TextUtils.isEmpty(expenseValue.getText().toString());
 
-        if (!isExpenseValueEmpty && !isExpenseValueInvalid){
+        if (!isExpenseValueEmpty && !isExpenseValueInvalid) {
             expenseValue.setError(null); // clear error
-        }
-        else if (isExpenseValueEmpty){
+        } else if (isExpenseValueEmpty) {
             expenseValue.setError("Expense value cannot be empty");
-        }
-        else{
+        } else {
             expenseValue.setError("Expense value can only contain two digits after the decimal");
         }
 
         boolean isExpenseDateEmpty = TextUtils.isEmpty(expenseDate.getText().toString());
         boolean isExpenseDateInvalid = !isValidDate(expenseDate.getText().toString());
 
-        if (!isExpenseDateEmpty && !isExpenseDateInvalid){
+        if (!isExpenseDateEmpty && !isExpenseDateInvalid) {
             expenseDate.setError(null);
-        }
-        else if (isExpenseDateEmpty){
+        } else if (isExpenseDateEmpty) {
             expenseDate.setError("Expense Date cannot be empty");
-        }
-        else{
+        } else {
             expenseDate.setError("Invalid date format. Please use dd-mm-yyyy");
         }
 
-       boolean isExpenseCommentInvalid = !(expenseComment.getText().length() <= 40);
+        boolean isExpenseCommentInvalid = !(expenseComment.getText().length() <= 40);
 
-       if (!isExpenseCommentInvalid){
-           expenseComment.setError(null);
-       }
-       else{
-           expenseComment.setError("Comment cannot exceed 40 characters");
-       }
+        if (!isExpenseCommentInvalid) {
+            expenseComment.setError(null);
+        } else {
+            expenseComment.setError("Comment cannot exceed 40 characters");
+        }
 
-       boolean isExpenseMakeEmpty = TextUtils.isEmpty(expenseMake.getText().toString());
-       boolean isExpenseMakeInvalid = !(expenseMake.getText().length() <= 15);
+        boolean isExpenseMakeEmpty = TextUtils.isEmpty(expenseMake.getText().toString());
+        boolean isExpenseMakeInvalid = !(expenseMake.getText().length() <= 15);
 
-       if (!isExpenseMakeEmpty && !isExpenseMakeInvalid){
-           expenseMake.setError(null); // Clear the error
-       }
-       else if (isExpenseMakeEmpty){
-           expenseMake.setError("Expense make cannot be empty");
-       }
-       else{
-           expenseMake.setError("Make cannot exceed 15 characters");
-       }
+        if (!isExpenseMakeEmpty && !isExpenseMakeInvalid) {
+            expenseMake.setError(null); // Clear the error
+        } else if (isExpenseMakeEmpty) {
+            expenseMake.setError("Expense make cannot be empty");
+        } else {
+            expenseMake.setError("Make cannot exceed 15 characters");
+        }
 
-       boolean isExpenseModelInvalid = !(expenseModel.getText().length() <= 15);
-       boolean isExpenseModelEmpty = TextUtils.isEmpty(expenseModel.getText().toString());
+        boolean isExpenseModelInvalid = !(expenseModel.getText().length() <= 15);
+        boolean isExpenseModelEmpty = TextUtils.isEmpty(expenseModel.getText().toString());
 
-       if (!isExpenseModelEmpty && !isExpenseModelInvalid){
-           expenseModel.setError(null);
-       }
-       else if (isExpenseModelEmpty){
-           expenseModel.setError("Expense model cannot be empty");
-       }
-       else{
-           expenseModel.setError("Model cannot exceed 15 characters");
-       }
+        if (!isExpenseModelEmpty && !isExpenseModelInvalid) {
+            expenseModel.setError(null);
+        } else if (isExpenseModelEmpty) {
+            expenseModel.setError("Expense model cannot be empty");
+        } else {
+            expenseModel.setError("Model cannot exceed 15 characters");
+        }
 
         boolean isButtonEnabled = !isExpenseDescriptionEmpty && !isExpenseValueEmpty && !isExpenseDateEmpty && !isExpenseDateInvalid && !isExpenseDescriptionInvalid && !isExpenseCommentInvalid
                 && !isExpenseMakeEmpty && !isExpenseModelEmpty && !isExpenseMakeInvalid && !isExpenseModelInvalid && !isExpenseValueInvalid;
@@ -258,12 +252,12 @@ public class AddEditActivity extends AppCompatActivity {
 
     /**
      * Passes the created Item back to MainActivity and finishes the AddEditActivity.
+     *
      * @param item item to pass
      */
 
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("resultItem", item);
         resultIntent.putExtra("itemID", item.getID()); // Pass the ID back
         String itemID = item.getID();
         Log.d("ViewItemActivity PASS", "PASS Item ID: " + itemID); // Log to confirm ID is received
@@ -320,8 +314,7 @@ public class AddEditActivity extends AppCompatActivity {
                     totalPhotoCounter++;
                 }
             }
-        }
-        else if (requestCode == OPEN_CAMERA_REQUEST && resultCode == RESULT_OK){
+        } else if (requestCode == OPEN_CAMERA_REQUEST && resultCode == RESULT_OK) {
             // update the corresponding ImageView based on the totalPhotoCounter
             updateImageView(currentPhotoUri, totalPhotoCounter);
 
@@ -356,7 +349,6 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber = findViewById(R.id.add_edit_serial);
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
-
 
 
         // Fill out fields if editing
@@ -406,7 +398,7 @@ public class AddEditActivity extends AppCompatActivity {
                 uploadImagesAndUpdateItem(createdItem, imageUris);
 
                 // Pass the createdItem back to MainActivity
-                finishAndPassItem(createdItem);
+//                finishAndPassItem(createdItem);
             }
         });
 
@@ -430,11 +422,10 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void askCameraPermissions() {
-        if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // request permissions from user
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-        }
-        else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        } else {
             // already have permissions
             openCamera();
         }
@@ -473,7 +464,7 @@ public class AddEditActivity extends AppCompatActivity {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
             startActivityForResult(intent, OPEN_CAMERA_REQUEST);
 
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -481,21 +472,30 @@ public class AddEditActivity extends AppCompatActivity {
     // Method to upload images and update item
     public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
         if (imageUris != null && !imageUris.isEmpty()) {
+            int totalImages = imageUris.size();
+            AtomicInteger uploadedImages = new AtomicInteger(0);
+
             for (Uri imageUri : imageUris) {
-                uploadImageToFirebaseStorage(item, imageUri);
+                uploadImageToFirebaseStorage(item, imageUri, totalImages, uploadedImages);
             }
         } else {
+            // No images to upload, directly update item in Firestore
             updateItemInFirestore(item);
         }
     }
 
-    private void uploadImageToFirebaseStorage(Item item, Uri imageUri) {
+    private void uploadImageToFirebaseStorage(Item item, Uri imageUri, int totalImages, AtomicInteger uploadedImages) {
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child("items/" + item.getID() + "/" + imageUri.getLastPathSegment());
 
         imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
             item.setDisplayImage(downloadUrl.toString());
-            updateItemInFirestore(item);
+
+            int currentUploadedImages = uploadedImages.incrementAndGet();
+            if (currentUploadedImages == totalImages) {
+                // All images uploaded, update item in Firestore
+                updateItemInFirestore(item);
+            }
         })).addOnFailureListener(e -> {
             // Handle unsuccessful uploads
             Toast.makeText(AddEditActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -505,7 +505,14 @@ public class AddEditActivity extends AppCompatActivity {
     private void updateItemInFirestore(Item item) {
         // Update item in Firestore
         db.collection("items").document(item.getID()).set(item)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully updated!"))
-                .addOnFailureListener(e -> Log.w("Firestore", "Error updating document", e));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "DocumentSnapshot successfully updated!");
+                    // Call finishAndPassItem here as the update is successful
+                    finishAndPassItem(item);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error updating document", e);
+                    // Handle the failure if needed
+                });
     }
 }
