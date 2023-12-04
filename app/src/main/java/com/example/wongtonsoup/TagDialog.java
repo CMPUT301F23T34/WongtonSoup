@@ -54,7 +54,13 @@ public class TagDialog extends Dialog {
 
         // Add existing tags to ChipGroup
         for (Tag tag : existingTags) {
-            addChip(tag.getName());
+            if (selectedTags.find(tag) != -1){
+                // already selected this tag
+                addChip(tag.getName(), true); // set it to checked by default
+            }
+            else {
+                addChip(tag.getName(), false); // leave it unchecked
+            }
         }
 
         Button addTagButton = findViewById(R.id.add_tag_dialog_button);
@@ -72,7 +78,7 @@ public class TagDialog extends Dialog {
                         tag.setUuid(id.toString());
                         tag.setOwner(owner);
 
-                        addChip(newTag);
+                        addChip(newTag, true); // set the newTag to checked by default
                         existingTags.addTag(tag);
                         existingTags.addTagDB(tag);
                         tagInput.getText().clear();
