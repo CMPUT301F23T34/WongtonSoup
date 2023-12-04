@@ -1,10 +1,13 @@
 package com.example.wongtonsoup;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Class for an item object
@@ -22,6 +25,8 @@ public class Item implements Serializable {
     private String comment;
     private TagList tags;
     private boolean selected;
+
+    private Queue<String> imagePaths;
 
     /**
      * Constructs an item containing a serial number
@@ -243,6 +248,49 @@ public class Item implements Serializable {
             throw new IllegalArgumentException();
         }
     }
+
+    /**
+     * Get the URI for the display image
+     * @return URI for the display image
+     */
+    public String getDisplayImage() {
+        // Return the first image path in the queue
+        if (imagePaths != null && !imagePaths.isEmpty()) {
+            return imagePaths.peek();
+        }
+        return null;
+    }
+
+    /**
+     * Set the URI for the display image
+     * @param imagePath the new image path to set
+     */
+    public void setDisplayImage(String imagePath) {
+        // Initialize the queue if it's null
+        if (imagePaths == null) {
+            imagePaths = new LinkedList<>();
+        }
+
+        // Add the new image path to the queue
+        imagePaths.offer(imagePath);
+
+        // If the queue exceeds length 3, remove the oldest image path
+        while (imagePaths.size() > 3) {
+            imagePaths.poll();
+        }
+    }
+
+    /**
+     * Get a copy of the imagePaths queue
+     * @return Copy of the imagePaths queue
+     */
+    public Queue<String> getImagePathsCopy() {
+        if (imagePaths != null) {
+            return new LinkedList<>(imagePaths);
+        }
+        return null;
+    }
+
     /**
      * Return tags
      * @return tags

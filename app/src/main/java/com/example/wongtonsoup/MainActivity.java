@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
+import java.util.Queue;
 
 
 import android.provider.Settings;
@@ -48,8 +48,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     Boolean expanded = false;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
-    //private CollectionReference tagsRef; this happens in TagList
-    private TagList tags;
+    private CollectionReference tagsRef;
     private CollectionReference usersRef;
     //delete button
     private FloatingActionButton fabDelete;
@@ -70,11 +69,10 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
 
-        tags = new TagList();
-
         db = FirebaseFirestore.getInstance();
 
         itemsRef = db.collection("items");
+        tagsRef = db.collection("tags");
         usersRef = db.collection("users");
 
         usersRef.document(device_id).get().addOnCompleteListener(task -> {
@@ -104,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         });
 
 //        ItemList = findViewById(R.id.listView);
-
         ItemList = binding.listView;
 
         ItemDataList = new ArrayList<>();
@@ -522,6 +519,13 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         intent.putExtra("Date", itemList.getItem(position).getPurchaseDate());
         intent.putExtra("Price", itemList.getItem(position).getValueAsString());
         intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
+
+        // Add the image paths list extra
+        Queue<String> imagePathsQueue = itemList.getItem(itemSelected).getImagePathsCopy();
+        if(imagePathsQueue != null && !imagePathsQueue.isEmpty()) {
+            List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
+            intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
+        }
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
     /**
@@ -534,9 +538,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         updateTotalAmount(); // Update the total amount after deletion
         Log.d("ItemDataList", "delete size: " + ItemDataList.size());
     }
-
-
-
 
 
 }

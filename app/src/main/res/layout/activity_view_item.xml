@@ -47,27 +47,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/previous_photo"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/view_image"
-            android:background="@android:drawable/ic_media_previous" />
         <ImageView
-            android:id="@+id/view_image"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            app:srcCompat="@mipmap/ic_launcher"
-            android:layout_centerHorizontal="true"/>
+            android:id="@+id/view_image1"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_toLeftOf="@id/view_image3"
+            android:layout_toRightOf="@id/view_image2"
+            android:contentDescription="@string/view_image"
+            app:srcCompat="@mipmap/ic_launcher" />
 
-        <Button
-            android:id="@+id/next_photo"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/view_image"
-            android:background="@android:drawable/ic_media_next" />
+        <ImageView
+            android:id="@+id/view_image2"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_alignParentLeft="true"
+            android:contentDescription="@string/view_image"
+            app:srcCompat="@mipmap/ic_launcher" />
+
+        <ImageView
+            android:id="@+id/view_image3"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/view_image"
+            app:srcCompat="@mipmap/ic_launcher" />
+
     </RelativeLayout>
     <LinearLayout
         android:layout_width="wrap_content"
