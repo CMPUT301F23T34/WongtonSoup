@@ -16,11 +16,13 @@ import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private FloatingActionButton fabDelete;
     private String defaultUserPfp;
     private ItemListDB itemListDB;
-    //
+
     ListView ItemList;
     private Uri currentPhotoUri;
     int TotalPhotoCounter = 0;
@@ -79,7 +81,10 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private boolean isEditVisible = true;
     private Button expand;
     View expandedSearch;
+    private TagList selectedTags;
 
+
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -89,6 +94,23 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         setSupportActionBar(binding.toolbar);
 
         ItemList = findViewById(R.id.listView);
+
+        // Set up tag lists
+        tags = new TagList();
+        selectedTags = new TagList();
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+
+        // Tag list fot adding during edit items
+        LinearLayoutManager layoutManagerAdd = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewAdd);
+        recyclerViewAdd.setLayoutManager(layoutManagerAdd);
+        recyclerViewAdd.setAdapter(tagAdapter);
+
+        // Tag list for filtering during expanded search
+        LinearLayoutManager layoutManagerFilter = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewFilter = findViewById(R.id.recyclerViewFilter);
+        recyclerViewFilter.setLayoutManager(layoutManagerFilter);
+        recyclerViewFilter.setAdapter(tagAdapter);
 
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
@@ -146,9 +168,21 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
 
 /*        // sample data for testing
-        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", new TagList());
-        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", new TagList());
-        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", new TagList());
+
+        TagList testTagList1 = new TagList();
+        TagList testTagList2 = new TagList();
+        TagList testTagList3 = new TagList();
+        testTagList1.addTag(new Tag("Apple"));
+        testTagList2.addTag(new Tag("Bee"));
+        testTagList2.addTag(new Tag("Apple"));
+        testTagList3.addTag(new Tag("Cat"));
+        tags.addTag(new Tag("Apple"));
+        tags.addTag(new Tag("Bee"));
+        tags.addTag(new Tag("Cat"));
+        tagAdapter.notifyDataSetChanged();
+        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", testTagList3);
+        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", testTagList1);
+        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", testTagList2);
 
         ItemDataList.add(sampleItem1);
         ItemDataList.add(sampleItem2);
@@ -157,7 +191,46 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         itemList.updateData(ItemDataList);
         itemList.notifyDataSetChanged();*/
 
+        // select tags
+        recyclerViewFilter.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                if (e.getAction() == MotionEvent.ACTION_UP) {
+                    View child = rv.findChildViewUnder(e.getX(), e.getY());
+                    if (child != null) {
+                        int position = rv.getChildAdapterPosition(child);
+                        Tag clickedTag = tags.getTags().get(position);
+                        if (selectedTags.find(clickedTag) == -1) {
+                            child.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.light_gray));
+                            tagAdapter.notifyDataSetChanged();
 
+                            selectedTags.addTag(clickedTag);
+                            itemList.updateData(getFilteredItems());
+                        }
+                        else {
+                            child.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.purple));
+                            tagAdapter.notifyDataSetChanged();
+
+                            selectedTags.removeTag(clickedTag);
+                            itemList.updateData(getFilteredItems());
+                        }
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
+
+        // add Item
         binding.fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
             startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
@@ -211,18 +284,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             View top_back = findViewById(R.id.top_back);
             top_back.setVisibility(View.GONE);
         });
-
-/*        // Testing tag adapter
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerView = findViewById(R.id.recyclerViewAdd);
-        recyclerView.setLayoutManager(layoutManager);
-        TagList testTagList = new TagList();
-        testTagList.addTag(new Tag("Expensive"));
-        testTagList.addTag(new Tag("Cheap"));
-        testTagList.addTag(new Tag("Free"));
-        TagListAdapter tagAdapter = new TagListAdapter(this, testTagList);
-        recyclerView.setAdapter(tagAdapter);
-        tagAdapter.notifyDataSetChanged();*/
     }
 
     /**
@@ -249,6 +310,12 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         AppCompatButton dateSortButton = findViewById(R.id.sort_date);
         dateSortButton.setOnClickListener(v -> {
             List<Item> sorted_list = new ArrayList<>(itemList.sortByDate());
+            itemList.updateData(sorted_list);
+        });
+
+        AppCompatButton tagSortButton = findViewById(R.id.sort_tag);
+        tagSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByTag());
             itemList.updateData(sorted_list);
         });
 
@@ -308,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isValidDate(startDateEditText.getText().toString())){
+                if (isValidDate(startDateEditText.getText().toString()) || startDateEditText.getText().toString().length() == 0){
                     startDateEditText.setError(null);
                     itemList.updateData(getFilteredItems());
                 }
@@ -383,12 +450,19 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             enddate_year = Integer.parseInt(end_date_parts[2]);
         }
 
-
         int size = filteredItems.size();
         int index = 0;
         // loop through every item, either removing it because it does not match one of our search criteria or leaving it and looking at the next item.
         while (index < size){
             Item current_item = filteredItems.get(index);
+
+            // check if selected tags are all in Item
+            Boolean allTags = Boolean.TRUE;
+            for (int tagIndex = 0; tagIndex<selectedTags.getTags().size(); tagIndex++) {
+                if (current_item.getTags().find(selectedTags.getTags().get(tagIndex)) == -1) {
+                    allTags = Boolean.FALSE;
+                }
+            }
 
             // get the day month and year for the item
             String current_item_date = current_item.getPurchaseDate();
@@ -400,6 +474,11 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             // if the current item does not match even one of our search criteria it will be removed
             if (!current_desc.isEmpty() && !current_item.getDescription().toLowerCase().contains(current_desc.toLowerCase())){
                 // the current item should not appear since it doesn't contain the description search string
+                filteredItems.remove(index);
+                size--;
+            }
+            else if (!allTags) {
+                // the current item should not appear since it doesn't contain all the selected tags
                 filteredItems.remove(index);
                 size--;
             }
@@ -547,13 +626,21 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        //@SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        //fetchItemsFromDatabase(owner);
+
         if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
             // Check if the request code matches and the result is OK
-            if (data != null && data.hasExtra("itemID")) {
+            if (data != null && data.hasExtra("resultItem")) {
+                Item item = (Item) data.getSerializableExtra("resultItem");
+                ItemDataList.add(item);
+                itemList.updateData(ItemDataList);
+                itemList.notifyDataSetChanged();
+
                 String ItemID = (String) data.getSerializableExtra("itemID");
                 @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-                db.collection("items")
+                /*db.collection("items")
                         .whereEqualTo("owner", device_id)
                         .whereEqualTo("id", ItemID)
                         .get()
@@ -584,7 +671,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                 itemList.updateData(ItemDataList);
                                 itemList.notifyDataSetChanged();
                             }
-                        });
+                        }); */
             }
         }
         else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -611,6 +698,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
                 intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
                 intent.putExtra("ID", itemList.getItem(itemSelected).getID());
+                intent.putExtra("tags", itemList.getItem(itemSelected).getTags());
                 startActivityForResult(intent,VIEW_REQUEST_CODE);
 
                 // Log the size of ItemDataList
@@ -709,7 +797,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     }
 
     private void fetchItemsFromDatabase(String device_id) {
-
         db.collection("items")
                 .whereEqualTo("owner", device_id)
                 .get()
@@ -728,9 +815,26 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                 String owner = document.getString("owner");
                                 String displayImage = document.getString("displayImage");
 
+                                // tags are stored kinda weird, here's how we access
+                                Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
+                                ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+
+
+                                TagList tagList = new TagList();
+                                for (int i = 0 ; i < list_of_tags.size() ; i++){
+                                    HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                    String name = tag.get("name");
+                                    String tag_id = tag.get("uuid");
+                                    String tag_owner = tag.get("owner");
+
+                                    Tag new_tag = new Tag(name);
+                                    new_tag.setOwner(tag_owner);
+                                    new_tag.setUuid(tag_id);
+                                    tagList.addTag(new_tag);
+                                }
 
                                 // Create an Item object
-                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
+                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, tagList);
                                 item.SetDisplayImage(displayImage);
                                 ItemDataList.add(item);
 
@@ -805,7 +909,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      */
     private void scanCode(){
         ScanOptions options = new ScanOptions();
-        options.setPrompt("Volume up to flash on");
+        options.setPrompt("Use volume to toggle flash");
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
         options.setCaptureActivity(CaptureAct.class);

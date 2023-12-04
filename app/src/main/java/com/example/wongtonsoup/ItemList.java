@@ -12,6 +12,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -71,6 +74,16 @@ public class ItemList extends ArrayAdapter<Item> {
             Log.d("ItemList URI", "getView: " + imageURL);
         }
 
+        // Display tags
+        View view = convertView;
+        Item item = itemList.get(position);
+
+        RecyclerView recyclerViewItem = view.findViewById(R.id.recyclerViewItem);
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+        recyclerViewItem.setLayoutManager(layoutManagerItem);
+        TagListAdapter tagAdapterItem = new TagListAdapter(mContext, item.getTags());
+        recyclerViewItem.setAdapter(tagAdapterItem);
+
         CheckBox checkBox = convertView.findViewById(R.id.select);
         checkBox.setChecked(currentItem.isSelected());
         // Set an OnCheckedChangeListener to update the selected state when the CheckBox is clicked
@@ -117,7 +130,14 @@ public class ItemList extends ArrayAdapter<Item> {
         String s = String.format("%.2f", total);
         return s;
     }
-
+    /**
+     * Searchs itemList by make
+     * @return sorted list.
+     */
+    public List<Item> sortByTag(){
+        itemList.sort(Item.byTag); // use the comparator in the Item class
+        return itemList;
+    }
     /**
      * Searchs itemList by date
      * @return sorted list.
