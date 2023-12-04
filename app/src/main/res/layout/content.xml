@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
     <RelativeLayout
         android:layout_width="match_parent"
@@ -41,8 +42,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="11sp"
-                    android:text="@string/date">
+                    android:textSize="15sp"
+                    android:text="@string/date"
+                    android:textStyle="bold">
                 </TextView>
                 <TextView
                     android:id="@+id/content_date"
@@ -57,8 +59,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="11sp"
-                    android:text="@string/make">
+                    android:textSize="15sp"
+                    android:text="@string/make"
+                    android:textStyle="bold">
                 </TextView>
                 <TextView
                     android:id="@+id/content_make"
@@ -93,34 +96,31 @@
         </LinearLayout>
 
     </RelativeLayout>
-    <Button
-        android:id="@+id/get_item_info_button"
-        style="@style/Widget.Material3.Button.TextButton.Icon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:paddingTop="23dp"
-        app:icon="@android:drawable/ic_menu_info_details"
-        app:iconPadding="0dp"
-        app:iconTint="#000000"
-        android:onClick="viewItem"
-        android:layout_gravity="right"/>
-    <HorizontalScrollView
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/content_chip_group"
-                android:layout_width="353dp"
-                android:layout_height="48dp"
-                android:layout_below="@id/tags"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="5dp"
-                app:singleSelection="false"
-                app:chipSpacing="4dp"
-                app:selectionRequired="false">
-            </com.google.android.material.chip.ChipGroup>
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/get_item_info_button"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:icon="@android:drawable/ic_menu_info_details"
+            app:iconPadding="0dp"
+            app:iconTint="#000000"
+            android:onClick="viewItem"
+            android:layout_gravity="right"
+            android:layout_alignParentEnd="true"/>
 
-    </HorizontalScrollView>
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:padding="5dp"
+            android:id="@+id/recyclerViewItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/content_tags"
+            android:layout_toStartOf="@+id/get_item_info_button"
+            />
+    </RelativeLayout>
 
 </LinearLayout>

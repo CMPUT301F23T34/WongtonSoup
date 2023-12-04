@@ -12,6 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +68,21 @@ public class ItemList extends ArrayAdapter<Item> {
         dateTextView.setText(currentItem.getPurchaseDate());
         makeTextView.setText(currentItem.getMake());
         priceTextView.setText(String.format(Locale.getDefault(), "%.2f", currentItem.getValue()));
-        if (currentItem.getDisplayImage() != null){
-            String fileName = currentItem.getDisplayImage();
-            Uri uri = Uri.parse(fileName);
-
-            imageView.setImageURI(uri);
+        if (currentItem.GetDisplayImage() != null){
+            String imageURL = currentItem.GetDisplayImage();
+            Picasso.get().load(imageURL).into(imageView);
+            Log.d("ItemList URI", "getView: " + imageURL);
         }
+
+        // Display tags
+        View view = convertView;
+        Item item = itemList.get(position);
+
+        RecyclerView recyclerViewItem = view.findViewById(R.id.recyclerViewItem);
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+        recyclerViewItem.setLayoutManager(layoutManagerItem);
+        TagListAdapter tagAdapterItem = new TagListAdapter(mContext, item.getTags());
+        recyclerViewItem.setAdapter(tagAdapterItem);
 
         CheckBox checkBox = convertView.findViewById(R.id.select);
         checkBox.setChecked(currentItem.isSelected());
@@ -117,7 +130,14 @@ public class ItemList extends ArrayAdapter<Item> {
         String s = String.format("%.2f", total);
         return s;
     }
-
+    /**
+     * Searchs itemList by make
+     * @return sorted list.
+     */
+    public List<Item> sortByTag(){
+        itemList.sort(Item.byTag); // use the comparator in the Item class
+        return itemList;
+    }
     /**
      * Searchs itemList by date
      * @return sorted list.

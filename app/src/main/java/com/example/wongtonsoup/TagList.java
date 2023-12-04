@@ -1,14 +1,21 @@
 package com.example.wongtonsoup;
 
+import android.annotation.SuppressLint;
+import android.provider.Settings;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Class for the current list of valid tags.
@@ -16,15 +23,11 @@ import java.util.Map;
  * @version 1.0
  * @since 11/01/2023
  */
-public class TagList implements Iterable<Tag> {
+public class TagList implements Iterable<Tag>, Serializable {
     private ArrayList<Tag> current_tags;
-    private FirebaseFirestore db;
-    private CollectionReference tagsRef;
 
     public TagList(Tag current_tag) {
         this.current_tags = new ArrayList<Tag>();
-        db = FirebaseFirestore.getInstance();
-        tagsRef = db.collection("tags");
     }
 
     public TagList() {
@@ -151,16 +154,25 @@ public class TagList implements Iterable<Tag> {
     }
     /**
      * Add a tag to the list of tags, db version
-     * @param tagName
+     * @param tag
      * @since 10/25/2023
      */
-    public void addTagDB(String tagName) {
+    public static void addTagDB(Tag tag) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference tagsRef = db.collection("tags");
+
+        String tagName = tag.getName();
+        String id = tag.getUuid();
+        String owner = tag.getOwner();
+
         tagsRef.whereEqualTo("name", tagName).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().isEmpty()) {
-                    Map<String, Object> tag = new HashMap<>();
-                    tag.put("name", tagName);
-                    tagsRef.add(tag);
+                    Map<String, Object> db_tag = new HashMap<>();
+                    db_tag.put("name", tagName);
+                    db_tag.put("id", id);
+                    db_tag.put("owner", owner);
+                    tagsRef.add(db_tag);
                 }
             }
         });
@@ -170,22 +182,11 @@ public class TagList implements Iterable<Tag> {
      * @param item, tags
      * @since 10/25/2023
      */
-    public void updateTagsInItem(Item item, TagList tags) {
+    public void updateTagsInItem(Item item, TagList new_selected_tags) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items")
                 .document(item.getSerialNumberAsString())
-                .update("tags", tags.getTags())
-                .addOnSuccessListener(aVoid -> Log.d("Item", "Item successfully updated!"))
-                .addOnFailureListener(e -> Log.w("Item", "Error updating item", e));
-    }
-    /**
-     * Delete tag from an item, db version
-     * @param item, tag
-     * @since 10/25/2023
-     */
-    public void deleteTagFromItem(Item item, Tag tag) {
-        db.collection("items")
-                .document(item.getSerialNumberAsString())
-                .update("tags", tag)
+                .update("tags", new_selected_tags)
                 .addOnSuccessListener(aVoid -> Log.d("Item", "Item successfully updated!"))
                 .addOnFailureListener(e -> Log.w("Item", "Error updating item", e));
     }
@@ -193,9 +194,12 @@ public class TagList implements Iterable<Tag> {
     /**
      * delete a tag from the list of tags, db version
      * @param tagName
+     * @param owner
      * @since 10/25/2023
      */
-    public void deleteTagDB(String tagName) {
+    public void deleteTagDB(String tagName, String owner) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference tagsRef = db.collection("tags");
         tagsRef.whereEqualTo("name", tagName).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (!task.getResult().isEmpty()) {
@@ -203,7 +207,30 @@ public class TagList implements Iterable<Tag> {
                 }
             }
         });
+
+        // delete the tag from all items
+        CollectionReference itemsRef = db.collection("items");
+        itemsRef.whereEqualTo("owner", owner).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()){
+                for(QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                    Map<String, Object> taglist_map = (Map<String, Object>) documentSnapshot.get("tags");
+                    ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+                    for (int i = 0 ; i < list_of_tags.size() ; i++){
+                        HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                        String name = tag.get("name");
+                        if (name.equalsIgnoreCase(tagName) ){
+                            // delete tag from the database
+                            list_of_tags.remove(i); // Remove the tag instance from the list
+                            taglist_map.put("tags", list_of_tags); // Update the tags field in the item
+                            documentSnapshot.getReference().update("tags", taglist_map); // Update the item in the database
+                        }
+                    }
+                }
+            }
+        });
     }
+
+
 
 }
 

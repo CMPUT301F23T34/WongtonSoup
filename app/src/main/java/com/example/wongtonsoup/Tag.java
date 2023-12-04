@@ -1,14 +1,20 @@
 package com.example.wongtonsoup;
 
 // tags can be compared by their names
+
+import java.io.Serializable;
+import java.util.UUID;
+
 /**
  * Class for a tag.
  * @author liamhouston
  * @version 1.0
  * @since 10/30/2023
  */
-public class Tag implements Comparable<Tag> {
+public class Tag implements Comparable<Tag>, Serializable {
     private String name;
+    private String uuid;
+    private String owner;
 
     public Tag(String name) {
         this.name = name;
@@ -36,4 +42,19 @@ public class Tag implements Comparable<Tag> {
         return this.name.toLowerCase().compareTo(t.name.toLowerCase());
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 }

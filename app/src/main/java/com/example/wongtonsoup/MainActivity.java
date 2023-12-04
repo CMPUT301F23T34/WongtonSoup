@@ -1,50 +1,62 @@
 package com.example.wongtonsoup;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
-
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.TransitionManager;
 import android.util.Log;
-import android.widget.AdapterView;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.SearchView;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.navigation.ui.AppBarConfiguration;
-
-import com.example.wongtonsoup.databinding.ActivityMainBinding;
-
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.*;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.wongtonsoup.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import java.util.Map;
-import java.util.Queue;
-
-import android.provider.Settings;
-import android.widget.Toast;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import android.animation.ObjectAnimator;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
+    public static final int CAMERA_PERMISSION_CODE = 301;
     private static final int ADD_EDIT_REQUEST_CODE = 1;
+    private static final int OPEN_CAMERA_REQUEST = 102;
     private static final int VIEW_REQUEST_CODE = 2;
     private int itemSelected;
     private AppBarConfiguration appBarConfiguration;
@@ -59,12 +71,20 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private FloatingActionButton fabDelete;
     private String defaultUserPfp;
     private ItemListDB itemListDB;
-//
+
     ListView ItemList;
+    private Uri currentPhotoUri;
+    int TotalPhotoCounter = 0;
+    FirebaseVision dbvision;
     ArrayList<Item> ItemDataList;
     com.example.wongtonsoup.ItemList itemList;
     private boolean isEditVisible = true;
+    private Button expand;
+    View expandedSearch;
+    private TagList selectedTags;
 
+
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -74,6 +94,23 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         setSupportActionBar(binding.toolbar);
 
         ItemList = findViewById(R.id.listView);
+
+        // Set up tag lists
+        tags = new TagList();
+        selectedTags = new TagList();
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+
+        // Tag list fot adding during edit items
+        LinearLayoutManager layoutManagerAdd = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewAdd);
+        recyclerViewAdd.setLayoutManager(layoutManagerAdd);
+        recyclerViewAdd.setAdapter(tagAdapter);
+
+        // Tag list for filtering during expanded search
+        LinearLayoutManager layoutManagerFilter = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewFilter = findViewById(R.id.recyclerViewFilter);
+        recyclerViewFilter.setLayoutManager(layoutManagerFilter);
+        recyclerViewFilter.setAdapter(tagAdapter);
 
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
@@ -131,9 +168,21 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
 
 /*        // sample data for testing
-        Item sampleItem1 = new Item("09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
-        Item sampleItem2 = new Item("16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC");
-        Item sampleItem3 = new Item("30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF");
+
+        TagList testTagList1 = new TagList();
+        TagList testTagList2 = new TagList();
+        TagList testTagList3 = new TagList();
+        testTagList1.addTag(new Tag("Apple"));
+        testTagList2.addTag(new Tag("Bee"));
+        testTagList2.addTag(new Tag("Apple"));
+        testTagList3.addTag(new Tag("Cat"));
+        tags.addTag(new Tag("Apple"));
+        tags.addTag(new Tag("Bee"));
+        tags.addTag(new Tag("Cat"));
+        tagAdapter.notifyDataSetChanged();
+        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", testTagList3);
+        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", testTagList1);
+        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", testTagList2);
 
         ItemDataList.add(sampleItem1);
         ItemDataList.add(sampleItem2);
@@ -142,63 +191,99 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         itemList.updateData(ItemDataList);
         itemList.notifyDataSetChanged();*/
 
+        // select tags
+        recyclerViewFilter.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                if (e.getAction() == MotionEvent.ACTION_UP) {
+                    View child = rv.findChildViewUnder(e.getX(), e.getY());
+                    if (child != null) {
+                        int position = rv.getChildAdapterPosition(child);
+                        Tag clickedTag = tags.getTags().get(position);
+                        if (selectedTags.find(clickedTag) == -1) {
+                            child.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.light_gray));
+                            tagAdapter.notifyDataSetChanged();
 
+                            selectedTags.addTag(clickedTag);
+                            itemList.updateData(getFilteredItems());
+                        }
+                        else {
+                            child.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.purple));
+                            tagAdapter.notifyDataSetChanged();
+
+                            selectedTags.removeTag(clickedTag);
+                            itemList.updateData(getFilteredItems());
+                        }
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
+
+        // add Item
         binding.fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
             startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
         });
 
         // Expand Search
-        Button expand = findViewById(R.id.expand_search_button);
-        View expandedSearch = findViewById(R.id.expanded);
-        expand.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (expanded){
-                    expandedSearch.setVisibility(View.GONE);
-                    expanded = false;
-                }
-                else {
-                    expandedSearch.setVisibility(View.VISIBLE);
-                    expanded = true;
-                }
+        expand = findViewById(R.id.expand_search_button);
+        expandedSearch = findViewById(R.id.expanded);
+        expand.setOnClickListener(v -> {
+            if (expanded){
+                flipArrow();
+                expandedSearch.setVisibility(View.GONE);
+                expanded = false;
+                isEditVisible = !isEditVisible;
+                invalidateOptionsMenu();
+            }
+            else {
+                flipArrow();
+                expandedSearch.setVisibility(View.VISIBLE);
+                expanded = true;
+                isEditVisible = !isEditVisible;
+                invalidateOptionsMenu();
             }
         });
         initSearchWidgets();
         initSortWidgets();
         fabDelete = findViewById(R.id.fab_delete);
-        fabDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // delete all selected items
-                deleteSelectedItems();
-            }
+        fabDelete.setOnClickListener(v -> {
+            // delete all selected items
+            deleteSelectedItems();
         });
 
         Button top_back_button = findViewById(R.id.top_back_button);
-        top_back_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                itemList.setVisible(0);
-                itemList.notifyDataSetChanged();
+        top_back_button.setOnClickListener(v -> {
+            itemList.setVisible(0);
+            itemList.notifyDataSetChanged();
 
-                FloatingActionButton delete = findViewById(R.id.fab_delete);
-                delete.setVisibility(View.GONE);
+            View edit_bar = findViewById(R.id.edit_list);
+            edit_bar.setVisibility(View.GONE);
 
-                FloatingActionButton add = findViewById(R.id.fab);
-                add.setVisibility(View.VISIBLE);
 
-                isEditVisible = !isEditVisible;
-                invalidateOptionsMenu();
+            FloatingActionButton add = findViewById(R.id.fab);
+            add.setVisibility(View.VISIBLE);
 
-                View top = findViewById(R.id.top);
-                top.setVisibility(View.VISIBLE);
+            isEditVisible = !isEditVisible;
+            invalidateOptionsMenu();
 
-                View top_back = findViewById(R.id.top_back);
-                top_back.setVisibility(View.GONE);
-            }
+            View top = findViewById(R.id.top);
+            top.setVisibility(View.VISIBLE);
+
+            View top_back = findViewById(R.id.top_back);
+            top_back.setVisibility(View.GONE);
         });
-
     }
 
     /**
@@ -223,39 +308,33 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
      */
     private void initSortWidgets(){
         AppCompatButton dateSortButton = findViewById(R.id.sort_date);
-        dateSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByDate());
-                itemList.updateData(sorted_list);
-            }
+        dateSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByDate());
+            itemList.updateData(sorted_list);
+        });
+
+        AppCompatButton tagSortButton = findViewById(R.id.sort_tag);
+        tagSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByTag());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton descSortButton = findViewById(R.id.sort_description);
-        descSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByDescription());
-                itemList.updateData(sorted_list);
-            }
+        descSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByDescription());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton makeSortButton = findViewById(R.id.sort_make);
-        makeSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByMake());
-                itemList.updateData(sorted_list);
-            }
+        makeSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByMake());
+            itemList.updateData(sorted_list);
         });
 
         AppCompatButton valueSortButton = findViewById(R.id.sort_value);
-        valueSortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Item> sorted_list = new ArrayList<>(itemList.sortByValue());
-                itemList.updateData(sorted_list);
-            }
+        valueSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByValue());
+            itemList.updateData(sorted_list);
         });
     }
 
@@ -296,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isValidDate(startDateEditText.getText().toString())){
+                if (isValidDate(startDateEditText.getText().toString()) || startDateEditText.getText().toString().length() == 0){
                     startDateEditText.setError(null);
                     itemList.updateData(getFilteredItems());
                 }
@@ -371,12 +450,19 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             enddate_year = Integer.parseInt(end_date_parts[2]);
         }
 
-
         int size = filteredItems.size();
         int index = 0;
         // loop through every item, either removing it because it does not match one of our search criteria or leaving it and looking at the next item.
         while (index < size){
             Item current_item = filteredItems.get(index);
+
+            // check if selected tags are all in Item
+            Boolean allTags = Boolean.TRUE;
+            for (int tagIndex = 0; tagIndex<selectedTags.getTags().size(); tagIndex++) {
+                if (current_item.getTags().find(selectedTags.getTags().get(tagIndex)) == -1) {
+                    allTags = Boolean.FALSE;
+                }
+            }
 
             // get the day month and year for the item
             String current_item_date = current_item.getPurchaseDate();
@@ -391,15 +477,20 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 filteredItems.remove(index);
                 size--;
             }
+            else if (!allTags) {
+                // the current item should not appear since it doesn't contain all the selected tags
+                filteredItems.remove(index);
+                size--;
+            }
             else if (!current_make.isEmpty() && !current_item.getMake().toLowerCase().contains(current_make.toLowerCase())){
                 // the current item should not appear because it doesn't contain the make search string
                 filteredItems.remove(index);
                 size--;
             }
             else if (isValidDate(current_start_date) && (current_item_year < startdate_year || (current_item_year == startdate_year && current_item_month < startdate_month) || (current_item_year == startdate_year && current_item_month == startdate_month && current_item_day < startdate_day))){
-               // the current item should not appear because it's date is before the specified start date
-               filteredItems.remove(index);
-               size--;
+                // the current item should not appear because it's date is before the specified start date
+                filteredItems.remove(index);
+                size--;
             }
             else if (isValidDate(current_end_date) && (current_item_year > enddate_year || (current_item_year == enddate_year && current_item_month > enddate_month) || (current_item_year == enddate_year && current_item_month == enddate_month && current_item_day > enddate_day))){
                 // the current item should not appear because it's date is after the specified end date
@@ -449,19 +540,17 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             return true;
         }
         else if (id == R.id.scan) {
-            return true;
-        }
-        else if (id == R.id.sign_out) {
-            return true;
+            scanCode();
         }
         else if (id == R.id.edit) {
             // Edit the list of items. Show check boxes and delete buttons. Have back button and tags
             if (ItemDataList.size() > 0){
+
                 itemList.setVisible(1);
                 itemList.notifyDataSetChanged();
 
-                FloatingActionButton delete = findViewById(R.id.fab_delete);
-                delete.setVisibility(View.VISIBLE);
+                View edit_bar = findViewById(R.id.edit_list);
+                edit_bar.setVisibility(View.VISIBLE);
 
                 FloatingActionButton add = findViewById(R.id.fab);
                 add.setVisibility(View.GONE);
@@ -478,7 +567,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             else {
                 Toast.makeText(this, "No Items to Edit", Toast.LENGTH_SHORT).show();
             }
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -488,23 +576,102 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         return super.onPrepareOptionsMenu(menu);
     }
 
+    /**
+     * Scans barcode and retrieves item with corresponding barcode from the database
+     */
+    private void onScanning() {
+        askCameraPermissions();
+        String photoUri = currentPhotoUri.toString();
+        FirebaseVisionImage image = null;
+        try {
+            image = FirebaseVisionImage.fromFilePath(MainActivity.this, Uri.fromFile(new File(photoUri)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance().getVisionBarcodeDetector();
+        Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
+                .addOnSuccessListener(barcodes -> {
+                    for (FirebaseVisionBarcode barcode : barcodes) {
+                        String rawValue = barcode.getRawValue();
+                        Item resultItem;
+                        db.collection("items")
+                                .whereEqualTo("barcodes", rawValue)
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            try {
+                                                String description = document.getString("description");
+                                                String make = document.getString("make");
+                                                String model = document.getString("model");
+                                                Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                                startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+
+                                            } catch (Exception e) {
+                                                Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                            }
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                });
+                    }
+                });
+    }
+
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        //@SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        //fetchItemsFromDatabase(owner);
+
         if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
             // Check if the request code matches and the result is OK
             if (data != null && data.hasExtra("resultItem")) {
-                Item resultItem = (Item) data.getSerializableExtra("resultItem");
-                ItemDataList.add(resultItem);
-
-                // use new ItemListDB here
-                itemListDB.addItem(resultItem);
+                Item item = (Item) data.getSerializableExtra("resultItem");
+                ItemDataList.add(item);
                 itemList.updateData(ItemDataList);
                 itemList.notifyDataSetChanged();
 
-                // Log the size of ItemDataList
-                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+                String ItemID = (String) data.getSerializableExtra("itemID");
+                @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+                /*db.collection("items")
+                        .whereEqualTo("owner", device_id)
+                        .whereEqualTo("id", ItemID)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    try {
+                                        String id = document.getId();
+                                        String purchaseDate = document.getString("purchaseDate");
+                                        String description = document.getString("description");
+                                        String make = document.getString("make");
+                                        String model = document.getString("model");
+                                        Float value = Objects.requireNonNull(document.getDouble("value")).floatValue();
+                                        String comment = document.getString("comment");
+                                        String serialNumber = document.getString("serial");
+                                        String owner = document.getString("owner");
+                                        String displayImage = document.getString("displayImage");
+
+                                        // Create an Item object
+                                        Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
+                                        item.SetDisplayImage(displayImage);
+                                        ItemDataList.add(item);
+
+                                    } catch (Exception e) {
+                                        Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                                    }
+                                }
+                                itemList.updateData(ItemDataList);
+                                itemList.notifyDataSetChanged();
+                            }
+                        }); */
             }
         }
         else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -531,6 +698,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
                 intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
                 intent.putExtra("ID", itemList.getItem(itemSelected).getID());
+                intent.putExtra("tags", itemList.getItem(itemSelected).getTags());
                 startActivityForResult(intent,VIEW_REQUEST_CODE);
 
                 // Log the size of ItemDataList
@@ -589,30 +757,26 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
     }
 
+    private int findLinearLayoutPosition(LinearLayout linearLayout) {
+        ViewGroup parent = (ViewGroup) linearLayout.getParent();
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            if (parent.getChildAt(i) == linearLayout) {
+                return i;
+            }
+        }
+        return -1; // Not found
+    }
+
     public void viewItem(View v) {
         // get view position
         View parentRow = (View) v.getParent();
-        ListView listView = (ListView) parentRow.getParent();
-        final int position = listView.getPositionForView(parentRow);
+        LinearLayout linearLayout = (LinearLayout) parentRow.getParent();
+        final int position = findLinearLayoutPosition(linearLayout);
 
         // go to ViewItemActivity
         Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
         itemSelected = position;
-        intent.putExtra("Description", itemList.getItem(position).getDescription());
-        intent.putExtra("Make", itemList.getItem(position).getMake());
-        intent.putExtra("Model", itemList.getItem(position).getModel());
-        intent.putExtra("Comment", itemList.getItem(position).getComment());
-        intent.putExtra("Date", itemList.getItem(position).getPurchaseDate());
-        intent.putExtra("Price", itemList.getItem(position).getValueAsString());
-        intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
         intent.putExtra("ID", itemList.getItem(position).getID());
-
-        // Add the image paths list extra
-        Queue<String> imagePathsQueue = itemList.getItem(itemSelected).getImagePathsCopy();
-        if(imagePathsQueue != null && !imagePathsQueue.isEmpty()) {
-            List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
-            intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
-        }
 
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
@@ -633,7 +797,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     }
 
     private void fetchItemsFromDatabase(String device_id) {
-
         db.collection("items")
                 .whereEqualTo("owner", device_id)
                 .get()
@@ -642,17 +805,37 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
                                 String id = document.getId();
-                                String purchaseDate = document.getString("DOP");
+                                String purchaseDate = document.getString("purchaseDate");
                                 String description = document.getString("description");
                                 String make = document.getString("make");
                                 String model = document.getString("model");
-                                Float value = document.getDouble("value").floatValue();
+                                Float value = Objects.requireNonNull(document.getDouble("value")).floatValue();
                                 String comment = document.getString("comment");
                                 String serialNumber = document.getString("serial");
                                 String owner = document.getString("owner");
+                                String displayImage = document.getString("displayImage");
+
+                                // tags are stored kinda weird, here's how we access
+                                Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
+                                ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+
+
+                                TagList tagList = new TagList();
+                                for (int i = 0 ; i < list_of_tags.size() ; i++){
+                                    HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                    String name = tag.get("name");
+                                    String tag_id = tag.get("uuid");
+                                    String tag_owner = tag.get("owner");
+
+                                    Tag new_tag = new Tag(name);
+                                    new_tag.setOwner(tag_owner);
+                                    new_tag.setUuid(tag_id);
+                                    tagList.addTag(new_tag);
+                                }
 
                                 // Create an Item object
-                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner);
+                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, tagList);
+                                item.SetDisplayImage(displayImage);
                                 ItemDataList.add(item);
 
                             } catch (Exception e) {
@@ -674,10 +857,136 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemList.setAdapter(itemListDB);
     }
 
+    /**
+     * Asks phone for permission to use camera
+     */
+    private void askCameraPermissions() {
+        Uri uri = null;
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            // request permissions from user
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+        else {
+            // already have permissions
+            openCamera();
+        }
+    }
 
+    /**
+     * Opens the camera, takes a photo, and saves it
+     */
+    private void openCamera() {
 
+        // create a file
+        String fileName = "image" + TotalPhotoCounter;
+        ++TotalPhotoCounter;
+        File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Uri imageUri = null;
 
+        try {
+            File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
+            String currentPhotoPath = imageFile.getAbsolutePath();
 
+            imageUri = FileProvider.getUriForFile(MainActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            currentPhotoUri = imageUri;
 
+            // start an image capture intent
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intent, OPEN_CAMERA_REQUEST);
 
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Sets options for the scanning of barcodes
+     * Credits:
+     * Author - Cambo Tutorial
+     * Date - March 8, 2022
+     * URL - https://www.youtube.com/watch?v=jtT60yFPelI
+     */
+    private void scanCode(){
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Use volume to toggle flash");
+        options.setBeepEnabled(true);
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureAct.class);
+        barLauncher.launch(options);
+
+    }
+
+    /***
+     * Launches activity to scan barcode, find matching barcode item in the database and pull its values
+     * @throws IllegalArgumentException
+     */
+    ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
+    {
+        db.collection("barcodes").document(result.getContents())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {
+                            // Document exists
+                            Toast.makeText(this, "Item found", Toast.LENGTH_SHORT).show();
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("Scanned Content");
+                            builder.setMessage("Barcode: " + result.getContents());
+                            builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    try {
+                                        String description = document.getString("description");
+                                        String make = document.getString("make");
+                                        String model = document.getString("model");
+                                        Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                        Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
+                                        intent.putExtra("Description", description);
+                                        intent.putExtra("Make", make);
+                                        intent.putExtra("Model", model);
+                                        startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+
+                                    } catch (Exception e){
+                                        Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                        throw new IllegalArgumentException();
+                                    }
+                                }
+
+                            });
+                            builder.show();
+                        } else {
+                            // Document does not exist
+                            Toast.makeText(this, "No item found", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Handle the failure here
+                        Log.e("MainActivity", "Error getting documents: ", task.getException());
+                        throw new IllegalArgumentException();
+                    }
+                });
+
+    });
+
+    private void flipArrow() {
+        if (expand.getRotation() == 0) {  // if arrow is pointing down -> rotate up
+            TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() + 180);
+            rotateAnimator.setDuration(200);
+            rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            rotateAnimator.start();
+        }
+        else if (expand.getRotation() == 180) {  // if arrow is pointing up -> rotate back down
+            TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() - 180);
+            rotateAnimator.setDuration(200);
+            rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            rotateAnimator.start();
+        }
+        else {
+            // do nothing
+            Log.d("MainActivity", "flipArrow: rotation is not 0 or 180. Doing nothing.");
+        }
+    }
 }
