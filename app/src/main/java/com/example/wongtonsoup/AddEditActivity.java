@@ -42,9 +42,6 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
-
-import com.squareup.picasso.Picasso;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -54,6 +51,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -306,24 +304,6 @@ public class AddEditActivity extends AppCompatActivity {
                 break;
         }
     }
-    private void updateImageView(String Url, int position) {
-        // Update the corresponding ImageView based on the position
-        switch (position) {
-            case 0:
-                ImageView imageView_1 = findViewById(R.id.photo1);
-                Picasso.get().load(Url).into(imageView_1);
-                break;
-            case 1:
-                ImageView imageView_2 = findViewById(R.id.photo2);
-                Picasso.get().load(Url).into(imageView_2);
-                break;
-            case 2:
-                ImageView imageView_3 = findViewById(R.id.photo3);
-                Picasso.get().load(Url).into(imageView_3);
-                break;
-        }
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -457,9 +437,14 @@ public class AddEditActivity extends AppCompatActivity {
                     Log.d("MainActivity", "Logging item IDs from DB:");
                 });
         // if in edit mode, find all selected tags from db
+
+        String item_id = getIntent().getStringExtra("ID");
+        db.collection("items")
+
         /*
 //        String item_id = getIntent().getStringExtra("ID");
 //        db.collection("items")
+
                 .whereEqualTo("owner", device_id)
                 .whereEqualTo("id", item_id)
                 .get()
@@ -502,7 +487,7 @@ public class AddEditActivity extends AppCompatActivity {
                     }
 
                     Log.d("MainActivity", "Logging item IDs from DB:");
-                });*/
+                });
 
 
 
@@ -532,6 +517,15 @@ public class AddEditActivity extends AppCompatActivity {
 
         String id = intent.getStringExtra("ID");
         Log.d("AddEditActivity", "onCreate desc: " + intent.getStringExtra("Description"));
+
+
+        expenseDescription.setText(intent.getStringExtra("Description"));
+        expenseDate.setText(intent.getStringExtra("Date"));
+        expenseValue.setText(intent.getStringExtra("Price"));
+        expenseComment.setText(intent.getStringExtra("Comment"));
+        expenseSerialNumber.setText(intent.getStringExtra("Serial"));
+        expenseMake.setText(intent.getStringExtra("Make"));
+        expenseModel.setText(intent.getStringExtra("Model"));
 
         // populate fields from intent
         expenseDescription.setText(intent.getStringExtra("Description"));
@@ -619,6 +613,13 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
 
+        // Display tags
+        TagList tags = new TagList(); //Replace with db tags
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewEdit = findViewById(R.id.recyclerViewEdit);
+        recyclerViewEdit.setLayoutManager(layoutManagerItem);
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+        recyclerViewEdit.setAdapter(tagAdapter);
         // Create a dismiss listener for TagDialog. This way we can ensure that existing_tags updates after tag dialog.
         DialogInterface.OnDismissListener dismissListener = new DialogInterface.OnDismissListener() {
             @Override
