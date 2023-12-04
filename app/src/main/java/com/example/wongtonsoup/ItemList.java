@@ -65,8 +65,8 @@ public class ItemList extends ArrayAdapter<Item> {
         dateTextView.setText(currentItem.getPurchaseDate());
         makeTextView.setText(currentItem.getMake());
         priceTextView.setText(String.format(Locale.getDefault(), "%.2f", currentItem.getValue()));
-        if (currentItem.getDisplayImage() != null){
-            String imageURL = currentItem.getDisplayImage();
+        if (currentItem.GetDisplayImage() != null){
+            String imageURL = currentItem.GetDisplayImage();
             Picasso.get().load(imageURL).into(imageView);
             Log.d("ItemList URI", "getView: " + imageURL);
         }

@@ -1,5 +1,9 @@
 package com.example.wongtonsoup;
 
+import android.annotation.SuppressLint;
+import android.net.Uri;
+import android.provider.Settings;
+import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,6 +12,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.squareup.picasso.Picasso;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Class for the current list of valid tags.
@@ -25,65 +35,98 @@ public class ViewItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_item);
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         Intent intent = getIntent();
+        String ItemID = intent.getStringExtra("ID");
 
-        // Display details
-        TextView description = findViewById(R.id.item_view_description);
-        String descriptionText = intent.getStringExtra("Description");
-        description.setText(descriptionText);
+        @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        TextView make = findViewById(R.id.view_make);
-        String makeText = intent.getStringExtra("Make");
-        make.setText(makeText);
+        db.collection("items")
+                .whereEqualTo("owner", device_id)
+                .whereEqualTo("id", ItemID)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String dateText = document.getString("purchaseDate");
+                                String descriptionText = document.getString("description");
+                                String makeText = document.getString("make");
+                                String modelText = document.getString("model");
+                                String priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
+                                String commentText = document.getString("comment");
+                                String serialText = document.getString("serial");
+                                String displayImage = document.getString("displayImage");
 
-        TextView model = findViewById(R.id.view_model);
-        String modelText = intent.getStringExtra("Model");
-        model.setText(modelText);
+                                List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
 
-        TextView comment = findViewById(R.id.view_comment);
-        String commentText = intent.getStringExtra("Comment");
-        comment.setText(commentText);
 
-        TextView date = findViewById(R.id.view_date);
-        String dateText = intent.getStringExtra("Date");
-        date.setText(dateText);
+                                // Display details
+                                TextView description = findViewById(R.id.item_view_description);
+                                description.setText(descriptionText);
 
-        TextView serial = findViewById(R.id.view_serial);
-        String serialText = intent.getStringExtra("Serial");
-        serial.setText(serialText);
+                                TextView make = findViewById(R.id.view_make);
+                                make.setText(makeText);
 
-        TextView price = findViewById(R.id.item_view_price);
-        String priceText = intent.getStringExtra("Price");
-        price.setText(priceText);
+                                TextView model = findViewById(R.id.view_model);
+                                model.setText(modelText);
+
+                                TextView comment = findViewById(R.id.view_comment);
+                                comment.setText(commentText);
+
+                                TextView date = findViewById(R.id.view_date);
+                                date.setText(dateText);
+
+                                TextView serial = findViewById(R.id.view_serial);
+                                serial.setText(serialText);
+
+                                TextView price = findViewById(R.id.item_view_price);
+                                price.setText(priceText);
+
+
+                                if (rawImageUrls != null) {
+                                    int count = 0;
+                                    for (Object rawImageUrl : rawImageUrls) {
+                                        if (rawImageUrl instanceof String) {
+                                            updateImageView((String) rawImageUrl,count);
+                                            count++;
+                                        }
+                                    }
+                                }
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                    }
+                });
+
+
 
         // Go to edit
         Button edit = findViewById(R.id.edit_button);
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
-                newIntent.putExtra("Description", descriptionText);
-                newIntent.putExtra("Make", makeText);
-                newIntent.putExtra("Model", modelText);
-                newIntent.putExtra("Comment", commentText);
-                newIntent.putExtra("Date", dateText);
-                newIntent.putExtra("Price", priceText);
-                newIntent.putExtra("Serial", serialText);
-                String id = intent.getStringExtra("ID");
-                Log.d("ViewItemActivity", "Passing Item ID: " + id); // Log to confirm ID is received
-                newIntent.putExtra("ID", id);
-                startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
+//                Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
+//                newIntent.putExtra("Description", descriptionText);
+//                newIntent.putExtra("Make", makeText);
+//                newIntent.putExtra("Model", modelText);
+//                newIntent.putExtra("Comment", commentText);
+//                newIntent.putExtra("Date", dateText);
+//                newIntent.putExtra("Price", priceText);
+//                newIntent.putExtra("Serial", serialText);
+//                String id = intent.getStringExtra("ID");
+//                Log.d("ViewItemActivity", "Passing Item ID: " + id); // Log to confirm ID is received
+//                newIntent.putExtra("ID", id);
+//                startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
             }
         });
 
         // Go back to main
         Button back = findViewById(R.id.view_back_button);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        back.setOnClickListener(v -> finish());
     }
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
@@ -91,6 +134,24 @@ public class ViewItemActivity extends AppCompatActivity {
         resultIntent.putExtra("itemID", item.getID()); // Pass the ID back
         setResult(RESULT_OK, resultIntent);
         finish();
+    }
+
+    private void updateImageView(String Url, int position) {
+        // Update the corresponding ImageView based on the position
+        switch (position) {
+            case 0:
+                ImageView imageView_1 = findViewById(R.id.view_image1);
+                Picasso.get().load(Url).into(imageView_1);
+                break;
+            case 1:
+                ImageView imageView_2 = findViewById(R.id.view_image2);
+                Picasso.get().load(Url).into(imageView_2);
+                break;
+            case 2:
+                ImageView imageView_3 = findViewById(R.id.view_image3);
+                Picasso.get().load(Url).into(imageView_3);
+                break;
+        }
     }
 
     @Override
