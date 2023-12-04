@@ -458,8 +458,8 @@ public class AddEditActivity extends AppCompatActivity {
                 });
         // if in edit mode, find all selected tags from db
         /*
-        String item_id = getIntent().getStringExtra("ID");
-        db.collection("items")
+//        String item_id = getIntent().getStringExtra("ID");
+//        db.collection("items")
                 .whereEqualTo("owner", device_id)
                 .whereEqualTo("id", item_id)
                 .get()
@@ -532,6 +532,12 @@ public class AddEditActivity extends AppCompatActivity {
 
         String id = intent.getStringExtra("ID");
         Log.d("AddEditActivity", "onCreate desc: " + intent.getStringExtra("Description"));
+
+        // populate fields from intent
+        expenseDescription.setText(intent.getStringExtra("Description"));
+        expenseMake.setText(intent.getStringExtra("Make"));
+        expenseModel.setText(intent.getStringExtra("Model"));
+
 
         db.collection("items")
                 .whereEqualTo("owner", device_id)
