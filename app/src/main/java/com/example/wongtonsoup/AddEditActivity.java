@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +45,8 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+import com.squareup.picasso.Picasso;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -53,6 +56,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -305,6 +309,24 @@ public class AddEditActivity extends AppCompatActivity {
                 break;
         }
     }
+    private void updateImageView(String Url, int position) {
+        // Update the corresponding ImageView based on the position
+        switch (position) {
+            case 0:
+                ImageView imageView_1 = findViewById(R.id.photo1);
+                Picasso.get().load(Url).into(imageView_1);
+                break;
+            case 1:
+                ImageView imageView_2 = findViewById(R.id.photo2);
+                Picasso.get().load(Url).into(imageView_2);
+                break;
+            case 2:
+                ImageView imageView_3 = findViewById(R.id.photo3);
+                Picasso.get().load(Url).into(imageView_3);
+                break;
+        }
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -438,6 +460,7 @@ public class AddEditActivity extends AppCompatActivity {
                     Log.d("MainActivity", "Logging item IDs from DB:");
                 });
         // if in edit mode, find all selected tags from db
+        /*
         String item_id = getIntent().getStringExtra("ID");
         db.collection("items")
                 .whereEqualTo("owner", device_id)
@@ -482,7 +505,7 @@ public class AddEditActivity extends AppCompatActivity {
                     }
 
                     Log.d("MainActivity", "Logging item IDs from DB:");
-                });
+                });*/
 
 
 
@@ -513,13 +536,73 @@ public class AddEditActivity extends AppCompatActivity {
         String id = intent.getStringExtra("ID");
         Log.d("AddEditActivity", "onCreate desc: " + intent.getStringExtra("Description"));
 
-        expenseDescription.setText(intent.getStringExtra("Description"));
-        expenseDate.setText(intent.getStringExtra("Date"));
-        expenseValue.setText(intent.getStringExtra("Price"));
-        expenseComment.setText(intent.getStringExtra("Comment"));
-        expenseSerialNumber.setText(intent.getStringExtra("Serial"));
-        expenseMake.setText(intent.getStringExtra("Make"));
-        expenseModel.setText(intent.getStringExtra("Model"));
+        db.collection("items")
+                .whereEqualTo("owner", device_id)
+                .whereEqualTo("id", id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String dateText = document.getString("purchaseDate");
+                                String descriptionText = document.getString("description");
+                                String makeText = document.getString("make");
+                                String modelText = document.getString("model");
+                                String priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
+                                String commentText = document.getString("comment");
+                                String serialText = document.getString("serial");
+                                String displayImage = document.getString("displayImage");
+
+                                // tags are stored kinda weird, here's how we access
+                                Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
+                                ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+
+                                for (int i = 0 ; i < list_of_tags.size() ; i++){
+                                    HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                    String name = tag.get("name");
+                                    String tag_id = tag.get("uuid");
+                                    String tag_owner = tag.get("owner");
+
+                                    Tag new_tag = new Tag(name);
+                                    new_tag.setOwner(tag_owner);
+                                    new_tag.setUuid(tag_id);
+                                    selected_tags.addTag(new_tag);
+                                }
+
+                                List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
+
+
+                                // Display details
+                                expenseDescription.setText(descriptionText);
+                                expenseMake.setText(makeText);
+                                expenseModel.setText(modelText);
+                                expenseComment.setText(commentText);
+                                expenseDate.setText(dateText);
+                                expenseSerialNumber.setText(serialText);
+                                expenseValue.setText(priceText);
+
+                                if (rawImageUrls != null) {
+                                    int count = 0;
+                                    for (Object rawImageUrl : rawImageUrls) {
+                                        if (rawImageUrl instanceof String) {
+                                            updateImageView((String) rawImageUrl,count);
+                                            count++;
+                                        }
+                                    }
+                                }
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                        // Display tags
+                        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+                        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewEdit);
+                        recyclerViewAdd.setLayoutManager(layoutManagerItem);
+                        tagAdapter = new TagListAdapter(this, selected_tags);
+                        recyclerViewAdd.setAdapter(tagAdapter);
+                    }
+                });
 
         // To disable the button
         addEditCheckButton.setEnabled(false);
@@ -533,13 +616,6 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
 
-        // Display tags
-        TagList tags = new TagList(); //Replace with db tags
-        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerViewEdit = findViewById(R.id.recyclerViewEdit);
-        recyclerViewEdit.setLayoutManager(layoutManagerItem);
-        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
-        recyclerViewEdit.setAdapter(tagAdapter);
         // Create a dismiss listener for TagDialog. This way we can ensure that existing_tags updates after tag dialog.
         DialogInterface.OnDismissListener dismissListener = new DialogInterface.OnDismissListener() {
             @Override

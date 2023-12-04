@@ -626,21 +626,18 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        //@SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        //fetchItemsFromDatabase(owner);
-
         if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
             // Check if the request code matches and the result is OK
             if (data != null && data.hasExtra("resultItem")) {
-                Item item = (Item) data.getSerializableExtra("resultItem");
-                ItemDataList.add(item);
-                itemList.updateData(ItemDataList);
-                itemList.notifyDataSetChanged();
+                //Item item = (Item) data.getSerializableExtra("resultItem");
+                //ItemDataList.add(item);
+                //itemList.updateData(ItemDataList);
+                //itemList.notifyDataSetChanged();
 
                 String ItemID = (String) data.getSerializableExtra("itemID");
                 @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-                /*db.collection("items")
+                db.collection("items")
                         .whereEqualTo("owner", device_id)
                         .whereEqualTo("id", ItemID)
                         .get()
@@ -671,7 +668,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                 itemList.updateData(ItemDataList);
                                 itemList.notifyDataSetChanged();
                             }
-                        }); */
+                        });
             }
         }
         else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
