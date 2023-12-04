@@ -105,23 +105,24 @@
                     app:submitBackground="@drawable/bg_white_rounded"
                     android:background="@drawable/bg_white_rounded"
                     android:padding="5dp"/>
+                <TextView
+                    android:id="@+id/sort_by"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sort_by"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:paddingBottom="5dp"
+                    android:paddingEnd="5dp"
+                    android:layout_below="@+id/search_view_make">
+                </TextView>
                 <LinearLayout
                     android:id="@+id/sort_buttons"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingTop="15dp"
-                    android:layout_below="@+id/search_view_make">
-                    <TextView
-                        android:id="@+id/sort_by"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sort_by"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:paddingBottom="5dp"
-                        android:paddingEnd="5dp">
-                    </TextView>
+                    android:paddingTop="5dp"
+                    android:layout_below="@+id/sort_by">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -132,7 +133,7 @@
                             android:id="@+id/sort_date"
                             style="@style/Widget.AppCompat.Button.Borderless"
                             android:background="@drawable/bg_white_rounded"
-                            android:layout_width="80dp"
+                            android:layout_width="77dp"
                             android:layout_height="40dp"
                             android:layout_weight="1"
                             android:text="@string/Date"
@@ -147,7 +148,7 @@
                             android:textSize="10sp"
                             style="@style/Widget.AppCompat.Button.Borderless"
                             android:background="@drawable/bg_white_rounded"
-                            android:layout_width="80dp"
+                            android:layout_width="79dp"
                             android:layout_height="40dp"
                             android:layout_weight="1"
                             android:text="@string/description" />
@@ -162,10 +163,25 @@
                             android:textSize="12sp"
                             style="@style/Widget.AppCompat.Button.Borderless"
                             android:background="@drawable/bg_white_rounded"
-                            android:layout_width="80dp"
+                            android:layout_width="77dp"
                             android:layout_height="40dp"
                             android:layout_weight="1"
                             android:text="@string/Make"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingEnd="5dp"
+                        tools:ignore="RtlSymmetry">
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/sort_tag"
+                            android:textSize="12sp"
+                            style="@style/Widget.AppCompat.Button.Borderless"
+                            android:background="@drawable/bg_white_rounded"
+                            android:layout_width="77dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="Tags"/>
                     </LinearLayout>
 
                     <androidx.appcompat.widget.AppCompatButton
@@ -173,11 +189,10 @@
                         android:textSize="12sp"
                         style="@style/Widget.AppCompat.Button.Borderless"
                         android:background="@drawable/bg_white_rounded"
-                        android:layout_width="80dp"
+                        android:layout_width="77dp"
                         android:layout_height="40dp"
                         android:layout_weight="1"
-                        android:text="@string/value"
-                        />
+                        android:text="@string/value"/>
                 </LinearLayout>
 
                 <TextView
@@ -205,9 +220,8 @@
 
                     <EditText
                         android:id="@+id/edit_text_start_date"
-                        android:layout_width="wrap_content"
+                        android:layout_width="130dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         app:queryBackground="@drawable/bg_white_rounded"
                         app:submitBackground="@drawable/bg_white_rounded"
                         android:background="@drawable/bg_white_rounded"
@@ -225,9 +239,8 @@
 
                     <EditText
                         android:id="@+id/edit_text_end_date"
-                        android:layout_width="wrap_content"
+                        android:layout_width="130dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:padding="5dp"
                         android:autofillHints="dd-mm-yyyy"
                         android:inputType="date|datetime"

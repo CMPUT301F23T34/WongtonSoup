@@ -130,7 +130,14 @@ public class ItemList extends ArrayAdapter<Item> {
         String s = String.format("%.2f", total);
         return s;
     }
-
+    /**
+     * Searchs itemList by make
+     * @return sorted list.
+     */
+    public List<Item> sortByTag(){
+        itemList.sort(Item.byTag); // use the comparator in the Item class
+        return itemList;
+    }
     /**
      * Searchs itemList by date
      * @return sorted list.

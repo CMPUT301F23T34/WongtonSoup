@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private TagList selectedTags;
 
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -96,8 +97,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         // Set up tag lists
         tags = new TagList();
-        tags.addTag(new Tag("Test"));
-        tags.addTag(new Tag("TestSequel"));
         selectedTags = new TagList();
         TagListAdapter tagAdapter = new TagListAdapter(this, tags);
 
@@ -168,17 +167,22 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         com.example.wongtonsoup.ItemList.setListener(this);
 
 
-        /*// sample data for testing
+/*        // sample data for testing
 
-        TagList testTagList = new TagList();
-        testTagList.addTag(new Tag("Test1"));
-        testTagList.addTag(new Tag("TestSequel"));
-        tags.addTag(new Tag("Test"));
-        tags.addTag(new Tag("TestSequel"));
+        TagList testTagList1 = new TagList();
+        TagList testTagList2 = new TagList();
+        TagList testTagList3 = new TagList();
+        testTagList1.addTag(new Tag("Apple"));
+        testTagList2.addTag(new Tag("Bee"));
+        testTagList2.addTag(new Tag("Apple"));
+        testTagList3.addTag(new Tag("Cat"));
+        tags.addTag(new Tag("Apple"));
+        tags.addTag(new Tag("Bee"));
+        tags.addTag(new Tag("Cat"));
         tagAdapter.notifyDataSetChanged();
-        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", testTagList);
-        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", testTagList);
-        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", testTagList);
+        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", testTagList3);
+        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", testTagList1);
+        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", testTagList2);
 
         ItemDataList.add(sampleItem1);
         ItemDataList.add(sampleItem2);
@@ -309,6 +313,12 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             itemList.updateData(sorted_list);
         });
 
+        AppCompatButton tagSortButton = findViewById(R.id.sort_tag);
+        tagSortButton.setOnClickListener(v -> {
+            List<Item> sorted_list = new ArrayList<>(itemList.sortByTag());
+            itemList.updateData(sorted_list);
+        });
+
         AppCompatButton descSortButton = findViewById(R.id.sort_description);
         descSortButton.setOnClickListener(v -> {
             List<Item> sorted_list = new ArrayList<>(itemList.sortByDescription());
@@ -365,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isValidDate(startDateEditText.getText().toString())){
+                if (isValidDate(startDateEditText.getText().toString()) || startDateEditText.getText().toString().length() == 0){
                     startDateEditText.setError(null);
                     itemList.updateData(getFilteredItems());
                 }

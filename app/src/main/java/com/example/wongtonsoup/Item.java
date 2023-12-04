@@ -465,6 +465,26 @@ public class Item implements Serializable {
            return o1.getDescription().toLowerCase().compareTo(o2.getDescription().toLowerCase());
         }
     };
+    /**
+     * Returns a negative number if o1 has a description lexigraphically before o2. 0 if equal. positive otherwise.
+     */
+    public static Comparator<Item> byTag = new Comparator<Item>() {
+        @Override
+        public int compare(Item o1, Item o2) {
+            int o1Length = o1.getTags().getTags().size();
+            int o2Length = o1.getTags().getTags().size();
+            if (o1Length > 0 && o2Length > 0) {
+                return o1.getTags().getTags().get(0).getName().toLowerCase().compareTo(o2.getTags().getTags().get(0).getName().toLowerCase());
+            } else if (o1Length > 0) {
+                return -1;
+            } else if (o2Length > 0) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+    };
 
     /**
      * Returns a negative number if o1 has a make lexigraphically before o2. 0 if equal. positive otherwise.
