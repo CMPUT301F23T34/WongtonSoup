@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +65,10 @@ public class ItemList extends ArrayAdapter<Item> {
         dateTextView.setText(currentItem.getPurchaseDate());
         makeTextView.setText(currentItem.getMake());
         priceTextView.setText(String.format(Locale.getDefault(), "%.2f", currentItem.getValue()));
-        if (currentItem.getDisplayImage() != null){
-            String fileName = currentItem.getDisplayImage();
-            Uri uri = Uri.parse(fileName);
-            Log.d("ItemList URI", "getView: " + uri.toString());
-
-            imageView.setImageURI(uri);
+        if (currentItem.GetDisplayImage() != null){
+            String imageURL = currentItem.GetDisplayImage();
+            Picasso.get().load(imageURL).into(imageView);
+            Log.d("ItemList URI", "getView: " + imageURL);
         }
 
         CheckBox checkBox = convertView.findViewById(R.id.select);

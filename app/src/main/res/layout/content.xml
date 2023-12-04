@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
     <RelativeLayout
         android:layout_width="match_parent"
@@ -110,25 +111,16 @@
             android:layout_gravity="right"
             android:layout_alignParentEnd="true"/>
 
-        <HorizontalScrollView
-            android:id="@+id/tag_list"
-            android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+            android:padding="5dp"
+            android:id="@+id/recyclerViewList"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_toStartOf="@+id/get_item_info_button">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/content_chip_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="5dp"
-                app:chipSpacing="4dp"
-                app:selectionRequired="false"
-                app:singleSelection="false">
-            </com.google.android.material.chip.ChipGroup>
-
-        </HorizontalScrollView>
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/content_tags"
+            android:layout_toStartOf="@+id/get_item_info_button"
+            />
     </RelativeLayout>
 
 </LinearLayout>
