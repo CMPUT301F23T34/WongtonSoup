@@ -828,6 +828,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                         Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
                                     }
                                 }
+
                             });
                             builder.show();
                         } else {
