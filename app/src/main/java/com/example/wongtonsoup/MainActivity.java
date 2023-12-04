@@ -1,6 +1,7 @@
 package com.example.wongtonsoup;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,7 +21,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -50,8 +58,12 @@ import com.journeyapps.barcodescanner.ScanOptions;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import android.animation.ObjectAnimator;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -65,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
     //private CollectionReference tagsRef; this happens in TagList
-    private TagList tags;
+    private TagList existingTags;
     private CollectionReference usersRef;
     //delete button
     private FloatingActionButton fabDelete;
@@ -82,11 +94,13 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private Button expand;
     View expandedSearch;
     private TagList selectedTags;
+    private TagListAdapter tagAdapter;
 
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        db = FirebaseFirestore.getInstance();
 
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -95,29 +109,57 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         ItemList = findViewById(R.id.listView);
 
+        @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
         // Set up tag lists
-        tags = new TagList();
+        existingTags = new TagList();
         selectedTags = new TagList();
-        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
 
-        // Tag list fot adding during edit items
-        LinearLayoutManager layoutManagerAdd = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewAdd);
-        recyclerViewAdd.setLayoutManager(layoutManagerAdd);
-        recyclerViewAdd.setAdapter(tagAdapter);
-
-        // Tag list for filtering during expanded search
         LinearLayoutManager layoutManagerFilter = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         RecyclerView recyclerViewFilter = findViewById(R.id.recyclerViewFilter);
         recyclerViewFilter.setLayoutManager(layoutManagerFilter);
-        recyclerViewFilter.setAdapter(tagAdapter);
 
-        @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        db.collection("tags")
+                .whereEqualTo("owner", device_id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String name = document.getString("name");
+                                String owner = document.getString("owner");
+                                String id = document.getString("id");
+
+                                Tag tag = new Tag(name);
+                                tag.setOwner(owner);
+                                tag.setUuid(id);
+
+                                existingTags.addTag(tag);
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                        tagAdapter = new TagListAdapter(this, existingTags);
+
+                        // Tag list fot adding during edit items
+                        LinearLayoutManager layoutManagerAdd = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+                        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewAdd);
+                        recyclerViewAdd.setLayoutManager(layoutManagerAdd);
+                        recyclerViewAdd.setAdapter(tagAdapter);
+
+                        // Tag list for filtering during expanded search
+                        recyclerViewFilter.setAdapter(tagAdapter);
+
+                    } else {
+                        Log.d("MainActivity", "Error getting documents: ", task.getException());
+                    }
+
+                    Log.d("MainActivity", "Logging item IDs from DB:");
+                });
+
         Log.d("MainActivity", "Device ID: " + device_id);
 
-        tags = new TagList();
-
-        db = FirebaseFirestore.getInstance();
 
         itemListDB = new ItemListDB(this, new ArrayList<Item>());
         ItemDataList = new ArrayList<>();
@@ -167,8 +209,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         com.example.wongtonsoup.ItemList.setListener(this);
 
 
-/*        // sample data for testing
-
+        // sample data for testing
+/*
         TagList testTagList1 = new TagList();
         TagList testTagList2 = new TagList();
         TagList testTagList3 = new TagList();
@@ -176,9 +218,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         testTagList2.addTag(new Tag("Bee"));
         testTagList2.addTag(new Tag("Apple"));
         testTagList3.addTag(new Tag("Cat"));
-        tags.addTag(new Tag("Apple"));
-        tags.addTag(new Tag("Bee"));
-        tags.addTag(new Tag("Cat"));
+        existingTags.addTag(new Tag("Apple"));
+        existingTags.addTag(new Tag("Bee"));
+        existingTags.addTag(new Tag("Cat"));
         tagAdapter.notifyDataSetChanged();
         Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", testTagList3);
         Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", testTagList1);
@@ -199,17 +241,21 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                     View child = rv.findChildViewUnder(e.getX(), e.getY());
                     if (child != null) {
                         int position = rv.getChildAdapterPosition(child);
-                        Tag clickedTag = tags.getTags().get(position);
+                        Tag clickedTag = existingTags.getTags().get(position);
                         if (selectedTags.find(clickedTag) == -1) {
                             child.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.light_gray));
-                            tagAdapter.notifyDataSetChanged();
+                            if (tagAdapter != null){
+                                tagAdapter.notifyDataSetChanged();
+                            }
 
                             selectedTags.addTag(clickedTag);
                             itemList.updateData(getFilteredItems());
                         }
                         else {
                             child.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.purple));
-                            tagAdapter.notifyDataSetChanged();
+                            if (tagAdapter != null){
+                                tagAdapter.notifyDataSetChanged();
+                            }
 
                             selectedTags.removeTag(clickedTag);
                             itemList.updateData(getFilteredItems());
@@ -395,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isValidDate(endDateEditText.getText().toString())){
+                if (isValidDate(endDateEditText.getText().toString())|| endDateEditText.getText().toString().length() == 0){
                     endDateEditText.setError(null);
                     itemList.updateData(getFilteredItems());
                 }
@@ -986,4 +1032,5 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             Log.d("MainActivity", "flipArrow: rotation is not 0 or 180. Doing nothing.");
         }
     }
+
 }
