@@ -42,6 +42,8 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+import com.squareup.picasso.Picasso;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -304,6 +306,23 @@ public class AddEditActivity extends AppCompatActivity {
                 break;
         }
     }
+    private void updateImageView(String Url, int position) {
+        // Update the corresponding ImageView based on the position
+        switch (position) {
+            case 0:
+                ImageView imageView_1 = findViewById(R.id.photo1);
+                Picasso.get().load(Url).into(imageView_1);
+                break;
+            case 1:
+                ImageView imageView_2 = findViewById(R.id.photo2);
+                Picasso.get().load(Url).into(imageView_2);
+                break;
+            case 2:
+                ImageView imageView_3 = findViewById(R.id.photo3);
+                Picasso.get().load(Url).into(imageView_3);
+                break;
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -439,12 +458,8 @@ public class AddEditActivity extends AppCompatActivity {
         // if in edit mode, find all selected tags from db
 
         String item_id = getIntent().getStringExtra("ID");
+
         db.collection("items")
-
-        /*
-//        String item_id = getIntent().getStringExtra("ID");
-//        db.collection("items")
-
                 .whereEqualTo("owner", device_id)
                 .whereEqualTo("id", item_id)
                 .get()
