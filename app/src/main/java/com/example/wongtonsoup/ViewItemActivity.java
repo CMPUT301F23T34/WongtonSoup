@@ -18,11 +18,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import com.squareup.picasso.Picasso;
 
 /**
  * Class for the current list of valid tags.
@@ -139,15 +142,6 @@ public class ViewItemActivity extends AppCompatActivity {
                         recyclerViewAdd.setAdapter(tagAdapter);
                     }
                 });
-
-
-        // Display tags
-        TagList tags = new TagList(); //Replace with db tags
-        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewViewItem);
-        recyclerViewAdd.setLayoutManager(layoutManagerItem);
-        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
-        recyclerViewAdd.setAdapter(tagAdapter);
 
         // Go to edit
         Button edit = findViewById(R.id.edit_button);

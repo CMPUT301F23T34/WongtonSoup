@@ -1,7 +1,9 @@
 package com.example.wongtonsoup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -35,5 +37,17 @@ public class ItemTest {
         });
     }
 
-
+    /**
+     * Tests checking if a given date for an item is valid or not
+     * @since 12/02/2023
+     */
+    @Test
+    public void isValidDateTest(){
+        Float f = new Float(10);
+        i = new Item("xoxoxo", "01-01-2000", "This is a car", "Honda", "2016 CRV", f, "I like this car", "test_owner",  new TagList());
+        String s = "10-12-2023";
+        assertTrue(i.isValidDate(s));
+        s = "10-13-2023";
+        assertFalse(i.isValidDate(s));
+    }
 }
