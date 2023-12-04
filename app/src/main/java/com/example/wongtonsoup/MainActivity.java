@@ -89,6 +89,22 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         ItemList = findViewById(R.id.listView);
 
+        // Set up tag lists
+        TagList tagList = new TagList();
+        TagListAdapter tagAdapter = new TagListAdapter(this, tagList);
+
+        // Tag list fot adding during edit items
+        LinearLayoutManager layoutManagerAdd = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewAdd);
+        recyclerViewAdd.setLayoutManager(layoutManagerAdd);
+        recyclerViewAdd.setAdapter(tagAdapter);
+
+        // Tag list for filtering during expanded search
+        LinearLayoutManager layoutManagerFilter = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewFilter = findViewById(R.id.recyclerViewFilter);
+        recyclerViewFilter.setLayoutManager(layoutManagerFilter);
+        recyclerViewFilter.setAdapter(tagAdapter);
+
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
 
@@ -144,17 +160,21 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         com.example.wongtonsoup.ItemList.setListener(this);
 
 
-/*        // sample data for testing
-        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", new TagList());
-        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", new TagList());
-        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", new TagList());
+        // sample data for testing
+
+        TagList testTagList = new TagList();
+        testTagList.addTag(new Tag("Test"));
+        testTagList.addTag(new Tag("TestSequel"));
+        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", testTagList);
+        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", testTagList);
+        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", testTagList);
 
         ItemDataList.add(sampleItem1);
         ItemDataList.add(sampleItem2);
         ItemDataList.add(sampleItem3);
 
         itemList.updateData(ItemDataList);
-        itemList.notifyDataSetChanged();*/
+        itemList.notifyDataSetChanged();
 
 
         binding.fab.setOnClickListener(view -> {
@@ -210,18 +230,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             View top_back = findViewById(R.id.top_back);
             top_back.setVisibility(View.GONE);
         });
-
-/*        // Testing tag adapter
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerView = findViewById(R.id.recyclerViewAdd);
-        recyclerView.setLayoutManager(layoutManager);
-        TagList testTagList = new TagList();
-        testTagList.addTag(new Tag("Expensive"));
-        testTagList.addTag(new Tag("Cheap"));
-        testTagList.addTag(new Tag("Free"));
-        TagListAdapter tagAdapter = new TagListAdapter(this, testTagList);
-        recyclerView.setAdapter(tagAdapter);
-        tagAdapter.notifyDataSetChanged();*/
     }
 
     /**

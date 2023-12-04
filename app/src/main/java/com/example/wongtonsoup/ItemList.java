@@ -12,6 +12,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -70,6 +73,14 @@ public class ItemList extends ArrayAdapter<Item> {
             Picasso.get().load(imageURL).into(imageView);
             Log.d("ItemList URI", "getView: " + imageURL);
         }
+
+        // Display tags
+        TagListAdapter tagAdapterItem = new TagListAdapter(mContext, currentItem.getTags());
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewItem = convertView.findViewById(R.id.recyclerViewItem);
+        recyclerViewItem.setAdapter(tagAdapterItem);
+        recyclerViewItem.setLayoutManager(layoutManagerItem);
+        tagAdapterItem.notifyDataSetChanged();
 
         CheckBox checkBox = convertView.findViewById(R.id.select);
         checkBox.setChecked(currentItem.isSelected());
