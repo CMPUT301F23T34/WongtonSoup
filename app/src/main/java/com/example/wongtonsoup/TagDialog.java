@@ -114,7 +114,7 @@ public class TagDialog extends Dialog {
                 }
                 current_item.setTags(selectedTags);
 
-                Toast.makeText(context, "tags: " + existingTags.toString(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "tags: " + existingTags.toString(), Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         });
