@@ -370,6 +370,9 @@ public class AddEditActivity extends AppCompatActivity {
                                         String resultText = text.getText();
                                         expenseSerialNumber.setText(resultText);
                                         Log.d("AddEditActivity SERIAL", "onActivityResult: " + resultText);
+                                        if (resultText.isEmpty()) {
+                                            Toast.makeText(AddEditActivity.this, "Failed to recognize serial number", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
                                 })
                                 .addOnFailureListener(
@@ -417,12 +420,15 @@ public class AddEditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_edit);
 
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
 
         existing_tags = new TagList();
         selected_tags = new TagList();
+
+        tagAdapter = new TagListAdapter(this, selected_tags);
 
         storage = FirebaseStorage.getInstance();
 
@@ -496,6 +502,7 @@ public class AddEditActivity extends AppCompatActivity {
                         recyclerViewEdit.setLayoutManager(layoutManagerItem);
                         tagAdapter = new TagListAdapter(this, selected_tags);
                         recyclerViewEdit.setAdapter(tagAdapter);
+                        Log.d("AddEditActivity", "onCreate (DOING SOMETHING): " + selected_tags.getTags().size());
                     } else {
                         Log.d("MainActivity", "Error getting documents: ", task.getException());
                     }
@@ -612,27 +619,59 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
 
+        // Display tags
+        TagList tags = new TagList(); //Replace with db tags
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewEdit = findViewById(R.id.recyclerViewEdit);
+//        recyclerViewEdit.setLayoutManager(layoutManagerItem);
+        recyclerViewEdit.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+        recyclerViewEdit.setAdapter(tagAdapter);
         // Create a dismiss listener for TagDialog. This way we can ensure that existing_tags updates after tag dialog.
-        DialogInterface.OnDismissListener dismissListener = new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                getOwnerTags(device_id); // update the existing tags to the database
-                // add new tags to selected_tags
-                for (Tag tag : current_item.getTags().getTags()){
-                    if (selected_tags.find(tag) == -1){
-                        selected_tags.addTag(tag);
+
+            DialogInterface.OnDismissListener dismissListener = new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    selected_tags = tagDialog.getSelectedTags(); // Assuming getSelectedTags() returns the updated TagList
+                    tagAdapter.updateData(selected_tags);
+                    tagAdapter.setData(selected_tags); // Update adapter's data
+                    tagAdapter.notifyDataSetChanged(); // Notify the adapter about data change
+
+                    // Debugging logs
+                    for (Tag tag : selected_tags.getTags()) {
+                        Log.d("AddEditActivity", "Selected Tag: " + tag.getName());
                     }
                 }
-                // remove old unchecked tags from selected tags
-                Iterator<Tag> tagIterator = selected_tags.iterator();
-                while (tagIterator.hasNext()) {
-                    Tag tag = tagIterator.next();
-                    if(current_item.getTags().find(tag) == -1){
-                        tagIterator.remove();
-                    }
-                }
-                tagAdapter.notifyDataSetChanged();
-            }
+//                getOwnerTags(device_id); // update the existing tags to the database
+//                // add new tags to selected_tags
+//                for (Tag tag : current_item.getTags().getTags()){
+//                    if (selected_tags.find(tag) == -1){
+//                        selected_tags.addTag(tag);
+//                    }
+//                }
+//                // remove old unchecked tags from selected tags
+//                Iterator<Tag> tagIterator = selected_tags.iterator();
+//                while (tagIterator.hasNext()) {
+//                    Tag tag = tagIterator.next();
+//                    if(current_item.getTags().find(tag) == -1){
+//                        tagIterator.remove();
+//                    }
+//                }
+//                tagAdapter.notifyDataSetChanged();
+
+//                DialogInterface.OnDismissListener dismissListener = new DialogInterface.OnDismissListener() {
+//                    @Override
+//                    public void onDismiss(DialogInterface dialogInterface) {
+//                        selected_tags.removeAll();
+//                        for (Tag tag : current_item.getTags().getTags()) {
+//                            selected_tags.addTag(tag);
+//                        }
+//                        tagAdapter.notifyDataSetChanged(); // Notify the adapter about data change
+//                    }
+//                };
+
+
         };
         expenseDate.addTextChangedListener(new DateInputWatcher());
 
