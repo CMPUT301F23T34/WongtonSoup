@@ -599,7 +599,7 @@ public class AddEditActivity extends AppCompatActivity {
                         LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
                         RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewEdit);
                         recyclerViewAdd.setLayoutManager(layoutManagerItem);
-                        TagListAdapter tagAdapter = new TagListAdapter(this, selected_tags);
+                        tagAdapter = new TagListAdapter(this, selected_tags);
                         recyclerViewAdd.setAdapter(tagAdapter);
                     }
                 });
