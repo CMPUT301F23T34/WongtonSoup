@@ -3,6 +3,9 @@ package com.example.wongtonsoup;
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,11 +28,10 @@ public class Item implements Serializable {
     private Float value;
     private String comment;
     private TagList tags;
+
     private String owner;
     // for selecting to add tags or delete items
-
     private boolean selected;
-
     private Queue<String> imagePaths;
 
     private String displayImage;
@@ -68,6 +70,7 @@ public class Item implements Serializable {
             throw new IllegalArgumentException();
         }
         displayImage = null;
+        this.tags = selectedTags;
     }
 
     /**
@@ -102,6 +105,12 @@ public class Item implements Serializable {
         }
         displayImage = null;
     }
+
+    /**
+     * Constructs a null item.
+     */
+    public Item(){ }
+
 
     /**
      * Return ID
@@ -379,6 +388,14 @@ public class Item implements Serializable {
     }
 
     /**
+     * set owner
+     * @param owner
+     */
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    /**
      * return isSelected
      * @return isSelected
      * @since 10/25/2023
@@ -487,4 +504,44 @@ public class Item implements Serializable {
         // should be this.serialNumber but no db yet
         tags.updateTagsInItem(this, selectedTags);
     }
+
+    /**
+     * Sets the tags attribute of an item by populating from a DB.
+     */
+    public void setTagsFromDB(){
+        /*
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("tags")
+                .whereEqualTo("owner", device_id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String name = document.getString("name");
+                                String owner = document.getString("owner");
+                                String id = document.getString("id");
+
+                                Tag tag = new Tag(name);
+                                tag.setOwner(owner);
+                                tag.setUuid(id);
+
+                                existing_tags.addTag(tag);
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                    } else {
+                        Log.d("MainActivity", "Error getting documents: ", task.getException());
+                    }
+
+                    Log.d("MainActivity", "Logging item IDs from DB:");
+                });
+
+         */
+    }
+
+
 }

@@ -18,7 +18,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -27,7 +30,6 @@ import java.util.Objects;
  * @version 1.0
  * @since 11/01/2023
  */
-
 public class ViewItemActivity extends AppCompatActivity {
 
     private static final int ADD_EDIT_REQUEST_CODE = 1;
@@ -40,6 +42,16 @@ public class ViewItemActivity extends AppCompatActivity {
     String serialText;
     String displayImage;
 
+    private String dateText;
+    private String descriptionText;
+    private String makeText;
+    private String modelText;
+    private String priceText;
+    private String commentText;
+    private String serialText;
+    private String displayImage;
+    private TagList tags;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +63,8 @@ public class ViewItemActivity extends AppCompatActivity {
         String ItemID = intent.getStringExtra("ID");
 
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        tags = new TagList();
 
         db.collection("items")
                 .whereEqualTo("owner", device_id)
@@ -68,6 +82,22 @@ public class ViewItemActivity extends AppCompatActivity {
                                 commentText = document.getString("comment");
                                 serialText = document.getString("serial");
                                 displayImage = document.getString("displayImage");
+
+                                // tags are stored kinda weird, here's how we access
+                                Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
+                                ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+
+                                for (int i = 0 ; i < list_of_tags.size() ; i++){
+                                    HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                    String name = tag.get("name");
+                                    String tag_id = tag.get("uuid");
+                                    String tag_owner = tag.get("owner");
+
+                                    Tag new_tag = new Tag(name);
+                                    new_tag.setOwner(tag_owner);
+                                    new_tag.setUuid(tag_id);
+                                    tags.addTag(new_tag);
+                                }
 
                                 List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
 
@@ -109,6 +139,12 @@ public class ViewItemActivity extends AppCompatActivity {
                                 Log.e("MainActivity", "Error parsing item: " + e.getMessage());
                             }
                         }
+                        // Display tags
+                        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+                        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewViewItem);
+                        recyclerViewAdd.setLayoutManager(layoutManagerItem);
+                        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+                        recyclerViewAdd.setAdapter(tagAdapter);
                     }
                 });
 
@@ -126,17 +162,31 @@ public class ViewItemActivity extends AppCompatActivity {
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("ViewItemActivity", "Edit button clicked");
                 Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
-                newIntent.putExtra("Description", descriptionText);
-                newIntent.putExtra("Make", makeText);
-                newIntent.putExtra("Model", modelText);
-                newIntent.putExtra("Comment", commentText);
-                newIntent.putExtra("Date", dateText);
-                newIntent.putExtra("Price", priceText);
-                newIntent.putExtra("Serial", serialText);
-                String id = intent.getStringExtra("ID");
-                Log.d("ViewItemActivity", "Passing Item ID: " + id); // Log to confirm ID is received
+                newIntent.putExtra("Description" , getIntent().getStringExtra("Description"));
+
+                newIntent.putExtra("Description", getIntent().getStringExtra("Description"));
+                newIntent.putExtra("Make", getIntent().getStringExtra("Make"));
+                newIntent.putExtra("Model", getIntent().getStringExtra("Model"));
+                newIntent.putExtra("Comment", getIntent().getStringExtra("Comment"));
+                newIntent.putExtra("Date", getIntent().getStringExtra("Date"));
+                newIntent.putExtra("Price", getIntent().getStringExtra("Price"));
+                newIntent.putExtra("Serial", getIntent().getStringExtra("Serial"));
+                String id = getIntent().getStringExtra("ID");
                 newIntent.putExtra("ID", id);
+
+//                //Log all of the above for debug purposes
+                Log.d("ViewItemActivity", "Description: " + getIntent().getStringExtra("Description"));
+                Log.d("ViewItemActivity", "Make: " + getIntent().getStringExtra("Make"));
+                Log.d("ViewItemActivity", "Model: " + getIntent().getStringExtra("Model"));
+                Log.d("ViewItemActivity", "Comment: " + getIntent().getStringExtra("Comment"));
+                Log.d("ViewItemActivity", "Date: " + getIntent().getStringExtra("Date"));
+                Log.d("ViewItemActivity", "Price: " + getIntent().getStringExtra("Price"));
+                Log.d("ViewItemActivity", "Serial: " + getIntent().getStringExtra("Serial"));
+                Log.d("ViewItemActivity", "ID: " + getIntent().getStringExtra("ID"));
+
+
                 startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
             }
         });
