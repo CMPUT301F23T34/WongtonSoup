@@ -95,6 +95,7 @@ public class TagDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 // add selected tags to selectedTags
+                selectedTags = new TagList();
                 for (int i = 0; i < chipGroup.getChildCount(); i++) {
                     Chip chip = (Chip) chipGroup.getChildAt(i);
                     if (chip.isChecked()) {
@@ -104,7 +105,10 @@ public class TagDialog extends Dialog {
                         }
                         else {
                             Tag tag = existingTags.getTags().get(existingTags.find(chip.getText().toString()));
-                            selectedTags.addTag(tag);
+                            if (selectedTags.find(chip.getText().toString()) == -1){
+                                // if we haven't already selected this tag
+                                selectedTags.addTag(tag);
+                            }
                         }
                     }
                 }

@@ -553,8 +553,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        fetchItemsFromDatabase(owner);
+        //@SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        //fetchItemsFromDatabase(owner);
 
         if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
             // Check if the request code matches and the result is OK
@@ -625,6 +625,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 intent.putExtra("Price", itemList.getItem(itemSelected).getValueAsString());
                 intent.putExtra("Serial", itemList.getItem(itemSelected).getSerialNumber());
                 intent.putExtra("ID", itemList.getItem(itemSelected).getID());
+                intent.putExtra("tags", itemList.getItem(itemSelected).getTags());
                 startActivityForResult(intent,VIEW_REQUEST_CODE);
 
                 // Log the size of ItemDataList
