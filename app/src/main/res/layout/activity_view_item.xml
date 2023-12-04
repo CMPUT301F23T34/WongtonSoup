@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              tools:context=".ViewItemActivity"
-              android:orientation="vertical"
-              android:id="@+id/activity_view_item">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ViewItemActivity"
+    android:orientation="vertical"
+    android:id="@+id/activity_view_item">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,9 +21,9 @@
             android:backgroundTint="#FFFFFF" />
     </LinearLayout>
     <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/item_view_description"
@@ -92,11 +92,11 @@
     </LinearLayout>
 
     <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/background_border"
-            android:padding="15dp">
+        android:layout_width="390dp"
+        android:layout_height="340dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/background_border"
+        android:padding="15dp">
 
         <TextView
             android:id="@+id/serial"
@@ -191,31 +191,30 @@
             android:textSize="25sp" />
 
         <TextView
-                android:id="@+id/tags"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/view_comment"
-                android:text="Tags: "
-                android:textSize="20sp" />
+            android:id="@+id/tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view_comment"
+            android:text="Tags: "
+            android:textSize="20sp" />
 
         <com.google.android.material.chip.ChipGroup
-                android:id="@+id/view_chip_group"
-                android:layout_width="358dp"
-                android:layout_height="92dp"
-                android:layout_below="@+id/tags"
-                android:longClickable="true" android:layout_alignParentBottom="true" android:layout_marginBottom="28dp"
-                android:layout_marginTop="-16dp">
+            android:id="@+id/view_chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/tags"
+            android:longClickable="true">
 
-            <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewViewItem"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/tags"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/content_tags"
-                    android:padding="20dp"/>
         </com.google.android.material.chip.ChipGroup>
+        <androidx.recyclerview.widget.RecyclerView
+            android:padding="20dp"
+            android:layout_below="@+id/tags"
+            android:id="@+id/recyclerViewViewItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/content_tags"/>
     </RelativeLayout>
 
 

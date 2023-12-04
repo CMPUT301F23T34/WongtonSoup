@@ -88,10 +88,6 @@ public class TagList implements Iterable<Tag>, Serializable {
         throw new IllegalArgumentException();
     }
 
-    public void removeAll() {
-        current_tags.clear();
-    }
-
     /**
      * Find a tag in list of tags. Return the index if it exists, -1 otherwise.
      *

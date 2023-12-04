@@ -32,19 +32,8 @@ public class TagListAdapter extends RecyclerView.Adapter<TagListAdapter.ViewHold
         holder.tagView.setText(item);
     }
 
-    public void setData(TagList data) {
-        this.data = data;
-    }
-
-    public void updateData(TagList newData) {
-        this.data = newData;
-        notifyDataSetChanged();
-    }
-
-
     @Override
     public int getItemCount() {
-//        Log.d("TagListAdapter", "getItemCount: " + data.getTags().size());
         if (data == null){
             return 0;
         }
