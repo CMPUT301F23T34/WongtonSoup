@@ -497,6 +497,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         return super.onPrepareOptionsMenu(menu);
     }
 
+    /**
+     * Scans barcode and retrieves item with corresponding barcode from the database
+     */
     private void onScanning() {
         askCameraPermissions();
         String photoUri = currentPhotoUri.toString();
@@ -532,7 +535,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                     }
                                 })
                                 .addOnFailureListener(e -> {
-                                    throw new IllegalArgumentException();
+                                    Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
                                 });
                     }
                 });
@@ -750,6 +753,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemList.setAdapter(itemListDB);
     }
 
+    /**
+     * Asks phone for permission to use camera
+     */
     private void askCameraPermissions() {
         Uri uri = null;
         if (ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
@@ -762,6 +768,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         }
     }
 
+    /**
+     * Opens the camera, takes a photo, and saves it
+     */
     private void openCamera() {
 
         // create a file
@@ -787,6 +796,13 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         }
     }
 
+    /**
+     * Sets options for the scanning of barcodes
+     * Credits:
+     * Author - Cambo Tutorial
+     * Date - March 8, 2022
+     * URL - https://www.youtube.com/watch?v=jtT60yFPelI
+     */
     private void scanCode(){
         ScanOptions options = new ScanOptions();
         options.setPrompt("Volume up to flash on");
@@ -797,6 +813,10 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
     }
 
+    /***
+     * Launches activity to scan barcode, find matching barcode item in the database and pull its values
+     * @throws IllegalArgumentException
+     */
     ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
     {
         db.collection("barcodes").document(result.getContents())
@@ -824,8 +844,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                         intent.putExtra("Model", model);
                                         startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
 
-                                    } catch (Exception e) {
+                                    } catch (Exception e){
                                         Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                        throw new IllegalArgumentException();
                                     }
                                 }
 
@@ -838,10 +859,12 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                     } else {
                         // Handle the failure here
                         Log.e("MainActivity", "Error getting documents: ", task.getException());
+                        throw new IllegalArgumentException();
                     }
                 });
 
     });
+
     private void flipArrow() {
         if (expand.getRotation() == 0) {  // if arrow is pointing down -> rotate up
             TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());

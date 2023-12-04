@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Tests item class
- * @author linaaman
+ * @author linaaman and tyhu
  * @version 1.0
  * @since 11/02/2023
  */
@@ -30,6 +30,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ItemListTest{
     private Context appContext;
 
+    /**
+     * Sets up the context for the app
+     */
     @Before
     public void setup() {
         appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -76,10 +79,34 @@ public class ItemListTest{
     }
 
     /**
-     * Tests sorting items by date
+     * Tests calculating the cumulative value of the items
+     * @since 12/03/2023
      */
     @Test
-    public void testSortByDate() {
+    public void testEstimatedValue() {
+        // Create an item list and add items with different dates
+        List<Item> items = new ArrayList<>();
+        float f = new Float(100);
+        float f2 = new Float(200);
+        TagList tagList = new TagList();
+        tagList.addTag("car");
+        tagList.addTag("vehicle");
+        items.add(new Item("oxoxox", "01-01-2000", "Honda car", "Honda", "2016 CRV", f, "I like this car", "1234", "test_user", tagList));
+        items.add(new Item("ooxxoo", "01-02-2000", "Chevy car", "chevrolet ", "Corvette", f2, "I really like this car", "1234", "test_user", tagList));
+
+        ItemList itemList = new ItemList(appContext, items);
+        String f3 = "300.00";
+
+        assertEquals(f3,itemList.getTotalDisplayed());
+
+        // You can add more assertions based on your sorting criteria
+    }
+
+    /**
+     * Tests sorting items by date, make, model, and value
+     */
+    @Test
+    public void testSorting() {
         // Create an item list and add items with different dates
         List<Item> items = new ArrayList<>();
         float f = new Float(100);
@@ -96,6 +123,15 @@ public class ItemListTest{
         List<Item> sortedItems = itemList.sortByDate();
 
         // Check if the items are sorted correctly based on the date
+        assertEquals(items.get(0), sortedItems.get(0));
+
+        sortedItems = itemList.sortByDescription();
+        assertEquals(items.get(1), sortedItems.get(0));
+
+        sortedItems = itemList.sortByMake();
+        assertEquals(items.get(1), sortedItems.get(0));
+
+        sortedItems = itemList.sortByValue();
         assertEquals(items.get(0), sortedItems.get(0));
 
         // You can add more assertions based on your sorting criteria

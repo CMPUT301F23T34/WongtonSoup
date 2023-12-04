@@ -44,6 +44,8 @@ dependencies {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:16.2.0")
+    implementation("com.google.firebase:firebase-core:19.0.0")
     implementation("com.google.firebase:firebase-ml-vision:24.0.3")
     implementation("com.google.firebase:firebase-ml-vision-barcode-model:16.0.1")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
