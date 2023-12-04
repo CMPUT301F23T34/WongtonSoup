@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -105,7 +107,11 @@ public class TagListTest {
     /**
      * Tests updating tags in item list
      */
+<<<<<<< HEAD
     /*@Test
+=======
+    @Test
+>>>>>>> main
     public void updateTagsInItemTest() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         TagList new_taglist = new TagList();
@@ -126,11 +132,19 @@ public class TagListTest {
         String documentId = "TestItem1";
 
         Float f = new Float(10);
+<<<<<<< HEAD
         Item i = new Item("xoxoxo", "01-01-2000", "This is a car", "Honda", "2016 CRV", f, "I like this car", "1234567890", "test_owner",  new TagList());
 
         Tag new2_tag = new Tag("new new tag");
         new_taglist.addTag(new2_tag);
         new_taglist.updateTagsInItem(i, new_taglist);
+=======
+        Item item = new Item("xoxoxo", "01-01-2000", "This is a car", "Honda", "2016 CRV", f, "I like this car", "1234567890", "test_owner",  new TagList());
+
+        Tag new2_tag = new Tag("new new tag");
+        new_taglist.addTag(new2_tag);
+        new_taglist.updateTagsInItem(item, new_taglist);
+>>>>>>> main
 
         db.collection("items").document(documentId).set(newItem)
                 .addOnSuccessListener(aVoid -> {
@@ -142,8 +156,32 @@ public class TagListTest {
                                     assertNotNull(document);
                                     assertTrue(document.exists());
 
+<<<<<<< HEAD
                                     // Assertions to confirm data integrity
                                     assertEquals(new_taglist, document.get("tags").getTags());
+=======
+                                    // tags are stored kinda weird, here's how we access
+                                    Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
+                                    ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+
+
+                                    TagList database_tagList = new TagList();
+                                    for (int i = 0 ; i < list_of_tags.size() ; i++) {
+                                        HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                        String name = tag.get("name");
+
+                                        Tag new_tagDB = new Tag(name);
+                                        database_tagList.addTag(new_tagDB);
+                                    }
+
+                                    // Assertions to confirm data integrity
+                                    assertEquals(new_taglist.getTags().size(), database_tagList.getTags().size());
+                                    for (int i = 0 ; i < new_taglist.getTags().size() ; i++){
+                                        Tag hardcoded_tag = new_taglist.getTags().get(i);
+                                        Tag db_tag = database_tagList.getTags().get(i);
+                                        assertEquals(hardcoded_tag.compareTo(db_tag), 0);
+                                    }
+>>>>>>> main
 
                                     latch.countDown();
                                 } else {
@@ -163,6 +201,10 @@ public class TagListTest {
 
         // Wait for the async operations
         assertTrue(latch.await(10, TimeUnit.SECONDS));
+<<<<<<< HEAD
     }*/
+=======
+    }
+>>>>>>> main
 
 }

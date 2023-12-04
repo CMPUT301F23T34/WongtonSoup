@@ -231,5 +231,4 @@ public class ItemIntentTest {
         onView(withId(R.id.content_date)).check(matches(withText("")));
     }
 
-
 }
