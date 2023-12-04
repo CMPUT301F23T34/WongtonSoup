@@ -63,9 +63,9 @@ public class ViewItemActivity extends AppCompatActivity {
                                 String descriptionText = document.getString("description");
                                 String makeText = document.getString("make");
                                 String modelText = document.getString("model");
-                                String priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
+                                @SuppressLint("DefaultLocale") String priceText = String.format("%.2f", Objects.requireNonNull(document.getDouble("value")));
                                 String commentText = document.getString("comment");
-                                String serialText = document.getString("serial");
+                                String serialText = document.getString("serialNumber");
                                 String displayImage = document.getString("displayImage");
 
                                 List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
@@ -125,8 +125,9 @@ public class ViewItemActivity extends AppCompatActivity {
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("ViewItemActivity", "Edit button clicked");
                 Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
-                newIntent.putExtra("Description", getIntent().getStringExtra("Description"));
+                newIntent.putExtra("Description" , getIntent().getStringExtra("Description"));
                 newIntent.putExtra("Make", getIntent().getStringExtra("Make"));
                 newIntent.putExtra("Model", getIntent().getStringExtra("Model"));
                 newIntent.putExtra("Comment", getIntent().getStringExtra("Comment"));
@@ -137,14 +138,14 @@ public class ViewItemActivity extends AppCompatActivity {
                 newIntent.putExtra("ID", id);
 
 //                //Log all of the above for debug purposes
-//                Log.d("ViewItemActivity", "Description: " + getIntent().getStringExtra("Description"));
-//                Log.d("ViewItemActivity", "Make: " + getIntent().getStringExtra("Make"));
-//                Log.d("ViewItemActivity", "Model: " + getIntent().getStringExtra("Model"));
-//                Log.d("ViewItemActivity", "Comment: " + getIntent().getStringExtra("Comment"));
-//                Log.d("ViewItemActivity", "Date: " + getIntent().getStringExtra("Date"));
-//                Log.d("ViewItemActivity", "Price: " + getIntent().getStringExtra("Price"));
-//                Log.d("ViewItemActivity", "Serial: " + getIntent().getStringExtra("Serial"));
-//                Log.d("ViewItemActivity", "ID: " + getIntent().getStringExtra("ID"));
+                Log.d("ViewItemActivity", "Description: " + getIntent().getStringExtra("Description"));
+                Log.d("ViewItemActivity", "Make: " + getIntent().getStringExtra("Make"));
+                Log.d("ViewItemActivity", "Model: " + getIntent().getStringExtra("Model"));
+                Log.d("ViewItemActivity", "Comment: " + getIntent().getStringExtra("Comment"));
+                Log.d("ViewItemActivity", "Date: " + getIntent().getStringExtra("Date"));
+                Log.d("ViewItemActivity", "Price: " + getIntent().getStringExtra("Price"));
+                Log.d("ViewItemActivity", "Serial: " + getIntent().getStringExtra("Serial"));
+                Log.d("ViewItemActivity", "ID: " + getIntent().getStringExtra("ID"));
 
 
                 startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
