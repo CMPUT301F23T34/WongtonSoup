@@ -3,6 +3,7 @@ package com.example.wongtonsoup;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageDecoder;
@@ -35,6 +36,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.mlkit.vision.common.InputImage;
@@ -44,10 +46,14 @@ import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddEditActivity extends AppCompatActivity {
@@ -63,7 +69,10 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseSerialNumber;
     private EditText expenseMake;
     private EditText expenseModel;
-
+    private TagList existing_tags;
+    private TagList selected_tags;
+    TagListAdapter tagAdapter;
+    private TagDialog tagDialog;
     private Uri currentPhotoUri;
     private final List<Uri> imageUris = new ArrayList<>();
 
@@ -75,34 +84,13 @@ public class AddEditActivity extends AppCompatActivity {
 
     private FirebaseStorage storage;
     private FirebaseFirestore db;
+    private Item current_item = new Item();
     TextRecognizer recognizer;
-
-    //List<Tag> tags = item.getTags();
-
-    // Find the ChipGroup view in layout
-//    ChipGroup chipGroup = findViewById(R.id.add_edit_chip_group);
-    //    //Iterate through tags and add a chip for each one
-//    for (Tag tag : tags) {
-//        Chip chip = new Chip(this);
-//        chip.setText(tag.getName());
-//        chip.setCloseIconVisible(true);
-//    //Add a click listener to handle interactions with the tag
-//    chip.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onLongClick(View view) {
-//            // Handle tag click, e.g., remove the tag from the item
-//        }
-//    });
-//
-//    // Add the Chip to the ChipGroup
-//    chipGroup.addView(chip);
 
     /**
      * Creates an Item object with data from EditText fields and performs actions when the button is enabled.
-     *
-     * @return The Item object created from EditText fields.
      */
-    private Item createItemFromFields() {
+    private void popuateItemFields() {
         String description = expenseDescription.getText().toString();
         String date = expenseDate.getText().toString();
         String str_value = expenseValue.getText().toString();
@@ -110,8 +98,6 @@ public class AddEditActivity extends AppCompatActivity {
         String make = expenseMake.getText().toString();
         String model = expenseModel.getText().toString();
         String serialNumber = expenseSerialNumber.getText().toString();
-        TagList existingTags = new TagList();
-        TagList selectedTags = new TagList();
 
         // Get device ID
         @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -129,8 +115,15 @@ public class AddEditActivity extends AppCompatActivity {
         Float value = Float.valueOf(str_value);
 
         // Create an Item object with the gathered data
-        return new Item(id, date, description, make, model, value, comment, serialNumber, owner, selectedTags);
-
+        current_item.setID(id);
+        current_item.setDescription(description);
+        current_item.setPurchaseDate(date);
+        current_item.setMake(make);
+        current_item.setModel(model);
+        current_item.setValue(value);
+        current_item.setComment(comment);
+        current_item.setSerialNumber(serialNumber);
+        current_item.setOwner(owner);
     }
 
     /**
@@ -276,6 +269,7 @@ public class AddEditActivity extends AppCompatActivity {
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("itemID", item.getID()); // Pass the ID back
+        resultIntent.putExtra("resultItem", item);
         String itemID = item.getID();
         Log.d("ViewItemActivity PASS", "PASS Item ID: " + itemID); // Log to confirm ID is received
         setResult(RESULT_OK, resultIntent);
@@ -406,8 +400,91 @@ public class AddEditActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+
+        existing_tags = new TagList();
+        selected_tags = new TagList();
+
         storage = FirebaseStorage.getInstance();
+
+        // populate existing tags with all tags to an owner
         db = FirebaseFirestore.getInstance();
+        db.collection("tags")
+                .whereEqualTo("owner", device_id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String name = document.getString("name");
+                                String tag_owner = document.getString("owner");
+                                String tag_id = document.getString("id");
+
+                                Tag tag = new Tag(name);
+                                tag.setOwner(tag_owner);
+                                tag.setUuid(tag_id);
+
+                                existing_tags.addTag(tag);
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                    } else {
+                        Log.d("MainActivity", "Error getting documents: ", task.getException());
+                    }
+
+                    Log.d("MainActivity", "Logging item IDs from DB:");
+                });
+        // if in edit mode, find all selected tags from db
+        String item_id = getIntent().getStringExtra("ID");
+        db.collection("items")
+                .whereEqualTo("owner", device_id)
+                .whereEqualTo("id", item_id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                // tags are stored kinda weird, here's how we access
+                                Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
+                                ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+
+
+                                TagList tagList = new TagList();
+                                for (int i = 0 ; i < list_of_tags.size() ; i++) {
+                                    HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                    String name = tag.get("name");
+                                    String tag_id = tag.get("uuid");
+                                    String tag_owner = tag.get("owner");
+
+                                    Tag new_tag = new Tag(name);
+                                    new_tag.setOwner(tag_owner);
+                                    new_tag.setUuid(tag_id);
+                                    tagList.addTag(new_tag);
+
+
+                                    selected_tags.addTag(new_tag);
+                                }
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                        // Display tags
+                        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+                        RecyclerView recyclerViewEdit = findViewById(R.id.recyclerViewEdit);
+                        recyclerViewEdit.setLayoutManager(layoutManagerItem);
+                        tagAdapter = new TagListAdapter(this, selected_tags);
+                        recyclerViewEdit.setAdapter(tagAdapter);
+                    } else {
+                        Log.d("MainActivity", "Error getting documents: ", task.getException());
+                    }
+
+                    Log.d("MainActivity", "Logging item IDs from DB:");
+                });
+
+
 
         setContentView(R.layout.activity_add_edit);
         Button addEditCheckButton = findViewById(R.id.add_edit_check);
@@ -432,7 +509,10 @@ public class AddEditActivity extends AppCompatActivity {
 
         // Fill out fields if editing
         Intent intent = getIntent();
+
+        String id = intent.getStringExtra("ID");
         Log.d("AddEditActivity", "onCreate desc: " + intent.getStringExtra("Description"));
+
         expenseDescription.setText(intent.getStringExtra("Description"));
         expenseDate.setText(intent.getStringExtra("Date"));
         expenseValue.setText(intent.getStringExtra("Price"));
@@ -440,12 +520,6 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber.setText(intent.getStringExtra("Serial"));
         expenseMake.setText(intent.getStringExtra("Make"));
         expenseModel.setText(intent.getStringExtra("Model"));
-
-//        expenseDescription.setText("desc");
-//        expenseDate.setText("11-11-1111");
-//        expenseValue.setText("10.00");
-//        expenseMake.setText("make");
-//        expenseMake.setText("model");
 
         // To disable the button
         addEditCheckButton.setEnabled(false);
@@ -459,37 +533,53 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
 
+        // Create a dismiss listener for TagDialog. This way we can ensure that existing_tags updates after tag dialog.
+        DialogInterface.OnDismissListener dismissListener = new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                getOwnerTags(device_id); // update the existing tags to the database
+                // add new tags to selected_tags
+                for (Tag tag : current_item.getTags().getTags()){
+                    if (selected_tags.find(tag) == -1){
+                        selected_tags.addTag(tag);
+                    }
+                }
+                // remove old unchecked tags from selected tags
+                Iterator<Tag> tagIterator = selected_tags.iterator();
+                while (tagIterator.hasNext()) {
+                    Tag tag = tagIterator.next();
+                    if(current_item.getTags().find(tag) == -1){
+                        tagIterator.remove();
+                    }
+                }
+                tagAdapter.notifyDataSetChanged();
+            }
+        };
         expenseDate.addTextChangedListener(new DateInputWatcher());
 
-
-        // Display tags
-        TagList tags = new TagList(); //Replace with db tags
-        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerViewEdit = findViewById(R.id.recyclerViewEdit);
-        recyclerViewEdit.setLayoutManager(layoutManagerItem);
-        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
-        recyclerViewEdit.setAdapter(tagAdapter);
 
         // set up click listener for add tag button
         addTagButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
             if (addTagButton.isEnabled()) {
-                TagList existingTags = new TagList();
-                TagList selectedTags = new TagList();
-                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existingTags, selectedTags);
+                tagDialog = new TagDialog(AddEditActivity.this, existing_tags, selected_tags, current_item);
                 tagDialog.show();
+                tagDialog.setOnDismissListener(dismissListener);
             }
         });
-
 
         addEditCheckButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
             if (addEditCheckButton.isEnabled()) {
-                Item createdItem = createItemFromFields();
-                uploadImagesAndUpdateItem(createdItem, imageUris);
-
+                popuateItemFields();
+                if (imageUris != null){
+                    uploadImagesAndUpdateItem(current_item, imageUris);
+                    for (Uri imageUri : imageUris){
+                        current_item.setDisplayImage(imageUri.toString());
+                    }
+                }
                 // Pass the createdItem back to MainActivity
-//                finishAndPassItem(createdItem);
+                finishAndPassItem(current_item);
             }
         });
 
@@ -543,7 +633,6 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
-
         // create a file
         String fileName = "photo" + totalPhotoCounter;
         File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -679,4 +768,37 @@ public class AddEditActivity extends AppCompatActivity {
                     // Handle the failure if needed
                 });
     }
+
+    private void getOwnerTags(String device_id) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("tags")
+                .whereEqualTo("owner", device_id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String name = document.getString("name");
+                                String owner = document.getString("owner");
+                                String id = document.getString("id");
+
+                                Tag tag = new Tag(name);
+                                tag.setOwner(owner);
+                                tag.setUuid(id);
+
+                                existing_tags.addTag(tag);
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                    } else {
+                        Log.d("MainActivity", "Error getting documents: ", task.getException());
+                    }
+
+                    Log.d("MainActivity", "Logging item IDs from DB:");
+                });
+    }
+
 }
