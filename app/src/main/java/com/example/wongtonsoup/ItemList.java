@@ -1,7 +1,6 @@
 package com.example.wongtonsoup;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -209,6 +209,16 @@ public class ItemList extends ArrayAdapter<Item> {
 
     void setVisible(int i) {
         visible = i;
+    }
+
+    public void addTagToItem (Item item, Tag tag) {
+        int position = itemList.indexOf(item);
+        TagList tags = item.getTags();
+        if (tags.find(tag) == -1) {
+            tags.addTag(tag);
+        }
+        item.setTags(tags);
+        itemList.set(position, item);
     }
 
 }

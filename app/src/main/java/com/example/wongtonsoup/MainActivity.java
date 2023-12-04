@@ -119,6 +119,11 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         RecyclerView recyclerViewFilter = findViewById(R.id.recyclerViewFilter);
         recyclerViewFilter.setLayoutManager(layoutManagerFilter);
 
+        // Tag list fot adding during edit items
+        LinearLayoutManager layoutManagerAdd = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewAdd);
+        recyclerViewAdd.setLayoutManager(layoutManagerAdd);
+
         db.collection("tags")
                 .whereEqualTo("owner", device_id)
                 .get()
@@ -142,10 +147,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                         }
                         tagAdapter = new TagListAdapter(this, existingTags);
 
-                        // Tag list fot adding during edit items
-                        LinearLayoutManager layoutManagerAdd = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-                        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewAdd);
-                        recyclerViewAdd.setLayoutManager(layoutManagerAdd);
                         recyclerViewAdd.setAdapter(tagAdapter);
 
                         // Tag list for filtering during expanded search
@@ -260,6 +261,39 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                             selectedTags.removeTag(clickedTag);
                             itemList.updateData(getFilteredItems());
                         }
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
+
+        // Mass add tags
+        recyclerViewAdd.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                if (e.getAction() == MotionEvent.ACTION_UP) {
+                    View child = rv.findChildViewUnder(e.getX(), e.getY());
+                    if (child != null) {
+                        int position = rv.getChildAdapterPosition(child);
+                        Tag clickedTag = existingTags.getTags().get(position);
+
+                        for (int i = 0; i < itemList.getCount(); i++){
+                            if (itemList.getItem(i).isSelected()){
+                                itemList.addTagToItem(itemList.getItem(i), clickedTag);
+                                itemListDB.updateItem(itemList.getItem(i));
+                            }
+                        }
+                        itemList.notifyDataSetChanged();
                     }
                 }
                 return false;
