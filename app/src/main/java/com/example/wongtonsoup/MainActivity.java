@@ -1,6 +1,7 @@
 package com.example.wongtonsoup;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,7 +21,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -50,8 +58,12 @@ import com.journeyapps.barcodescanner.ScanOptions;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import android.animation.ObjectAnimator;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -395,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isValidDate(endDateEditText.getText().toString())){
+                if (isValidDate(endDateEditText.getText().toString())|| endDateEditText.getText().toString().length() == 0){
                     endDateEditText.setError(null);
                     itemList.updateData(getFilteredItems());
                 }
