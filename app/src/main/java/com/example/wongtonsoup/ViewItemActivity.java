@@ -142,15 +142,6 @@ public class ViewItemActivity extends AppCompatActivity {
                     }
                 });
 
-
-        // Display tags
-        TagList tags = new TagList(); //Replace with db tags
-        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewViewItem);
-        recyclerViewAdd.setLayoutManager(layoutManagerItem);
-        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
-        recyclerViewAdd.setAdapter(tagAdapter);
-
         // Go to edit
         Button edit = findViewById(R.id.edit_button);
         edit.setOnClickListener(new View.OnClickListener() {
