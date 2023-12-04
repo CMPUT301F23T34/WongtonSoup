@@ -13,7 +13,8 @@ import java.util.UUID;
  */
 public class Tag implements Comparable<Tag>, Serializable {
     private String name;
-    private UUID uuid;
+    private String uuid;
+    private String owner;
 
     public Tag(String name) {
         this.name = name;
@@ -41,11 +42,19 @@ public class Tag implements Comparable<Tag>, Serializable {
         return this.name.toLowerCase().compareTo(t.name.toLowerCase());
     }
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }

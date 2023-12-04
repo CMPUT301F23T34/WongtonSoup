@@ -1,9 +1,11 @@
 package com.example.wongtonsoup;
 
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -21,6 +23,7 @@ import com.google.android.material.chip.ChipGroup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import androidx.core.content.ContextCompat;
 
 public class TagDialog extends Dialog {
 
@@ -62,8 +65,16 @@ public class TagDialog extends Dialog {
                 if (!newTag.isEmpty()) {
                     // Check if the tag already exists
                     if (existingTags.find(newTag)==-1) {
+                        Tag tag = new Tag(newTag);
+                        UUID id = UUID.randomUUID();
+
+                        @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                        tag.setUuid(id.toString());
+                        tag.setOwner(owner);
+
                         addChip(newTag);
-                        existingTags.addTag(newTag);
+                        existingTags.addTag(tag);
+                        existingTags.addTagDB(tag);
                         tagInput.getText().clear();
                     } else {
                         // Handle tag already
@@ -81,7 +92,14 @@ public class TagDialog extends Dialog {
                 for (int i = 0; i < chipGroup.getChildCount(); i++) {
                     Chip chip = (Chip) chipGroup.getChildAt(i);
                     if (chip.isChecked()) {
-                        selectedTags.addTagDB(chip.getText().toString());
+                        if (existingTags.find(chip.getText().toString()) == -1){
+                            // throw an error if they somehow selected a chip that we don't have in DB yet
+                            assert(0 == 1);
+                        }
+                        else {
+                            Tag tag = existingTags.getTags().get(existingTags.find(chip.getText().toString()));
+                            selectedTags.addTag(tag);
+                        }
                     }
                 }
                 current_item.setTags(selectedTags);
@@ -100,26 +118,11 @@ public class TagDialog extends Dialog {
         });
     }
 
-    private void addChip(final String tag) {
+    private void addChip(final String tag, boolean selected) {
         final Chip chip = new Chip(context);
         chip.setText(tag);
         chip.setCloseIconVisible(true);
         chip.setCheckable(true);
-
-        chip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Tag new_tag = new Tag(chip.getText().toString());
-                    UUID uuid = java.util.UUID.randomUUID();
-                    new_tag.setUuid(uuid);
-                    selectedTags.addTag(new_tag);
-
-                } else {
-                    selectedTags.removeTag(chip.getText().toString());
-                }
-            }
-        });
 
         chip.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
@@ -128,6 +131,7 @@ public class TagDialog extends Dialog {
                 existingTags.removeTag(tag);
             }
         });
+        chip.setChecked(selected);
 
         chipGroup.addView(chip);
     }

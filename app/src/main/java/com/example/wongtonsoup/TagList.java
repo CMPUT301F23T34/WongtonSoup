@@ -2,13 +2,17 @@ package com.example.wongtonsoup;
 
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -148,23 +152,25 @@ public class TagList implements Iterable<Tag>, Serializable {
     }
     /**
      * Add a tag to the list of tags, db version
-     * @param tagName
+     * @param tag
      * @since 10/25/2023
      */
-    public void addTagDB(String tagName) {
+    public static void addTagDB(Tag tag) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference tagsRef = db.collection("tags");
 
-        UUID uuid = UUID.randomUUID();
-        String id = uuid.toString();
+        String tagName = tag.getName();
+        String id = tag.getUuid();
+        String owner = tag.getOwner();
 
         tagsRef.whereEqualTo("name", tagName).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().isEmpty()) {
-                    Map<String, Object> tag = new HashMap<>();
-                    tag.put("name", tagName);
-                    tag.put("id", id);
-                    tagsRef.add(tag);
+                    Map<String, Object> db_tag = new HashMap<>();
+                    db_tag.put("name", tagName);
+                    db_tag.put("id", id);
+                    db_tag.put("owner", owner);
+                    tagsRef.add(db_tag);
                 }
             }
         });
@@ -212,6 +218,8 @@ public class TagList implements Iterable<Tag>, Serializable {
             }
         });
     }
+
+
 
 }
 

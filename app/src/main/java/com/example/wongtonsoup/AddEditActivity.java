@@ -3,6 +3,7 @@ package com.example.wongtonsoup;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 public class AddEditActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -45,6 +48,11 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseSerialNumber;
     private EditText expenseMake;
     private EditText expenseModel;
+
+    private TagList existing_tags;
+    private TagList selected_tags;
+    private TagDialog tagDialog;
+
     private Uri currentPhotoUri;
     private final List<Uri> imageUris = new ArrayList<>();
 
@@ -321,6 +329,12 @@ public class AddEditActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        existing_tags = new TagList();
+        selected_tags = new TagList();
+        getOwnerTags(owner);
+
         storage = FirebaseStorage.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -363,16 +377,31 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
 
-        // set up click listener for add tag button
-        addTagButton.setOnClickListener(view -> {
-            // Check if the button is enabled before performing actions
-            if (addTagButton.isEnabled()) {
-                TagList existingTags = new TagList();
-                TagList selectedTags = new TagList();
-                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existingTags, selectedTags, current_item);
-                tagDialog.show();
+
+        addTagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (addTagButton.isEnabled()) {
+                    getOwnerTags(owner);
+                    tagDialog = new TagDialog(AddEditActivity.this, existing_tags, selected_tags, current_item);
+                    tagDialog.show();
+                }
             }
         });
+
+        // Create a dismiss listener for TagDialog. This way we can ensure that existing_tags updates after tag dialog.
+        DialogInterface.OnDismissListener dismissListener = new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                getOwnerTags(owner); // update the existing tags to the database
+                selected_tags = current_item.getTags(); // update the selected tags
+            }
+        };
+
+        // Check if tagDialog is not null and set the dismiss listener
+        if (tagDialog != null) {
+            tagDialog.setOnDismissListener(dismissListener);
+        }
 
         addEditCheckButton.setOnClickListener(view -> {
             // Check if the button is enabled before performing actions
@@ -434,7 +463,6 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
-
         // create a file
         String fileName = "photo" + totalPhotoCounter;
         File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -487,4 +515,37 @@ public class AddEditActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully updated!"))
                 .addOnFailureListener(e -> Log.w("Firestore", "Error updating document", e));
     }
+
+    private void getOwnerTags(String device_id) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("tags")
+                .whereEqualTo("owner", device_id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String name = document.getString("name");
+                                String owner = document.getString("owner");
+                                String id = document.getString("id");
+
+                                Tag tag = new Tag(name);
+                                tag.setOwner(owner);
+                                tag.setUuid(id);
+
+                                existing_tags.addTag(tag);
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                    } else {
+                        Log.d("MainActivity", "Error getting documents: ", task.getException());
+                    }
+
+                    Log.d("MainActivity", "Logging item IDs from DB:");
+                });
+    }
+
 }

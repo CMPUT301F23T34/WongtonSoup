@@ -44,7 +44,7 @@ public class ItemListDB extends ArrayAdapter<Item> {
         ArrayList<String> tags_ref = new ArrayList<String>();
         if (item.getTags() != null && item.getTags().getTags() != null) {
             for (int tag_index = 0; tag_index < item.getTags().getTags().size(); tag_index++) {
-                tags_ref.add(item.getTags().getTags().get(tag_index).getUuid().toString());
+                tags_ref.add(item.getTags().getTags().get(tag_index).getUuid());
             }
         }
         itemData.put("tags", tags_ref);
