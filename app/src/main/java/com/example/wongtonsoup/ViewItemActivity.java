@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,6 +31,14 @@ import java.util.Objects;
 public class ViewItemActivity extends AppCompatActivity {
 
     private static final int ADD_EDIT_REQUEST_CODE = 1;
+    String dateText;
+    String descriptionText;
+    String makeText;
+    String modelText;
+    String priceText;
+    String commentText;
+    String serialText;
+    String displayImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +60,14 @@ public class ViewItemActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
-                                String dateText = document.getString("purchaseDate");
-                                String descriptionText = document.getString("description");
-                                String makeText = document.getString("make");
-                                String modelText = document.getString("model");
-                                String priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
-                                String commentText = document.getString("comment");
-                                String serialText = document.getString("serial");
-                                String displayImage = document.getString("displayImage");
+                                dateText = document.getString("purchaseDate");
+                                descriptionText = document.getString("description");
+                                makeText = document.getString("make");
+                                modelText = document.getString("model");
+                                priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
+                                commentText = document.getString("comment");
+                                serialText = document.getString("serial");
+                                displayImage = document.getString("displayImage");
 
                                 List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
 
@@ -103,24 +113,31 @@ public class ViewItemActivity extends AppCompatActivity {
                 });
 
 
+        // Display tags
+        TagList tags = new TagList(); //Replace with db tags
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewViewItem);
+        recyclerViewAdd.setLayoutManager(layoutManagerItem);
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+        recyclerViewAdd.setAdapter(tagAdapter);
 
         // Go to edit
         Button edit = findViewById(R.id.edit_button);
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
-//                newIntent.putExtra("Description", descriptionText);
-//                newIntent.putExtra("Make", makeText);
-//                newIntent.putExtra("Model", modelText);
-//                newIntent.putExtra("Comment", commentText);
-//                newIntent.putExtra("Date", dateText);
-//                newIntent.putExtra("Price", priceText);
-//                newIntent.putExtra("Serial", serialText);
-//                String id = intent.getStringExtra("ID");
-//                Log.d("ViewItemActivity", "Passing Item ID: " + id); // Log to confirm ID is received
-//                newIntent.putExtra("ID", id);
-//                startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
+                Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
+                newIntent.putExtra("Description", descriptionText);
+                newIntent.putExtra("Make", makeText);
+                newIntent.putExtra("Model", modelText);
+                newIntent.putExtra("Comment", commentText);
+                newIntent.putExtra("Date", dateText);
+                newIntent.putExtra("Price", priceText);
+                newIntent.putExtra("Serial", serialText);
+                String id = intent.getStringExtra("ID");
+                Log.d("ViewItemActivity", "Passing Item ID: " + id); // Log to confirm ID is received
+                newIntent.putExtra("ID", id);
+                startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
             }
         });
 
