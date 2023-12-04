@@ -11,29 +11,34 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentSnapshot;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
-import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
-
+/**
+ * Intent and UI testing for items
+ * @author linaaman, rylann
+ * @version 1.0
+ * @since 11/20/2023
+ */
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class MainActivityTest {
+public class ItemIntentTest {
+
+    /**
+     * Sets up testing functionality
+     */
     @Rule
     public ActivityScenarioRule<MainActivity> scenario = new
             ActivityScenarioRule<MainActivity>(MainActivity.class);
 
+
+    /**
+     * Tests whether UI is correct for adding an item
+     */
     @Test
     public void testAddItem(){
         onView(withId(R.id.fab)).perform(click());
@@ -96,6 +101,9 @@ public class MainActivityTest {
         onView(withId(R.id.content_price)).check(matches(withText("1200.00")));
     }
 
+    /**
+     * Tests whether UI is correct for viewing an item
+     */
     @Test
     public void testViewItem(){
         // add item
@@ -132,6 +140,9 @@ public class MainActivityTest {
         onView(withId(R.id.activity_main)).check(matches(isDisplayed()));
     }
 
+    /**
+     * Tests whether UI is correct for editing an item
+     */
     @Test
     public void testEditItem(){
         // add item
@@ -183,6 +194,10 @@ public class MainActivityTest {
         onView(withId(R.id.view_make)).check(matches(withText("Dell")));
         onView(withId(R.id.item_view_price)).check(matches(withText("1450.45")));
     }
+
+    /**
+     * Tests whether UI is correct for deleting an item
+     */
     @Test
     public void testDeleteItem(){
         // add item
@@ -215,13 +230,5 @@ public class MainActivityTest {
         onView(withId(R.id.content_make)).check(matches(withText("")));
         onView(withId(R.id.content_date)).check(matches(withText("")));
     }
-
-    // TODO test search by Desc
-    // TODO test sort by Date
-    // TODO test sort by Description
-    // TODO test sort by Make
-    // TODO test sort by Value
-    // TODO test filter by Date range
-
 
 }
