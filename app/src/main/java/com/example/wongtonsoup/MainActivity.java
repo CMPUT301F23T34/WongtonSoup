@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private FloatingActionButton fabDelete;
     private String defaultUserPfp;
     private ItemListDB itemListDB;
-//
+    //
     ListView ItemList;
     private Uri currentPhotoUri;
     int TotalPhotoCounter = 0;
@@ -408,9 +408,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                 size--;
             }
             else if (isValidDate(current_start_date) && (current_item_year < startdate_year || (current_item_year == startdate_year && current_item_month < startdate_month) || (current_item_year == startdate_year && current_item_month == startdate_month && current_item_day < startdate_day))){
-               // the current item should not appear because it's date is before the specified start date
-               filteredItems.remove(index);
-               size--;
+                // the current item should not appear because it's date is before the specified start date
+                filteredItems.remove(index);
+                size--;
             }
             else if (isValidDate(current_end_date) && (current_item_year > enddate_year || (current_item_year == enddate_year && current_item_month > enddate_month) || (current_item_year == enddate_year && current_item_month == enddate_month && current_item_day > enddate_day))){
                 // the current item should not appear because it's date is after the specified end date
@@ -810,23 +810,23 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                     db.collection("barcodes").document(result.getContents())
                             .get()
                             .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                        try {
-                                            String description = task.getResult().getString("description");
-                                            String make = task.getResult().getString("make");
-                                            String model = task.getResult().getString("model");
-                                            Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-                                            Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
-                                            intent.putExtra("Description", description);
-                                            intent.putExtra("Make", make);
-                                            intent.putExtra("Model", model);
-                                            startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+                                        if (task.isSuccessful()) {
+                                            try {
+                                                String description = task.getResult().getString("description");
+                                                String make = task.getResult().getString("make");
+                                                String model = task.getResult().getString("model");
+                                                Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                                Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
+                                                intent.putExtra("Description", description);
+                                                intent.putExtra("Make", make);
+                                                intent.putExtra("Model", model);
+                                                startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
 
-                                        } catch (Exception e) {
-                                            Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                            } catch (Exception e) {
+                                                Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
+                                            }
                                         }
                                     }
-                                }
                             )
                             .addOnFailureListener(e -> {
                                 throw new IllegalArgumentException();
@@ -843,12 +843,16 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
             rotateAnimator.start();
         }
-        else {  // if arrow is pointing up -> rotate back down
+        else if (expand.getRotation() == 180) {  // if arrow is pointing up -> rotate back down
             TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
             ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() - 180);
             rotateAnimator.setDuration(200);
             rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
             rotateAnimator.start();
+        }
+        else {
+            // do nothing
+            Log.d("MainActivity", "flipArrow: rotation is not 0 or 180. Doing nothing.");
         }
     }
 }
