@@ -35,6 +35,7 @@ import com.example.wongtonsoup.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.ml.vision.FirebaseVision;
@@ -89,6 +90,22 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         setSupportActionBar(binding.toolbar);
 
         ItemList = findViewById(R.id.listView);
+
+        // Set up tag lists
+        TagList tagList = new TagList();
+        TagListAdapter tagAdapter = new TagListAdapter(this, tagList);
+
+        // Tag list fot adding during edit items
+        LinearLayoutManager layoutManagerAdd = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewAdd);
+        recyclerViewAdd.setLayoutManager(layoutManagerAdd);
+        recyclerViewAdd.setAdapter(tagAdapter);
+
+        // Tag list for filtering during expanded search
+        LinearLayoutManager layoutManagerFilter = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewFilter = findViewById(R.id.recyclerViewFilter);
+        recyclerViewFilter.setLayoutManager(layoutManagerFilter);
+        recyclerViewFilter.setAdapter(tagAdapter);
 
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("MainActivity", "Device ID: " + device_id);
@@ -145,10 +162,14 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         com.example.wongtonsoup.ItemList.setListener(this);
 
 
-/*        // sample data for testing
-        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", new TagList());
-        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", new TagList());
-        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", new TagList());
+ /*       // sample data for testing
+
+        TagList testTagList = new TagList();
+        testTagList.addTag(new Tag("Test"));
+        testTagList.addTag(new Tag("TestSequel"));
+        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", testTagList);
+        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", testTagList);
+        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", testTagList);
 
         ItemDataList.add(sampleItem1);
         ItemDataList.add(sampleItem2);
@@ -211,18 +232,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             View top_back = findViewById(R.id.top_back);
             top_back.setVisibility(View.GONE);
         });
-
-/*        // Testing tag adapter
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerView = findViewById(R.id.recyclerViewAdd);
-        recyclerView.setLayoutManager(layoutManager);
-        TagList testTagList = new TagList();
-        testTagList.addTag(new Tag("Expensive"));
-        testTagList.addTag(new Tag("Cheap"));
-        testTagList.addTag(new Tag("Free"));
-        TagListAdapter tagAdapter = new TagListAdapter(this, testTagList);
-        recyclerView.setAdapter(tagAdapter);
-        tagAdapter.notifyDataSetChanged();*/
     }
 
     /**
@@ -823,42 +832,48 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
     ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
     {
-        if (result.getContents() != null){
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("result");
-            builder.setMessage(result.getContents());
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    //db.collection("barcodes")
-                    //.whereEqualTo("barcodes", result.getContents())
-                    db.collection("barcodes").document(result.getContents())
-                            .get()
-                            .addOnCompleteListener(task -> {
-                                        if (task.isSuccessful()) {
-                                            try {
-                                                String description = task.getResult().getString("description");
-                                                String make = task.getResult().getString("make");
-                                                String model = task.getResult().getString("model");
-                                                Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-                                                Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
-                                                intent.putExtra("Description", description);
-                                                intent.putExtra("Make", make);
-                                                intent.putExtra("Model", model);
-                                                startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
+        db.collection("barcodes").document(result.getContents())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {
+                            // Document exists
+                            Toast.makeText(this, "Item found", Toast.LENGTH_SHORT).show();
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("Scanned Content");
+                            builder.setMessage("Barcode: " + result.getContents());
+                            builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    try {
+                                        String description = document.getString("description");
+                                        String make = document.getString("make");
+                                        String model = document.getString("model");
+                                        Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                                        Log.d("MainActivity", "Barcode values" + description + " " + make + " " + model);
+                                        intent.putExtra("Description", description);
+                                        intent.putExtra("Make", make);
+                                        intent.putExtra("Model", model);
+                                        startActivityForResult(intent, ADD_EDIT_REQUEST_CODE);
 
-                                            } catch (Exception e) {
-                                                Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
-                                            }
-                                        }
+                                    } catch (Exception e) {
+                                        Log.e("MainActivity", "Error scanning barcode: " + e.getMessage());
                                     }
-                            )
-                            .addOnFailureListener(e -> {
-                                throw new IllegalArgumentException();
+                                }
+
                             });
-                }
-            }).show();
-        }
+                            builder.show();
+                        } else {
+                            // Document does not exist
+                            Toast.makeText(this, "No item found", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Handle the failure here
+                        Log.e("MainActivity", "Error getting documents: ", task.getException());
+                    }
+                });
+
     });
     private void flipArrow() {
         if (expand.getRotation() == 0) {  // if arrow is pointing down -> rotate up

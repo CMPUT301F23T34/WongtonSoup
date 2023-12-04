@@ -63,7 +63,7 @@ public class Item implements Serializable {
         this.serialNumber = serialNumber;
         this.value = value;
         this.comment = comment;
-        this.tags = new TagList();
+        this.tags = selectedTags;
         this.owner = owner;
         this.selected = false;
         if (value < 0){
@@ -97,7 +97,7 @@ public class Item implements Serializable {
         this.model = model;
         this.value = value;
         this.comment = comment;
-        this.tags = new TagList();
+        this.tags = selectedTags;
         this.owner = owner;
         this.selected = false;
         if (value < 0){

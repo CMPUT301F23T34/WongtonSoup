@@ -26,6 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -368,15 +371,21 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
 
+        // Display tags
+        TagList tags = new TagList(); // Replace with db tags
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewEdit = findViewById(R.id.recyclerViewEdit);
+        recyclerViewEdit.setLayoutManager(layoutManagerItem);
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+        recyclerViewEdit.setAdapter(tagAdapter);
 
-        addTagButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (addTagButton.isEnabled()) {
-                    getOwnerTags(owner);
-                    tagDialog = new TagDialog(AddEditActivity.this, existing_tags, selected_tags, current_item);
-                    tagDialog.show();
-                }
+        // set up click listener for add tag button
+        addTagButton.setOnClickListener(view -> {
+            // Check if the button is enabled before performing actions
+            if (addTagButton.isEnabled()) {
+                getOwnerTags(owner);
+                TagDialog tagDialog = new TagDialog(AddEditActivity.this, existing_tags, selected_tags, current_item);
+                tagDialog.show();
             }
         });
 
