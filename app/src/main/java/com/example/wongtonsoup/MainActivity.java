@@ -521,17 +521,49 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
             // Check if the request code matches and the result is OK
-            if (data != null && data.hasExtra("resultItem")) {
-                Item resultItem = (Item) data.getSerializableExtra("resultItem");
-                ItemDataList.add(resultItem);
+            if (data != null && data.hasExtra("itemID")) {
+                String ItemID = (String) data.getSerializableExtra("itemID");
+                @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-                // use new ItemListDB here
-                //itemListDB.addItem(resultItem);
-                itemList.updateData(ItemDataList);
-                itemList.notifyDataSetChanged();
+                db.collection("items")
+                        .whereEqualTo("owner", device_id)
+                        .whereEqualTo("id", ItemID)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    try {
+                                        String id = document.getId();
+                                        String purchaseDate = document.getString("purchaseDate");
+                                        String description = document.getString("description");
+                                        String make = document.getString("make");
+                                        String model = document.getString("model");
+                                        Float value = Objects.requireNonNull(document.getDouble("value")).floatValue();
+                                        String comment = document.getString("comment");
+                                        String serialNumber = document.getString("serial");
+                                        String owner = document.getString("owner");
 
-                // Log the size of ItemDataList
-                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+                                        List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
+
+                                        // Create an Item object
+                                        Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
+                                        if (rawImageUrls != null) {
+                                            for (Object rawImageUrl : rawImageUrls) {
+                                                if (rawImageUrl instanceof String) {
+                                                    item.setDisplayImage((String) rawImageUrl);
+                                                }
+                                            }
+                                        }
+                                        ItemDataList.add(item);
+
+                                    } catch (Exception e) {
+                                        Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                                    }
+                                }
+                                itemList.updateData(ItemDataList);
+                                itemList.notifyDataSetChanged();
+                            }
+                        });
             }
         }
         else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
