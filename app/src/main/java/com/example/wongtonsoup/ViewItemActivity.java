@@ -128,6 +128,8 @@ public class ViewItemActivity extends AppCompatActivity {
                 Log.d("ViewItemActivity", "Edit button clicked");
                 Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
                 newIntent.putExtra("Description" , getIntent().getStringExtra("Description"));
+
+                newIntent.putExtra("Description", getIntent().getStringExtra("Description"));
                 newIntent.putExtra("Make", getIntent().getStringExtra("Make"));
                 newIntent.putExtra("Model", getIntent().getStringExtra("Model"));
                 newIntent.putExtra("Comment", getIntent().getStringExtra("Comment"));
