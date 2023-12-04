@@ -54,7 +54,7 @@
     <string name="scan">Scan</string>
     <string name="sign_out">Sign Out</string>
 	<string name="add">ADD</string>
-	<string name="sort_by">Sort By: </string>
+	<string name="sort_by">Sort By:</string>
     <string name="description">Description</string>
     <string name="value">Value</string>
     <string name="end_date">End Date:  </string>
