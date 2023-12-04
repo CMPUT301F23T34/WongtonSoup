@@ -76,7 +76,7 @@
                 android:layout_width="275dp"
                 android:layout_height="35dp"
                 android:layout_centerHorizontal="true"
-                android:queryHint="Search by make"
+                android:queryHint="Search By Make"
                 android:iconifiedByDefault="false"
                 app:queryBackground="@drawable/bg_white_rounded"
                 app:submitBackground="@drawable/bg_white_rounded"
