@@ -24,6 +24,7 @@
             android:exported="false" />
         <activity
             android:name=".AddEditActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity
             android:name=".ProfileActivity"

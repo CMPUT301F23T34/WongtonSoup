@@ -33,15 +33,16 @@ import java.util.Objects;
 public class ViewItemActivity extends AppCompatActivity {
 
     private static final int ADD_EDIT_REQUEST_CODE = 1;
-    String dateText;
-    String descriptionText;
-    String makeText;
-    String modelText;
-    String priceText;
-    String commentText;
-    String serialText;
-    String displayImage;
-    TagList tags;
+
+    private String dateText;
+    private String descriptionText;
+    private String makeText;
+    private String modelText;
+    private String priceText;
+    private String commentText;
+    private String serialText;
+    private String displayImage;
+    private TagList tags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,14 +66,14 @@ public class ViewItemActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
-                                dateText = document.getString("purchaseDate");
-                                descriptionText = document.getString("description");
-                                makeText = document.getString("make");
-                                modelText = document.getString("model");
-                                priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
-                                commentText = document.getString("comment");
-                                serialText = document.getString("serial");
-                                displayImage = document.getString("displayImage");
+                                String dateText = document.getString("purchaseDate");
+                                String descriptionText = document.getString("description");
+                                String makeText = document.getString("make");
+                                String modelText = document.getString("model");
+                                @SuppressLint("DefaultLocale") String priceText = String.format("%.2f", Objects.requireNonNull(document.getDouble("value")));
+                                String commentText = document.getString("comment");
+                                String serialText = document.getString("serialNumber");
+                                String displayImage = document.getString("displayImage");
 
                                 // tags are stored kinda weird, here's how we access
                                 Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
@@ -144,17 +145,31 @@ public class ViewItemActivity extends AppCompatActivity {
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("ViewItemActivity", "Edit button clicked");
                 Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
-                newIntent.putExtra("Description", descriptionText);
-                newIntent.putExtra("Make", makeText);
-                newIntent.putExtra("Model", modelText);
-                newIntent.putExtra("Comment", commentText);
-                newIntent.putExtra("Date", dateText);
-                newIntent.putExtra("Price", priceText);
-                newIntent.putExtra("Serial", serialText);
-                String id = intent.getStringExtra("ID");
-                Log.d("ViewItemActivity", "Passing Item ID: " + id); // Log to confirm ID is received
+                newIntent.putExtra("Description" , getIntent().getStringExtra("Description"));
+
+                newIntent.putExtra("Description", getIntent().getStringExtra("Description"));
+                newIntent.putExtra("Make", getIntent().getStringExtra("Make"));
+                newIntent.putExtra("Model", getIntent().getStringExtra("Model"));
+                newIntent.putExtra("Comment", getIntent().getStringExtra("Comment"));
+                newIntent.putExtra("Date", getIntent().getStringExtra("Date"));
+                newIntent.putExtra("Price", getIntent().getStringExtra("Price"));
+                newIntent.putExtra("Serial", getIntent().getStringExtra("Serial"));
+                String id = getIntent().getStringExtra("ID");
                 newIntent.putExtra("ID", id);
+
+//                //Log all of the above for debug purposes
+                Log.d("ViewItemActivity", "Description: " + getIntent().getStringExtra("Description"));
+                Log.d("ViewItemActivity", "Make: " + getIntent().getStringExtra("Make"));
+                Log.d("ViewItemActivity", "Model: " + getIntent().getStringExtra("Model"));
+                Log.d("ViewItemActivity", "Comment: " + getIntent().getStringExtra("Comment"));
+                Log.d("ViewItemActivity", "Date: " + getIntent().getStringExtra("Date"));
+                Log.d("ViewItemActivity", "Price: " + getIntent().getStringExtra("Price"));
+                Log.d("ViewItemActivity", "Serial: " + getIntent().getStringExtra("Serial"));
+                Log.d("ViewItemActivity", "ID: " + getIntent().getStringExtra("ID"));
+
+
                 startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
             }
         });

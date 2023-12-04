@@ -823,7 +823,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
     private void scanCode(){
         ScanOptions options = new ScanOptions();
-        options.setPrompt("Volume up to flash on");
+        options.setPrompt("Use volume to toggle flash");
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
         options.setCaptureActivity(CaptureAct.class);

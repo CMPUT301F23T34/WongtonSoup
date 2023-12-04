@@ -141,6 +141,7 @@
                 android:id="@+id/add_edit_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLength="15"
                 android:layout_below="@id/buttons"
                 android:layout_marginTop="30dp"
                 android:layout_toEndOf="@id/description"
@@ -198,12 +199,13 @@
                 android:hint="Serial Number"
                 android:textSize="18sp"
                 android:autofillHints=""
-                android:inputType="numberDecimal"
+                android:inputType="textNoSuggestions"
                 tools:ignore="LabelFor" android:minHeight="48dp"
                 android:textStyle="bold"/>
 
         <Button
-            android:layout_width="30dp"
+                android:id="@+id/add_edit_serial_button"
+                android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_below="@id/price"
             android:layout_marginStart="11dp"
