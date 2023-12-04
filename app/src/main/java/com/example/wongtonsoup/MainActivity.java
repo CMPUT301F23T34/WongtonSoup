@@ -545,17 +545,42 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
         if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
             // Check if the request code matches and the result is OK
-            if (data != null && data.hasExtra("resultItem")) {
-                Item resultItem = (Item) data.getSerializableExtra("resultItem");
-                ItemDataList.add(resultItem);
+            if (data != null && data.hasExtra("itemID")) {
+                String ItemID = (String) data.getSerializableExtra("itemID");
+                @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-                // use new ItemListDB here
-                //itemListDB.addItem(resultItem);
-                itemList.updateData(ItemDataList);
-                itemList.notifyDataSetChanged();
+                db.collection("items")
+                        .whereEqualTo("owner", device_id)
+                        .whereEqualTo("id", ItemID)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    try {
+                                        String id = document.getId();
+                                        String purchaseDate = document.getString("purchaseDate");
+                                        String description = document.getString("description");
+                                        String make = document.getString("make");
+                                        String model = document.getString("model");
+                                        Float value = Objects.requireNonNull(document.getDouble("value")).floatValue();
+                                        String comment = document.getString("comment");
+                                        String serialNumber = document.getString("serial");
+                                        String owner = document.getString("owner");
+                                        String displayImage = document.getString("displayImage");
 
-                // Log the size of ItemDataList
-                Log.d("ItemDataList", "Size: " + ItemDataList.size());
+                                        // Create an Item object
+                                        Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
+                                        item.SetDisplayImage(displayImage);
+                                        ItemDataList.add(item);
+
+                                    } catch (Exception e) {
+                                        Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                                    }
+                                }
+                                itemList.updateData(ItemDataList);
+                                itemList.notifyDataSetChanged();
+                            }
+                        });
             }
         }
         else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -640,30 +665,26 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         return (day >= 1 && day <= 31) && (month >= 1 && month <= 12);
     }
 
+    private int findLinearLayoutPosition(LinearLayout linearLayout) {
+        ViewGroup parent = (ViewGroup) linearLayout.getParent();
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            if (parent.getChildAt(i) == linearLayout) {
+                return i;
+            }
+        }
+        return -1; // Not found
+    }
+
     public void viewItem(View v) {
         // get view position
         View parentRow = (View) v.getParent();
-        ListView listView = (ListView) parentRow.getParent();
-        final int position = listView.getPositionForView(parentRow);
+        LinearLayout linearLayout = (LinearLayout) parentRow.getParent();
+        final int position = findLinearLayoutPosition(linearLayout);
 
         // go to ViewItemActivity
         Intent intent = new Intent(MainActivity.this, ViewItemActivity.class);
         itemSelected = position;
-        intent.putExtra("Description", itemList.getItem(position).getDescription());
-        intent.putExtra("Make", itemList.getItem(position).getMake());
-        intent.putExtra("Model", itemList.getItem(position).getModel());
-        intent.putExtra("Comment", itemList.getItem(position).getComment());
-        intent.putExtra("Date", itemList.getItem(position).getPurchaseDate());
-        intent.putExtra("Price", itemList.getItem(position).getValueAsString());
-        intent.putExtra("Serial", itemList.getItem(position).getSerialNumber());
         intent.putExtra("ID", itemList.getItem(position).getID());
-
-        // Add the image paths list extra
-        Queue<String> imagePathsQueue = itemList.getItem(itemSelected).getImagePathsCopy();
-        if(imagePathsQueue != null && !imagePathsQueue.isEmpty()) {
-            List<String> imagePathsList = new ArrayList<>(imagePathsQueue);
-            intent.putStringArrayListExtra("ImagePaths", new ArrayList<>(imagePathsList));
-        }
 
         startActivityForResult(intent,VIEW_REQUEST_CODE);
     }
@@ -701,19 +722,12 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                 String comment = document.getString("comment");
                                 String serialNumber = document.getString("serial");
                                 String owner = document.getString("owner");
+                                String displayImage = document.getString("displayImage");
 
-                                List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
 
                                 // Create an Item object
                                 Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
-
-                                if (rawImageUrls != null) {
-                                    for (Object rawImageUrl : rawImageUrls) {
-                                        if (rawImageUrl instanceof String) {
-                                            item.setDisplayImage((String) rawImageUrl);
-                                        }
-                                    }
-                                }
+                                item.SetDisplayImage(displayImage);
                                 ItemDataList.add(item);
 
                             } catch (Exception e) {
