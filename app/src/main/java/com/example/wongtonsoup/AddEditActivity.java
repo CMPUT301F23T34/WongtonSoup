@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,12 +26,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +52,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddEditActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 301;
+    private static final int REQUEST_CAMERA_FOR_SERIAL = 399;
+
     // Assume we have item with associated tags lise
     // private Item item;
     private EditText expenseDescription;
@@ -61,6 +75,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     private FirebaseStorage storage;
     private FirebaseFirestore db;
+    TextRecognizer recognizer;
 
     //List<Tag> tags = item.getTags();
 
@@ -161,16 +176,15 @@ public class AddEditActivity extends AppCompatActivity {
      */
     private void updateAddEditCheckButtonState(Button addEditCheckButton) {
         boolean isExpenseDescriptionEmpty = TextUtils.isEmpty(expenseDescription.getText().toString());
-        boolean isExpenseDescriptionInvalid = !(expenseDescription.getText().length() <= 15);
-
-        // clear error message if neither error bool is true.
-        if (!isExpenseDescriptionEmpty && isExpenseDescriptionInvalid) {
-            expenseDescription.setError(null); // clear error
+        boolean isExpenseDescriptionInvalid = expenseDescription.getText().length() > 15;
+        if (isExpenseDescriptionEmpty) {
+            expenseDescription.setError("Expense name cannot be empty");
         } else if (isExpenseDescriptionInvalid) {
             expenseDescription.setError("Name cannot exceed 15 characters");
-        } else if (isExpenseDescriptionEmpty) {
-            expenseDescription.setError("Expense name cannot be empty");
+        } else {
+            expenseDescription.setError(null); // clear error
         }
+
 
         boolean isExpenseValueInvalid = !isValidValue(expenseValue.getText().toString());
         boolean isExpenseValueEmpty = TextUtils.isEmpty(expenseValue.getText().toString());
@@ -327,6 +341,65 @@ public class AddEditActivity extends AppCompatActivity {
             totalPhotoCounter++;
         }
 
+        if (requestCode == REQUEST_CAMERA_FOR_SERIAL && resultCode == RESULT_OK) {
+//            Log.d("AddEditActivity", "onActivityResult: " + requestCode);
+//            Log.d("AddEditActivity", "onActivityResult: " + resultCode);
+
+            try {
+                InputImage image = InputImage.fromFilePath(this, currentPhotoUri);
+//
+                Task<Text> result =
+                        recognizer.process(image)
+                                .addOnSuccessListener(new OnSuccessListener<Text>() {
+                                    @Override
+                                    public void onSuccess(Text text) {
+                                        // Task completed successfully
+                                        // ...
+                                        String resultText = text.getText();
+                                        expenseSerialNumber.setText(resultText);
+                                        Log.d("AddEditActivity SERIAL", "onActivityResult: " + resultText);
+                                    }
+                                })
+                                .addOnFailureListener(
+                                        new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull @NotNull Exception e) {
+                                                // Task failed with an exception
+                                                // ...
+                                                Toast.makeText(AddEditActivity.this, "Failed to recognize serial number: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                Log.d("AddEditActivity FAILURE", "onActivityResult: " + e.getMessage());
+                                            }
+                                        }
+                                );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+//                if (recognizer != null) {
+//                    recognizer.process(image)
+//                            .addOnSuccessListener(visionText -> {
+//                                String resultText = visionText.getText();
+//                                expenseSerialNumber.setText(resultText);
+//                                Log.d("AddEditActivity SERIAL", "onActivityResult: " + resultText);
+//                            })
+//                            .addOnFailureListener(e -> {
+//                                Toast.makeText(AddEditActivity.this, "Failed to recognize serial number: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                            });
+//                } else {
+//                    Toast.makeText(AddEditActivity.this, "Failed to recognize serial number", Toast.LENGTH_SHORT).show();
+//                }
+
+
+
+            // Extract the image and process it as needed
+        } else if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
+            // Existing code for handling gallery images
+        } else if (requestCode == OPEN_CAMERA_REQUEST && resultCode == RESULT_OK) {
+            // Existing code for handling general camera images
+        }
+
+
     }
 
     @Override
@@ -345,6 +418,10 @@ public class AddEditActivity extends AppCompatActivity {
         Button addEditCameraButton = findViewById(R.id.add_edit_camera_button);
         Button addEditGalleryButton = findViewById(R.id.add_edit_gallery_button);
 
+        // set up serial camera button for text recognition
+        Button serialCameraButton = findViewById(R.id.add_edit_serial_button);
+        serialCameraButton.setOnClickListener(v -> askCameraPermissions(true));
+
         expenseDescription = findViewById(R.id.add_edit_description);
         expenseDate = findViewById(R.id.add_edit_date);
         expenseValue = findViewById(R.id.add_edit_price);
@@ -353,9 +430,9 @@ public class AddEditActivity extends AppCompatActivity {
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
 
-
         // Fill out fields if editing
         Intent intent = getIntent();
+        Log.d("AddEditActivity", "onCreate desc: " + intent.getStringExtra("Description"));
         expenseDescription.setText(intent.getStringExtra("Description"));
         expenseDate.setText(intent.getStringExtra("Date"));
         expenseValue.setText(intent.getStringExtra("Price"));
@@ -381,6 +458,9 @@ public class AddEditActivity extends AppCompatActivity {
         setupTextWatcher(expenseSerialNumber, addEditCheckButton);
         setupTextWatcher(expenseMake, addEditCheckButton);
         setupTextWatcher(expenseModel, addEditCheckButton);
+
+        expenseDate.addTextChangedListener(new DateInputWatcher());
+
 
         // Display tags
         TagList tags = new TagList(); //Replace with db tags
@@ -423,36 +503,42 @@ public class AddEditActivity extends AppCompatActivity {
 
         addEditCameraButton.setOnClickListener(v -> {
             if (totalPhotoCounter < MAX_TOTAL_PHOTOS) {
-                askCameraPermissions();
+                askCameraPermissions(false);
             } else {
                 Toast.makeText(AddEditActivity.this, "Maximum of " + MAX_TOTAL_PHOTOS + " photos allowed", Toast.LENGTH_SHORT).show();
             }
         });
 
         back.setOnClickListener(v -> finish());
+
+        recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
     }
 
-    private void askCameraPermissions() {
+    private void askCameraPermissions(boolean forSerial) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // request permissions from user
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, forSerial ? REQUEST_CAMERA_FOR_SERIAL : CAMERA_PERMISSION_CODE);
         } else {
-            // already have permissions
-            openCamera();
+            if (forSerial) {
+                openCameraForSerial();
+            } else {
+                openCamera();
+            }
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d("AddEditActivity", "onRequestPermissionsResult: " + requestCode);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // user accepted camera permission request
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == REQUEST_CAMERA_FOR_SERIAL) {
+                openCameraForSerial();
+            } else if (requestCode == CAMERA_PERMISSION_CODE) {
                 openCamera();
-            } else {
-                // user denied camera permission request
-                Toast.makeText(this, "Camera Permission is required to use camera", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            Toast.makeText(this, "Camera Permission is required to use camera", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -479,6 +565,73 @@ public class AddEditActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    public void openCameraForSerial() {
+        // create a file
+        String fileName = "serial";
+        File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Uri imageUri = null;
+
+        try {
+            File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory); // this throws exceptions
+            String currentPhotoPath = imageFile.getAbsolutePath();
+
+            imageUri = FileProvider.getUriForFile(AddEditActivity.this, "com.example.wongtonsoup.fileprovider", imageFile);
+            currentPhotoUri = imageUri;
+
+            // start an image capture intent
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intent, REQUEST_CAMERA_FOR_SERIAL);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* TextWatcher for date input field
+    *   Automatically adds hyphens to the date input field
+    * */
+    private class DateInputWatcher implements TextWatcher {
+
+        private boolean isUpdating = false;
+        private String oldText = "";
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            // ...
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            // ...
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            String newText = s.toString();
+            if (isUpdating) {
+                oldText = newText;
+                isUpdating = false;
+                return;
+            }
+
+            String strippedText = newText.replace("-", "");
+
+            String formattedText;
+            if (strippedText.length() <= 2) {
+                formattedText = strippedText;
+            } else if (strippedText.length() <= 4) {
+                formattedText = strippedText.substring(0, 2) + "-" + strippedText.substring(2);
+            } else {
+                formattedText = strippedText.substring(0, 2) + "-" + strippedText.substring(2, 4) + "-" + strippedText.substring(4, Math.min(8, strippedText.length()));
+            }
+
+            isUpdating = true;
+            s.replace(0, s.length(), formattedText);
+        }
+    }
+
 
     // Method to upload images and update item
     public void uploadImagesAndUpdateItem(Item item, List<Uri> imageUris) {
