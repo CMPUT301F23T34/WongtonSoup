@@ -12,11 +12,13 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
@@ -26,6 +28,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.navigation.ui.AppBarConfiguration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.wongtonsoup.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -43,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import android.animation.ObjectAnimator;
 
 public class MainActivity extends AppCompatActivity implements com.example.wongtonsoup.ItemList.ItemListListener {
     public static final int CAMERA_PERMISSION_CODE = 301;
@@ -70,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     ArrayList<Item> ItemDataList;
     com.example.wongtonsoup.ItemList itemList;
     private boolean isEditVisible = true;
+    private Button expand;
+    View expandedSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,9 +145,9 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
 
 
 /*        // sample data for testing
-        Item sampleItem1 = new Item("09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ");
-        Item sampleItem2 = new Item("16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC");
-        Item sampleItem3 = new Item("30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF");
+        Item sampleItem1 = new Item("x0x0x0","09-11-2023", "Laptop", "Dell", "XPS 15", 1200.00f, "Work laptop with touch screen", "ABC123XYZ", new TagList());
+        Item sampleItem2 = new Item("xoxoxo","16-04-2001", "Smartphone", "Apple", "iPhone X", 999.99f, "Personal phone, space gray color", "XYZ789ABC", new TagList());
+        Item sampleItem3 = new Item("oxoxox", "30-10-2017", "Camera", "Canon", "EOS 5D", 2500.50f, "Professional DSLR camera", "123456DEF", new TagList());
 
         ItemDataList.add(sampleItem1);
         ItemDataList.add(sampleItem2);
@@ -155,16 +163,22 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         });
 
         // Expand Search
-        Button expand = findViewById(R.id.expand_search_button);
-        View expandedSearch = findViewById(R.id.expanded);
+        expand = findViewById(R.id.expand_search_button);
+        expandedSearch = findViewById(R.id.expanded);
         expand.setOnClickListener(v -> {
             if (expanded){
+                flipArrow();
                 expandedSearch.setVisibility(View.GONE);
                 expanded = false;
+                isEditVisible = !isEditVisible;
+                invalidateOptionsMenu();
             }
             else {
+                flipArrow();
                 expandedSearch.setVisibility(View.VISIBLE);
                 expanded = true;
+                isEditVisible = !isEditVisible;
+                invalidateOptionsMenu();
             }
         });
         initSearchWidgets();
@@ -183,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             View edit_bar = findViewById(R.id.edit_list);
             edit_bar.setVisibility(View.GONE);
 
+
             FloatingActionButton add = findViewById(R.id.fab);
             add.setVisibility(View.VISIBLE);
 
@@ -196,6 +211,17 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             top_back.setVisibility(View.GONE);
         });
 
+/*        // Testing tag adapter
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerView = findViewById(R.id.recyclerViewAdd);
+        recyclerView.setLayoutManager(layoutManager);
+        TagList testTagList = new TagList();
+        testTagList.addTag(new Tag("Expensive"));
+        testTagList.addTag(new Tag("Cheap"));
+        testTagList.addTag(new Tag("Free"));
+        TagListAdapter tagAdapter = new TagListAdapter(this, testTagList);
+        recyclerView.setAdapter(tagAdapter);
+        tagAdapter.notifyDataSetChanged();*/
     }
 
     /**
@@ -436,12 +462,10 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         else if (id == R.id.scan) {
             scanCode();
         }
-        else if (id == R.id.sign_out) {
-            return true;
-        }
         else if (id == R.id.edit) {
             // Edit the list of items. Show check boxes and delete buttons. Have back button and tags
             if (ItemDataList.size() > 0){
+
                 itemList.setVisible(1);
                 itemList.notifyDataSetChanged();
 
@@ -463,7 +487,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             else {
                 Toast.makeText(this, "No Items to Edit", Toast.LENGTH_SHORT).show();
             }
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -812,4 +835,11 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
             }).show();
         }
     });
+    private void flipArrow() {
+        TransitionManager.beginDelayedTransition((ViewGroup) expand.getParent());
+        ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(expand, "rotation", expand.getRotation(), expand.getRotation() + 180);
+        rotateAnimator.setDuration(200);
+        rotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        rotateAnimator.start();
+    }
 }
