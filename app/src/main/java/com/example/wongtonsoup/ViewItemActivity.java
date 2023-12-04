@@ -79,18 +79,21 @@ public class ViewItemActivity extends AppCompatActivity {
 
                                 // tags are stored kinda weird, here's how we access
                                 Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
-                                ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
 
-                                for (int i = 0 ; i < list_of_tags.size() ; i++){
-                                    HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
-                                    String name = tag.get("name");
-                                    String tag_id = tag.get("uuid");
-                                    String tag_owner = tag.get("owner");
+                                if (taglist_map != null) {
+                                    ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
 
-                                    Tag new_tag = new Tag(name);
-                                    new_tag.setOwner(tag_owner);
-                                    new_tag.setUuid(tag_id);
-                                    tags.addTag(new_tag);
+                                    for (int i = 0; i < list_of_tags.size(); i++) {
+                                        HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                        String name = tag.get("name");
+                                        String tag_id = tag.get("uuid");
+                                        String tag_owner = tag.get("owner");
+
+                                        Tag new_tag = new Tag(name);
+                                        new_tag.setOwner(tag_owner);
+                                        new_tag.setUuid(tag_id);
+                                        tags.addTag(new_tag);
+                                    }
                                 }
 
                                 List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
