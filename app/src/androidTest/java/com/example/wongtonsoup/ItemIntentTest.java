@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class MainActivityTest {
+public class ItemIntentTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario = new
             ActivityScenarioRule<MainActivity>(MainActivity.class);
@@ -216,12 +216,6 @@ public class MainActivityTest {
         onView(withId(R.id.content_date)).check(matches(withText("")));
     }
 
-    // TODO test search by Desc
-    // TODO test sort by Date
-    // TODO test sort by Description
-    // TODO test sort by Make
-    // TODO test sort by Value
-    // TODO test filter by Date range
 
 
 }
