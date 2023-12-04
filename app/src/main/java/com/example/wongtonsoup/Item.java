@@ -47,8 +47,6 @@ public class Item implements Serializable {
      * @param value
      * @param comment
      * @param selectedTags
-     * @throws IllegalArgumentException
-     * @since 10/25/2023
      * @param owner
      * @throws IllegalArgumentException
      * @since 10/25/2023
