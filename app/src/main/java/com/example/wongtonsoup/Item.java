@@ -32,8 +32,6 @@ public class Item implements Serializable {
 
     private Queue<String> imagePaths;
 
-    private String displayImage;
-
     /**
      * Constructs an item containing a serial number
      * @param id
@@ -67,7 +65,6 @@ public class Item implements Serializable {
         if (value < 0){
             throw new IllegalArgumentException();
         }
-        displayImage = null;
     }
 
     /**
@@ -100,8 +97,6 @@ public class Item implements Serializable {
         if (value < 0){
             throw new IllegalArgumentException();
         }
-
-        displayImage = null;
     }
 
     /**
@@ -326,24 +321,6 @@ public class Item implements Serializable {
             return new LinkedList<>(imagePaths);
         }
         return null;
-    }
-
-    /**
-     * Sets the display image URL for the item.
-     *
-     * @param url The URL of the display image to be set.
-     */
-    public void SetDisplayImage(String url) {
-        this.displayImage = url;
-    }
-
-    /**
-     * Gets the display image URL of the item.
-     *
-     * @return A string representing the URL of the display image.
-     */
-    public String GetDisplayImage() {
-        return this.displayImage;
     }
 
     /**
