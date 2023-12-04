@@ -89,8 +89,6 @@ public class ViewItemActivity extends AppCompatActivity {
                                     new_tag.setUuid(tag_id);
                                     tags.addTag(new_tag);
                                     Log.d("ViewItemActivity", "Tag: " + name);
-                                    Tag another_tag = new Tag("testing!");
-                                    tags.addTag(another_tag);
                                 }
 
                                 List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
