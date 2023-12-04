@@ -26,6 +26,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -70,6 +75,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     private FirebaseStorage storage;
     private FirebaseFirestore db;
+    TextRecognizer recognizer;
 
     //List<Tag> tags = item.getTags();
 
@@ -424,7 +430,6 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber = findViewById(R.id.add_edit_serial);
         expenseMake = findViewById(R.id.add_edit_make);
         expenseModel = findViewById(R.id.add_edit_model);
-
 
         // Fill out fields if editing
         Intent intent = getIntent();
