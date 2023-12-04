@@ -8,7 +8,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#A5CFB5"
-            android:padding="10dp" android:id="@+id/linearLayout">
+            android:padding="10dp" android:id="@+id/linearLayout" app:layout_constraintTop_toTopOf="@+id/viewKonfetti">
 
         <Button
                 android:id="@+id/view_back_button"
@@ -26,6 +26,16 @@
             android:layout_marginTop="32dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+
+    <nl.dionsegijn.konfetti.KonfettiView
+            android:id="@+id/viewKonfetti"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
     <TextView
             android:text="TextView"
             android:layout_width="wrap_content"
