@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         com.example.wongtonsoup.ItemList.setListener(this);
 
 
-        // sample data for testing
+ /*       // sample data for testing
 
         TagList testTagList = new TagList();
         testTagList.addTag(new Tag("Test"));
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
         ItemDataList.add(sampleItem3);
 
         itemList.updateData(ItemDataList);
-        itemList.notifyDataSetChanged();
+        itemList.notifyDataSetChanged();*/
 
 
         binding.fab.setOnClickListener(view -> {

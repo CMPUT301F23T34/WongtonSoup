@@ -75,12 +75,14 @@ public class ItemList extends ArrayAdapter<Item> {
         }
 
         // Display tags
-        TagListAdapter tagAdapterItem = new TagListAdapter(mContext, currentItem.getTags());
+        View view = convertView;
+        Item item = itemList.get(position);
+
+        RecyclerView recyclerViewItem = view.findViewById(R.id.recyclerViewItem);
         LinearLayoutManager layoutManagerItem = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerViewItem = convertView.findViewById(R.id.recyclerViewItem);
-        recyclerViewItem.setAdapter(tagAdapterItem);
         recyclerViewItem.setLayoutManager(layoutManagerItem);
-        tagAdapterItem.notifyDataSetChanged();
+        TagListAdapter tagAdapterItem = new TagListAdapter(mContext, item.getTags());
+        recyclerViewItem.setAdapter(tagAdapterItem);
 
         CheckBox checkBox = convertView.findViewById(R.id.select);
         checkBox.setChecked(currentItem.isSelected());
