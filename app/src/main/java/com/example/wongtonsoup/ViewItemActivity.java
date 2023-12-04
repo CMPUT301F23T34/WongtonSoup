@@ -25,7 +25,6 @@ import java.util.Objects;
  * @version 1.0
  * @since 11/01/2023
  */
-
 public class ViewItemActivity extends AppCompatActivity {
 
     private static final int ADD_EDIT_REQUEST_CODE = 1;
@@ -109,18 +108,11 @@ public class ViewItemActivity extends AppCompatActivity {
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
-//                newIntent.putExtra("Description", descriptionText);
-//                newIntent.putExtra("Make", makeText);
-//                newIntent.putExtra("Model", modelText);
-//                newIntent.putExtra("Comment", commentText);
-//                newIntent.putExtra("Date", dateText);
-//                newIntent.putExtra("Price", priceText);
-//                newIntent.putExtra("Serial", serialText);
-//                String id = intent.getStringExtra("ID");
-//                Log.d("ViewItemActivity", "Passing Item ID: " + id); // Log to confirm ID is received
-//                newIntent.putExtra("ID", id);
-//                startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
+                Intent newIntent = new Intent(ViewItemActivity.this, AddEditActivity.class);
+                String id = intent.getStringExtra("ID");
+                Log.d("ViewItemActivity", "Passing Item ID: " + id); // Log to confirm ID is received
+                newIntent.putExtra("ID", id);
+                startActivityForResult(newIntent, ADD_EDIT_REQUEST_CODE);
             }
         });
 

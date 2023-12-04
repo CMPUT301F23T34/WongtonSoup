@@ -133,8 +133,10 @@ public class TagDialog extends Dialog {
         chip.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
                 chipGroup.removeView(chip);
                 existingTags.removeTag(tag);
+                existingTags.deleteTagDB(tag, owner);
             }
         });
         chip.setChecked(selected);

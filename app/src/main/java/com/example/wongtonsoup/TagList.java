@@ -1,5 +1,7 @@
 package com.example.wongtonsoup;
 
+import android.annotation.SuppressLint;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -188,32 +190,41 @@ public class TagList implements Iterable<Tag>, Serializable {
                 .addOnSuccessListener(aVoid -> Log.d("Item", "Item successfully updated!"))
                 .addOnFailureListener(e -> Log.w("Item", "Error updating item", e));
     }
-    /**
-     * Delete tag from an item, db version
-     * @param item, tag
-     * @since 10/25/2023
-     */
-    public void deleteTagFromItem(Item item, Tag tag) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items")
-                .document(item.getSerialNumberAsString())
-                .update("tags", tag)
-                .addOnSuccessListener(aVoid -> Log.d("Item", "Item successfully updated!"))
-                .addOnFailureListener(e -> Log.w("Item", "Error updating item", e));
-    }
 
     /**
      * delete a tag from the list of tags, db version
      * @param tagName
+     * @param owner
      * @since 10/25/2023
      */
-    public void deleteTagDB(String tagName) {
+    public void deleteTagDB(String tagName, String owner) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference tagsRef = db.collection("tags");
         tagsRef.whereEqualTo("name", tagName).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (!task.getResult().isEmpty()) {
                     tagsRef.document(task.getResult().getDocuments().get(0).getId()).delete();
+                }
+            }
+        });
+
+        // delete the tag from all items
+        CollectionReference itemsRef = db.collection("items");
+        itemsRef.whereEqualTo("owner", owner).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()){
+                for(QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                    Map<String, Object> taglist_map = (Map<String, Object>) documentSnapshot.get("tags");
+                    ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+                    for (int i = 0 ; i < list_of_tags.size() ; i++){
+                        HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                        String name = tag.get("name");
+                        if (name.equalsIgnoreCase(tagName) ){
+                            // delete tag from the database
+                            list_of_tags.remove(i); // Remove the tag instance from the list
+                            taglist_map.put("tags", list_of_tags); // Update the tags field in the item
+                            documentSnapshot.getReference().update("tags", taglist_map); // Update the item in the database
+                        }
+                    }
                 }
             }
         });

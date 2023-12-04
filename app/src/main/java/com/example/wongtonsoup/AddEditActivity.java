@@ -49,11 +49,9 @@ public class AddEditActivity extends AppCompatActivity {
     private EditText expenseSerialNumber;
     private EditText expenseMake;
     private EditText expenseModel;
-
     private TagList existing_tags;
     private TagList selected_tags;
     private TagDialog tagDialog;
-
     private Uri currentPhotoUri;
     private final List<Uri> imageUris = new ArrayList<>();
 
@@ -250,6 +248,7 @@ public class AddEditActivity extends AppCompatActivity {
     private void finishAndPassItem(Item item) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("itemID", item.getID()); // Pass the ID back
+        resultIntent.putExtra("resultItem", item);
         String itemID = item.getID();
         Log.d("ViewItemActivity PASS", "PASS Item ID: " + itemID); // Log to confirm ID is received
         setResult(RESULT_OK, resultIntent);

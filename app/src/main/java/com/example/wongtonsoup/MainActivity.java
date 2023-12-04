@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private FloatingActionButton fabDelete;
     private String defaultUserPfp;
     private ItemListDB itemListDB;
-    //
+
     ListView ItemList;
     private Uri currentPhotoUri;
     int TotalPhotoCounter = 0;
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     private boolean isEditVisible = true;
     private Button expand;
     View expandedSearch;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -543,13 +544,21 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        @SuppressLint("HardwareIds") String owner = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        fetchItemsFromDatabase(owner);
+
         if (requestCode == ADD_EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
             // Check if the request code matches and the result is OK
-            if (data != null && data.hasExtra("itemID")) {
+            if (data != null && data.hasExtra("resultItem")) {
+                Item item = (Item) data.getSerializableExtra("resultItem");
+                ItemDataList.add(item);
+                itemList.updateData(ItemDataList);
+                itemList.notifyDataSetChanged();
+
                 String ItemID = (String) data.getSerializableExtra("itemID");
                 @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-                db.collection("items")
+                /*db.collection("items")
                         .whereEqualTo("owner", device_id)
                         .whereEqualTo("id", ItemID)
                         .get()
@@ -580,7 +589,7 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                 itemList.updateData(ItemDataList);
                                 itemList.notifyDataSetChanged();
                             }
-                        });
+                        }); */
             }
         }
         else if (requestCode == VIEW_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -705,7 +714,6 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
     }
 
     private void fetchItemsFromDatabase(String device_id) {
-
         db.collection("items")
                 .whereEqualTo("owner", device_id)
                 .get()
@@ -724,9 +732,26 @@ public class MainActivity extends AppCompatActivity implements com.example.wongt
                                 String owner = document.getString("owner");
                                 String displayImage = document.getString("displayImage");
 
+                                // tags are stored kinda weird, here's how we access
+                                Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
+                                ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+
+
+                                TagList tagList = new TagList();
+                                for (int i = 0 ; i < list_of_tags.size() ; i++){
+                                    HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                    String name = tag.get("name");
+                                    String tag_id = tag.get("uuid");
+                                    String tag_owner = tag.get("owner");
+
+                                    Tag new_tag = new Tag(name);
+                                    new_tag.setOwner(tag_owner);
+                                    new_tag.setUuid(tag_id);
+                                    tagList.addTag(new_tag);
+                                }
 
                                 // Create an Item object
-                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, new TagList());
+                                Item item = new Item(id, purchaseDate, description, make, model, value, comment, serialNumber, owner, tagList);
                                 item.SetDisplayImage(displayImage);
                                 ItemDataList.add(item);
 
