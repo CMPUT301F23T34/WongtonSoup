@@ -41,15 +41,6 @@ public class ViewItemActivity extends AppCompatActivity {
     String commentText;
     String serialText;
     String displayImage;
-
-    private String dateText;
-    private String descriptionText;
-    private String makeText;
-    private String modelText;
-    private String priceText;
-    private String commentText;
-    private String serialText;
-    private String displayImage;
     private TagList tags;
 
     @Override
