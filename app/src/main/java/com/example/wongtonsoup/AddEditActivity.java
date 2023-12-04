@@ -329,13 +329,14 @@ public class AddEditActivity extends AppCompatActivity {
 
         @SuppressLint("HardwareIds") String device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
+
         existing_tags = new TagList();
         selected_tags = new TagList();
 
         storage = FirebaseStorage.getInstance();
 
         // populate existing tags with all tags to an owner
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         db.collection("tags")
                 .whereEqualTo("owner", device_id)
                 .get()
