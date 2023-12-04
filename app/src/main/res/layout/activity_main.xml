@@ -49,7 +49,7 @@
                     android:padding="5dp"
                     app:queryBackground="@drawable/bg_white_rounded"
                     app:submitBackground="@drawable/bg_white_rounded"
-                    android:background="@drawable/bg_white_rounded"/>/>
+                    android:background="@drawable/bg_white_rounded"/>
 
             <Button
                 android:id="@id/expand_search_button"
@@ -76,7 +76,7 @@
                 android:layout_width="275dp"
                 android:layout_height="35dp"
                 android:layout_centerHorizontal="true"
-                android:queryHint="Search by make"
+                android:queryHint="Search By Make"
                 android:iconifiedByDefault="false"
                 app:queryBackground="@drawable/bg_white_rounded"
                 app:submitBackground="@drawable/bg_white_rounded"
@@ -223,7 +223,7 @@
                     android:layout_gravity="center_vertical" />
                 <androidx.recyclerview.widget.RecyclerView
                     android:padding="10dp"
-                    android:id="@+id/recyclerView"
+                    android:id="@+id/recyclerViewFilter"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -331,7 +331,8 @@
             android:layout_marginTop="5dp"
             android:background="@drawable/bg_white_rounded"
             app:queryBackground="@drawable/bg_white_rounded"
-            app:submitBackground="@drawable/bg_white_rounded">
+            app:submitBackground="@drawable/bg_white_rounded"
+            android:layout_toStartOf="@+id/fab_delete">
 
             <TextView
                 android:id="@+id/add_tags_text"
@@ -353,12 +354,19 @@
                 android:drawableTop="@drawable/add_box"
                 app:iconPadding="0dp"
                 app:iconSize="0dp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/add_tags_text"
+                >
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewAdd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            </LinearLayout>
 
-            <ListView
-                android:layout_width="227dp"
-                android:layout_height="58dp"
-
-                android:layout_toEndOf="@+id/add_tags_text"></ListView>
         </RelativeLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
