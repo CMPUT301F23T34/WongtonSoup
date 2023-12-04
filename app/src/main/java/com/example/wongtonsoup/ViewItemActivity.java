@@ -33,15 +33,14 @@ import java.util.Objects;
 public class ViewItemActivity extends AppCompatActivity {
 
     private static final int ADD_EDIT_REQUEST_CODE = 1;
-
-    private String dateText;
-    private String descriptionText;
-    private String makeText;
-    private String modelText;
-    private String priceText;
-    private String commentText;
-    private String serialText;
-    private String displayImage;
+    String dateText;
+    String descriptionText;
+    String makeText;
+    String modelText;
+    String priceText;
+    String commentText;
+    String serialText;
+    String displayImage;
     private TagList tags;
 
     @Override
@@ -66,14 +65,14 @@ public class ViewItemActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
-                                String dateText = document.getString("purchaseDate");
-                                String descriptionText = document.getString("description");
-                                String makeText = document.getString("make");
-                                String modelText = document.getString("model");
-                                @SuppressLint("DefaultLocale") String priceText = String.format("%.2f", Objects.requireNonNull(document.getDouble("value")));
-                                String commentText = document.getString("comment");
-                                String serialText = document.getString("serialNumber");
-                                String displayImage = document.getString("displayImage");
+                                dateText = document.getString("purchaseDate");
+                                descriptionText = document.getString("description");
+                                makeText = document.getString("make");
+                                modelText = document.getString("model");
+                                priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
+                                commentText = document.getString("comment");
+                                serialText = document.getString("serial");
+                                displayImage = document.getString("displayImage");
 
                                 // tags are stored kinda weird, here's how we access
                                 Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
@@ -139,6 +138,15 @@ public class ViewItemActivity extends AppCompatActivity {
                         recyclerViewAdd.setAdapter(tagAdapter);
                     }
                 });
+
+
+        // Display tags
+        TagList tags = new TagList(); //Replace with db tags
+        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewViewItem);
+        recyclerViewAdd.setLayoutManager(layoutManagerItem);
+        TagListAdapter tagAdapter = new TagListAdapter(this, tags);
+        recyclerViewAdd.setAdapter(tagAdapter);
 
         // Go to edit
         Button edit = findViewById(R.id.edit_button);
