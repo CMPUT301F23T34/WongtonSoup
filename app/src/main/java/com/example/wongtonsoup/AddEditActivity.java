@@ -6,7 +6,6 @@ import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,20 +20,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,14 +44,15 @@ import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddEditActivity extends AppCompatActivity {
@@ -438,8 +437,14 @@ public class AddEditActivity extends AppCompatActivity {
                     Log.d("MainActivity", "Logging item IDs from DB:");
                 });
         // if in edit mode, find all selected tags from db
+
         String item_id = getIntent().getStringExtra("ID");
         db.collection("items")
+
+        /*
+//        String item_id = getIntent().getStringExtra("ID");
+//        db.collection("items")
+
                 .whereEqualTo("owner", device_id)
                 .whereEqualTo("id", item_id)
                 .get()
@@ -513,6 +518,7 @@ public class AddEditActivity extends AppCompatActivity {
         String id = intent.getStringExtra("ID");
         Log.d("AddEditActivity", "onCreate desc: " + intent.getStringExtra("Description"));
 
+
         expenseDescription.setText(intent.getStringExtra("Description"));
         expenseDate.setText(intent.getStringExtra("Date"));
         expenseValue.setText(intent.getStringExtra("Price"));
@@ -520,6 +526,80 @@ public class AddEditActivity extends AppCompatActivity {
         expenseSerialNumber.setText(intent.getStringExtra("Serial"));
         expenseMake.setText(intent.getStringExtra("Make"));
         expenseModel.setText(intent.getStringExtra("Model"));
+
+        // populate fields from intent
+        expenseDescription.setText(intent.getStringExtra("Description"));
+        expenseMake.setText(intent.getStringExtra("Make"));
+        expenseModel.setText(intent.getStringExtra("Model"));
+
+
+        db.collection("items")
+                .whereEqualTo("owner", device_id)
+                .whereEqualTo("id", id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String dateText = document.getString("purchaseDate");
+                                String descriptionText = document.getString("description");
+                                String makeText = document.getString("make");
+                                String modelText = document.getString("model");
+                                String priceText = String.valueOf(Objects.requireNonNull(document.getDouble("value")).floatValue());
+                                String commentText = document.getString("comment");
+                                String serialText = document.getString("serial");
+                                String displayImage = document.getString("displayImage");
+
+                                // tags are stored kinda weird, here's how we access
+                                Map<String, Object> taglist_map = (Map<String, Object>) document.get("tags");
+                                ArrayList list_of_tags = (ArrayList) taglist_map.get("tags");
+
+                                for (int i = 0 ; i < list_of_tags.size() ; i++){
+                                    HashMap<String, String> tag = (HashMap<String, String>) list_of_tags.get(i);
+                                    String name = tag.get("name");
+                                    String tag_id = tag.get("uuid");
+                                    String tag_owner = tag.get("owner");
+
+                                    Tag new_tag = new Tag(name);
+                                    new_tag.setOwner(tag_owner);
+                                    new_tag.setUuid(tag_id);
+                                    selected_tags.addTag(new_tag);
+                                }
+
+                                List<?> rawImageUrls = (List<?>) document.get("imagePathsCopy");
+
+
+                                // Display details
+                                expenseDescription.setText(descriptionText);
+                                expenseMake.setText(makeText);
+                                expenseModel.setText(modelText);
+                                expenseComment.setText(commentText);
+                                expenseDate.setText(dateText);
+                                expenseSerialNumber.setText(serialText);
+                                expenseValue.setText(priceText);
+
+                                if (rawImageUrls != null) {
+                                    int count = 0;
+                                    for (Object rawImageUrl : rawImageUrls) {
+                                        if (rawImageUrl instanceof String) {
+                                            updateImageView((String) rawImageUrl,count);
+                                            count++;
+                                        }
+                                    }
+                                }
+
+                            } catch (Exception e) {
+                                Log.e("MainActivity", "Error parsing item: " + e.getMessage());
+                            }
+                        }
+                        // Display tags
+                        LinearLayoutManager layoutManagerItem = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+                        RecyclerView recyclerViewAdd = findViewById(R.id.recyclerViewEdit);
+                        recyclerViewAdd.setLayoutManager(layoutManagerItem);
+                        tagAdapter = new TagListAdapter(this, selected_tags);
+                        recyclerViewAdd.setAdapter(tagAdapter);
+                    }
+                });
 
         // To disable the button
         addEditCheckButton.setEnabled(false);
